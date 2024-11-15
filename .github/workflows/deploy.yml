@@ -3,7 +3,7 @@ name: Deploy to Azure Web App
 on:
   push:
     branches:
-      - main # Change this to your default branch if different
+      - master
 
 jobs:
   build-and-deploy:
@@ -16,17 +16,17 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "14" # Change this to your node version
+          node-version: "18.20.4"
 
       - name: Install dependencies
         run: npm install
 
       - name: Build project
-        run: npm run build # Change this to your build command
+        run: npm run build
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: "your-app-name-here" # Replace with your Azure Web App name
-          slot-name: "production" # Change if you are using deployment slots
+          app-name: "css-variables-extractor"
+          slot-name: "production"
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
