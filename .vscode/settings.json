@@ -1,0 +1,8 @@
+{
+  "github.copilot.chat.experimental.codeGeneration.useInstructionFiles": true,
+  "eslint.options": {},
+  "eslint.run": "onType",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  }
+}
