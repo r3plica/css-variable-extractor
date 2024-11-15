@@ -20,7 +20,10 @@ jobs:
           node-version: "18.20.4"
 
       - name: Authenticate with npm
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > /home/runner/work/_temp/.npmrc
+        run: |
+          echo registry=https://npm.pkg.github.com/ > .npmrc
+          echo always-auth=true >> .npmrc
+          echo _authToken=${{ secrets.NPM_TOKEN }} >> .npmrc
 
       - name: Install dependencies
         run: npm install
