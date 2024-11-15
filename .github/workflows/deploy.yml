@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -17,6 +18,9 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: "18.20.4"
+
+      - name: Authenticate with npm
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
 
       - name: Install dependencies
         run: npm install
