@@ -31,7 +31,7 @@ jobs:
         run: echo "//useast.jfrog.lexisnexisrisk.com/artifactory/api/npm/riskn-npm-release-virtual/:_authToken=${{ secrets.JFROG_API_TOKEN }}" >> ~/.npmrc
 
       - name: Install dependencies
-        run: npm ci --loglevel verbose
+        run: npm ci
 
       - name: Bump version and generate changelog
         run: npx standard-version --release-as minor
@@ -40,7 +40,7 @@ jobs:
         run: npm run build --omit=dev
 
       - name: Archive build output
-        run: zip -r build.zip dist/<your-angular-app-name>/
+        run: zip -r build.zip dist/css-variables-extractor/
         env:
           CI: true
 
