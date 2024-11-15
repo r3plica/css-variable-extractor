@@ -23,7 +23,7 @@ jobs:
         run: |
           echo registry=https://npm.pkg.github.com/ > .npmrc
           echo always-auth=true >> .npmrc
-          echo _authToken=${{ secrets.NPM_TOKEN }} >> .npmrc
+          echo //npm.pkg.github.com/:_authToken=${{ secrets.NPM_TOKEN }} >> .npmrc
 
       - name: Install dependencies
         run: npm install
