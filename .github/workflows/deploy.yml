@@ -17,13 +17,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "18.20.4"
-
-      - name: Authenticate with npm
-        run: |
-          echo registry=https://npm.pkg.github.com/ > .npmrc
-          echo always-auth=true >> .npmrc
-          echo //npm.pkg.github.com/:_authToken=${{ secrets.NPM_TOKEN }} >> .npmrc
+          node-version: 18
 
       - name: Install dependencies
         run: npm install
