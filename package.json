@@ -40,11 +40,5 @@
     "standard-version": "^9.5.0",
     "ts-jest": "^29.2.5",
     "typescript": "~5.4.5"
-  },
-  "jest": {
-    "preset": "jest-preset-angular",
-    "setupFilesAfterEnv": [
-      "<rootDir>/src/setup.jest.ts"
-    ]
   }
 }

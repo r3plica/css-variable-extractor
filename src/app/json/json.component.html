@@ -1,83 +1,82 @@
 <div
-  class="min-h-screen bg-purple-500 text-white flex flex-col"
+  class="min-h-screen bg-orange-500 text-white flex flex-col"
   *ngIf="viewModel$ | async as vm"
 >
-  <div class="p-6">
-    <h2 class="text-lg font-semibold">
-      Welcome to my CSS Variable Extractor Tool
-    </h2>
-    <p class="mt-2">
-      To use it, upload your JSON file and specify the XPath to extract CSS data
-      from an array.
-    </p>
-  </div>
-
   <!-- Stepper -->
-  <div class="flex bg-purple-600">
-    <div
-      class="flex-1 p-4 text-center cursor-pointer"
-      [class.bg-purple-700]="vm.activeStep === 0"
-      (click)="vm.activeStep > 0 ? setStep(0) : null"
-    >
-      Step 1: Upload JSON
-    </div>
-    <div
-      class="flex-1 p-4 text-center cursor-pointer"
-      [class.bg-purple-700]="vm.activeStep === 1"
-      (click)="vm.activeStep > 1 ? setStep(1) : null"
-    >
-      Step 2: Variables to Extract
-    </div>
-    <div
-      class="flex-1 p-4 text-center cursor-pointer"
-      [class.bg-purple-700]="vm.activeStep === 2"
-      (click)="vm.activeStep === 2 ? setStep(2) : null"
-    >
-      Step 3: Results
-    </div>
-  </div>
+  <app-stepper class="top-0 bg-orange-500 p-4 rounded-t-lg shadow-md" />
 
   <!-- Main Content -->
-  <main class="flex-1 p-6">
+  <main class="flex-1 p-8">
     <!-- Step 1: JSON Input -->
     <div *ngIf="vm.activeStep === 0">
+      <!-- Error message for the form -->
+      <div
+        *ngIf="
+          vm.errors[vm.activeStep] && vm.cssForm?.touched && !vm.cssForm?.valid
+        "
+        class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg relative"
+        role="alert"
+      >
+        <strong class="font-bold">Error: </strong>
+        <span class="block sm:inline">{{ vm.errors[vm.activeStep] }}</span>
+      </div>
+
+      <!-- Form for JSON input -->
       <form
         [formGroup]="vm.cssForm"
         (ngSubmit)="parseCss()"
         class="mt-4"
         *ngIf="vm.cssForm"
       >
+        <!-- File Input for JSON -->
         <input
           type="file"
           (change)="handleFileInput($event)"
           accept=".json"
-          class="mb-4"
+          class="w-full p-4 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-300 mt-4"
         />
-        <div *ngIf="vm.jsonContent" class="mb-4">
-          <h3 class="text-lg font-semibold">First Object in JSON Array:</h3>
-          <pre class="mt-2 p-4 bg-purple-200 text-black rounded-md">
-            <span *ngFor="let key of getObjectKeys(vm.jsonContent[0])">
-              <a (click)="populateXPath(vm.cssForm, key)" class="cursor-pointer text-blue-500 hover:underline">{{ key }}</a>: {{ formatJsonValue(vm.jsonContent[0][key]) }}
-            </span>
-          </pre>
-        </div>
+
+        <!-- Form Error for JSON Input -->
+        <app-form-error
+          [form]="vm.cssForm"
+          controlName="jsonInput"
+          errorMessage="You must select a JSON file."
+        />
+
+        <!-- JSON Viewer Component (If any) -->
+        <app-json-viewer [form]="vm.cssForm" controlName="xpath" class="mt-4" />
+
+        <!-- XPath Input -->
         <input
           formControlName="xpath"
           type="text"
-          class="w-full p-4 text-black rounded-md focus:outline-none"
+          class="w-full p-4 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-300 mt-4"
           placeholder="Enter XPath to extract CSS data..."
         />
-        <div class="mt-4 flex justify-end gap-4">
+
+        <!-- Form Error for XPath Input -->
+        <app-form-error [form]="vm.cssForm" controlName="xpath" />
+
+        <!-- Buttons for actions -->
+        <div class="mt-6 flex justify-end gap-4">
+          <label class="flex items-center">
+            <input
+              type="checkbox"
+              formControlName="mergeDuplicates"
+              class="mr-2"
+            />
+            Merge Duplicates
+          </label>
           <button
             type="button"
             (click)="clearInput()"
-            class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md"
+            class="px-4 py-2 bg-purple-700 hover:bg-purple-800 text-white rounded-md transition"
           >
             Clear
           </button>
           <button
             type="submit"
-            class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition"
           >
             Parse
           </button>
@@ -85,76 +84,10 @@
       </form>
     </div>
 
-    <!-- Step 2: Export Variables -->
-    <div *ngIf="vm.activeStep === 1">
-      <h2 class="text-lg font-semibold">Export Variables</h2>
-      <form
-        [formGroup]="vm.exportForm"
-        (ngSubmit)="exportVariables()"
-        class="mt-4"
-        *ngIf="vm.exportForm"
-      >
-        <div
-          *ngFor="let variable of vm.extractedVariables; let i = index"
-          class="flex items-center mb-2"
-        >
-          <input
-            type="checkbox"
-            [formControlName]="'export-' + i"
-            class="mr-2"
-          />
-          <input
-            type="text"
-            [formControlName]="'name-' + i"
-            class="flex-1 p-2 text-black rounded-md"
-          />
-        </div>
-        <div class="mt-4 flex justify-end gap-4">
-          <button
-            type="submit"
-            class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md"
-          >
-            Continue
-          </button>
-        </div>
-      </form>
-    </div>
+    <!-- Step 2: Display Variables -->
+    <app-variables *ngIf="vm.activeStep === 1" class="mt-8" />
 
-    <!-- Step 3: Results -->
-    <div *ngIf="vm.activeStep === 2">
-      <h2 class="text-lg font-semibold">Parsed Results</h2>
-      <pre class="mt-4 p-4 bg-purple-200 text-black rounded-md">
-        {{ vm.customVariables | json }}
-      </pre>
-      <div class="mt-4 flex justify-end gap-4">
-        <input
-          formControlName="fileName"
-          type="text"
-          class="w-full p-4 text-black rounded-md focus:outline-none"
-          placeholder="Enter file name..."
-        />
-        <button
-          type="button"
-          (click)="copyToClipboard()"
-          class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
-        >
-          Copy to Clipboard
-        </button>
-        <button
-          type="button"
-          (click)="exportToFile()"
-          class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md"
-        >
-          Export to File
-        </button>
-        <button
-          type="button"
-          (click)="processNextItem()"
-          class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
-        >
-          Process Next Item
-        </button>
-      </div>
-    </div>
+    <!-- Step 3: Display Results -->
+    <app-results *ngIf="vm.activeStep === 2" class="mt-8" />
   </main>
 </div>

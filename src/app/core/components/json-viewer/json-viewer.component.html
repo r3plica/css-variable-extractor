@@ -1,0 +1,24 @@
+<ng-container *ngIf="viewModel$ | async as vm">
+  <div *ngIf="form.get('jsonInput')?.value" class="mb-4">
+    <div class="mt-2 p-4 bg-orange-200 text-black rounded-md">
+      <div
+        *ngFor="
+          let key of getObjectKeys(
+            form.get('jsonInput')?.value[vm.currentItemIndex]
+          )
+        "
+      >
+        <a
+          (click)="populateXPath(key)"
+          class="cursor-pointer text-blue-500 hover:underline"
+          >{{ key }}</a
+        >:
+        {{
+          formatJsonValue(
+            form.get("jsonInput")?.value[vm.currentItemIndex][key]
+          )
+        }}
+      </div>
+    </div>
+  </div>
+</ng-container>

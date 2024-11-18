@@ -1,21 +1,29 @@
-<header class="p-4 bg-purple-700 text-white flex justify-between items-center">
+<header
+  class="p-4 bg-orange-700 text-white flex justify-between items-center shadow-lg"
+>
   <h1 class="text-xl font-bold">CSS Variable Extractor</h1>
-  <nav class="flex space-x-4">
+  <nav class="flex space-x-6">
     <a
       routerLink="/css"
       routerLinkActive="active"
-      class="text-white hover:text-gray-300 transition"
-      >CSS</a
+      class="text-white hover:text-gray-300 transition duration-200"
     >
+      CSS
+    </a>
     <a
       routerLink="/json"
       routerLinkActive="active"
-      class="text-white hover:text-gray-300 transition"
-      >JSON</a
+      class="text-white hover:text-gray-300 transition duration-200"
     >
+      JSON
+    </a>
   </nav>
 </header>
-<main>
+
+<main class="flex-1 p-8 bg-white">
   <router-outlet></router-outlet>
 </main>
-<footer class="p-4 bg-purple-800 text-center">&copy; 2024 r3plica ltd.</footer>
+
+<footer class="p-4 bg-orange-800 text-center text-white">
+  &copy; 2024 r3plica ltd.
+</footer>

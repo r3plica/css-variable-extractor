@@ -1,0 +1,45 @@
+<ng-container *ngIf="viewModel$ | async as vm">
+  <!-- Welcome Section -->
+  <div class="p-6">
+    <h2 class="text-lg font-semibold text-white">
+      Welcome to my CSS Variable Extractor Tool
+    </h2>
+    <p class="mt-2 text-gray-300">
+      To use it, upload your JSON file and specify the XPath to extract CSS data
+      from an array.
+    </p>
+  </div>
+
+  <!-- Stepper -->
+  <div class="flex bg-orange-600 text-white">
+    <div
+      class="flex-1 p-4 text-center cursor-pointer"
+      [class.bg-orange-700]="vm.activeStep === 0"
+      (click)="vm.activeStep > 0 ? setStep(0) : null"
+    >
+      Step 1: CSS input
+    </div>
+    <div
+      class="flex-1 p-4 text-center cursor-pointer"
+      [class.bg-orange-700]="vm.activeStep === 1"
+      (click)="vm.activeStep > 1 ? setStep(1) : null"
+    >
+      Step 2: Variables to Extract
+    </div>
+    <div
+      class="flex-1 p-4 text-center cursor-pointer"
+      [class.bg-orange-700]="vm.activeStep === 2"
+      (click)="vm.activeStep === 2 ? setStep(2) : null"
+    >
+      Step 3: Results
+    </div>
+  </div>
+
+  <!-- Progress Bar -->
+  <app-progress-bar
+    [currentValue]="vm.currentItemIndex"
+    [maxValue]="vm.jsonItemCount - 1"
+    *ngIf="vm.jsonItemCount"
+    class="mt-4"
+  />
+</ng-container>

@@ -1,0 +1,30 @@
+<div class="border border-gray-300 rounded-md shadow-sm">
+  <button
+    class="w-full flex justify-between items-center p-4 bg-orange-500 text-white rounded-t-md focus:outline-none hover:bg-orange-600"
+    (click)="toggle()"
+  >
+    <span>{{ title }}</span>
+    <svg
+      class="w-5 h-5 transition-transform duration-300"
+      [ngClass]="{ 'rotate-180': isOpen }"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M19 9l-7 7-7-7"
+      />
+    </svg>
+  </button>
+  <div
+    *ngIf="isOpen"
+    class="p-4 bg-white border-t border-gray-300 transition-opacity duration-300"
+    [ngClass]="{ 'opacity-100': isOpen, 'opacity-0': !isOpen }"
+  >
+    <ng-content></ng-content>
+  </div>
+</div>

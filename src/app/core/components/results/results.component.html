@@ -1,0 +1,40 @@
+<ng-container *ngIf="viewModel$ | async as vm">
+  <!-- Expansion Panel for Parsed Results -->
+  <app-expansion-panel title="Parsed Results">
+    <pre class="mt-4 p-4 bg-orange-200 text-black rounded-md">
+      {{ vm.customVariables | json }}
+    </pre>
+  </app-expansion-panel>
+
+  <!-- Form for Exporting -->
+  <form [formGroup]="vm.cssForm" (ngSubmit)="exportToFile()" *ngIf="vm.cssForm">
+    <div class="mt-4 flex justify-end gap-4">
+      <!-- Copy to Clipboard Button -->
+      <button
+        type="button"
+        (click)="copyToClipboard()"
+        class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition"
+      >
+        Copy to Clipboard
+      </button>
+
+      <!-- Process Next Item Button -->
+      <button
+        type="button"
+        (click)="processNextItem()"
+        class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition"
+        *ngIf="vm.jsonItemCount && vm.currentItemIndex < vm.jsonItemCount - 1"
+      >
+        Process Next Item
+      </button>
+
+      <!-- Export to File Button -->
+      <button
+        type="submit"
+        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition"
+      >
+        Export to File
+      </button>
+    </div>
+  </form>
+</ng-container>
