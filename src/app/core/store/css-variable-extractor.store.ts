@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { Form, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 
 import { ComponentStore } from '@ngrx/component-store';
-import { withLatestFrom, tap } from 'rxjs';
+import { withLatestFrom, tap, startWith } from 'rxjs';
+import { JSONPath } from 'jsonpath-plus';
 
 import {
   CssVariable,
@@ -15,6 +16,11 @@ interface LayoutState {
   readyForExport: boolean;
   extractedVariables: CssVariable[];
   customVariables: CssVariable[];
+  jsonItems: any[];
+  currentItemIndex: number;
+  cssForm: FormGroup | undefined;
+  exportForm: FormGroup | undefined;
+  jsonContent: any;
 }
 
 @Injectable({
@@ -24,9 +30,6 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
   private _fb = inject(FormBuilder);
   private _cssVariableExtractorService = inject(CssVariableExtractorService);
 
-  public cssForm: FormGroup;
-  public exportForm!: FormGroup;
-
   constructor() {
     super({
       activeStep: 0,
@@ -34,11 +37,21 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
       readyForExport: false,
       extractedVariables: [],
       customVariables: [],
+      jsonItems: [],
+      currentItemIndex: 0,
+      cssForm: undefined,
+      exportForm: undefined,
+      jsonContent: undefined,
     });
 
-    this.cssForm = this._fb.group({
-      cssInput: [''],
-      mergeDuplicates: [true],
+    this.patchState({
+      cssForm: this._fb.group({
+        cssInput: [''],
+        mergeDuplicates: [true],
+        xpath: [''],
+        fileName: ['custom-variables.json'],
+      }),
+      exportForm: this._fb.group({}),
     });
   }
 
@@ -49,6 +62,9 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
     (state) => state.extractedVariables
   );
   readonly customVariables$ = this.select((state) => state.customVariables);
+  readonly cssForm$ = this.select((state) => state.cssForm);
+  readonly exportForm$ = this.select((state) => state.exportForm);
+  readonly jsonContent$ = this.select((state) => state.jsonContent);
 
   readonly viewModel$ = this.select(
     this.activeStep$,
@@ -56,18 +72,27 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
     this.readyForExport$,
     this.extractedVariables$,
     this.customVariables$,
+    this.cssForm$,
+    this.exportForm$,
+    this.jsonContent$,
     (
       activeStep,
       resultsAvailable,
       readyForExport,
       extractedVariables,
-      customVariables
+      customVariables,
+      cssForm,
+      exportForm,
+      jsonContent
     ) => ({
       activeStep,
       resultsAvailable,
       readyForExport,
       extractedVariables,
       customVariables,
+      cssForm,
+      exportForm,
+      jsonContent,
     })
   );
 
@@ -77,18 +102,25 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
   }));
 
   readonly parseCss = this.updater((state) => {
-    const cssInput = this.cssForm.get('cssInput')?.value.trim();
-    const mergeDuplicates = this.cssForm.get('mergeDuplicates')?.value;
+    if (!state.cssForm) return state;
+
+    const xpath = state.cssForm.get('xpath')?.value;
+    const cssInput =
+      state.cssForm.get('cssInput')?.value.trim() ||
+      this._extractJsonItems(state.jsonContent, xpath);
+    const mergeDuplicates = state.cssForm.get('mergeDuplicates')?.value;
+
     if (!cssInput) {
-      alert('Please enter some CSS before parsing!');
+      alert('Please enter some CSS or upload a JSON file before parsing!');
       return state;
     }
 
-    const extractedVariables =
+    let extractedVariables: CssVariable[] =
       this._cssVariableExtractorService.convertToCssVariables(
         cssInput,
         mergeDuplicates
       );
+
     this._initializeExportForm(extractedVariables);
 
     return {
@@ -100,7 +132,8 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
   });
 
   readonly clearInput = this.updater((state) => {
-    this.cssForm.reset();
+    if (!state.cssForm) return state;
+    state.cssForm.reset();
     return {
       ...state,
       readyForExport: false,
@@ -114,13 +147,15 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
   readonly exportVariables = this.updater((state) => {
     const exportedResults: CssVariable[] = [];
 
-    state.extractedVariables.forEach((variable, index) => {
-      const shouldExport = this.exportForm.get(`export-${index}`)?.value;
+    state.extractedVariables.forEach((_, index) => {
+      if (!state.exportForm) return;
+
+      const shouldExport = state.exportForm.get(`export-${index}`)?.value;
       if (!shouldExport) return;
 
       exportedResults.push({
-        name: this.exportForm.get(`name-${index}`)?.value,
-        value: this.exportForm.get(`value-${index}`)?.value,
+        name: state.exportForm.get(`name-${index}`)?.value,
+        value: state.exportForm.get(`value-${index}`)?.value,
       });
     });
 
@@ -147,32 +182,86 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
 
   readonly exportToFile = this.effect((trigger$) =>
     trigger$.pipe(
-      withLatestFrom(this.customVariables$),
-      tap(([_, customVariables]) => {
+      withLatestFrom(this.customVariables$, this.cssForm$),
+      tap(([_, customVariables, cssForm]) => {
+        if (!cssForm) return;
         const jsonString = JSON.stringify(customVariables, null, 2);
         const blob = new Blob([jsonString], { type: 'application/json' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'custom-variables.json';
+        a.download = cssForm.get('fileName')?.value || 'custom-variables.json';
         a.click();
         window.URL.revokeObjectURL(url);
       })
     )
   );
 
-  private _initializeExportForm(extractedVariables: CssVariable[]): void {
-    this.exportForm = this._fb.group({});
-    extractedVariables.forEach((variable, index) => {
-      this.exportForm.addControl(`export-${index}`, new FormControl(true));
-      this.exportForm.addControl(
-        `name-${index}`,
-        new FormControl(variable.name)
-      );
-      this.exportForm.addControl(
-        `value-${index}`,
-        new FormControl(variable.value)
-      );
+  readonly handleFileInput = this.effect<Event>((trigger$) =>
+    trigger$.pipe(
+      tap((event: Event) => {
+        const input = event.target as HTMLInputElement;
+        if (!input.files?.length) return;
+
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = () => {
+          const jsonContent = JSON.parse(reader.result as string);
+          this.patchState({ jsonContent });
+        };
+        reader.readAsText(file);
+      })
+    )
+  );
+
+  private _extractJsonItems(jsonContent: any, xpath: string): any[] {
+    console.log('jsonContent', jsonContent);
+    console.log('xpath', xpath);
+    console.log(
+      'JSONPath',
+      JSONPath({ path: `$..${xpath}`, json: jsonContent })
+    );
+    return JSONPath({ path: `$..${xpath}`, json: jsonContent });
+  }
+
+  private _processNextItem(): void {
+    this.updater((state) => {
+      if (!state.cssForm || state.currentItemIndex >= state.jsonItems.length)
+        return state;
+
+      const cssContent = state.jsonItems[state.currentItemIndex];
+      state.cssForm.get('cssInput')?.setValue(cssContent);
+      return {
+        ...state,
+        currentItemIndex: state.currentItemIndex + 1,
+      };
     });
   }
+
+  private _initializeExportForm(extractedVariables: CssVariable[]): void {
+    this.updater((state) => {
+      extractedVariables.forEach((variable, index) => {
+        if (!state.exportForm) return;
+        state.exportForm.addControl(`export-${index}`, new FormControl(true));
+        state.exportForm.addControl(
+          `name-${index}`,
+          new FormControl(variable.name)
+        );
+        state.exportForm.addControl(
+          `value-${index}`,
+          new FormControl(variable.value)
+        );
+      });
+
+      return state;
+    });
+  }
+
+  readonly processNextItem = this.effect((trigger$) =>
+    trigger$.pipe(
+      tap(() => {
+        this._processNextItem();
+      })
+    )
+  );
 }

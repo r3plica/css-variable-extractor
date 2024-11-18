@@ -40,7 +40,12 @@
   <main class="flex-1 p-6">
     <!-- Step 1: CSS Input -->
     <div *ngIf="vm.activeStep === 0">
-      <form [formGroup]="cssForm" (ngSubmit)="parseCss()" class="mt-4">
+      <form
+        [formGroup]="vm.cssForm"
+        (ngSubmit)="parseCss()"
+        class="mt-4"
+        *ngIf="vm.cssForm"
+      >
         <!-- File Input -->
         <textarea
           formControlName="cssInput"
@@ -77,9 +82,10 @@
     <div *ngIf="vm.activeStep === 1">
       <h2 class="text-lg font-semibold">Export Variables</h2>
       <form
-        [formGroup]="exportForm"
+        [formGroup]="vm.exportForm"
         (ngSubmit)="exportVariables()"
         class="mt-4"
+        *ngIf="vm.exportForm"
       >
         <div
           *ngFor="let variable of vm.extractedVariables; let i = index"

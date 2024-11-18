@@ -14,8 +14,6 @@ export class CssComponent {
   private _store = inject(CssVariableStoreService);
 
   public viewModel$ = this._store.viewModel$;
-  public cssForm = this._store.cssForm;
-  public exportForm = this._store.exportForm;
 
   public setStep(step: number): void {
     this._store.setStep(step);
