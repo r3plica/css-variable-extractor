@@ -1,72 +1,133 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-
+import { ComponentStore } from '@ngrx/component-store';
 import {
-  CssVariable,
   CssVariableExtractorService,
+  CssVariable,
 } from './css-variable-extractor.service';
+
+interface LayoutState {
+  activeStep: number;
+  resultsAvailable: boolean;
+  readyForExport: boolean;
+  extractedVariables: CssVariable[];
+  customVariables: CssVariable[];
+}
 
 @Component({
   selector: 'app-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
+  providers: [ComponentStore],
 })
-export class LayoutComponent {
+export class LayoutComponent extends ComponentStore<LayoutState> {
   private _fb = inject(FormBuilder);
   private _cssVariableExtractorService = inject(CssVariableExtractorService);
 
   public cssForm: FormGroup;
   public exportForm!: FormGroup;
-  public activeTab: 'cssInput' | 'results' | 'export' = 'cssInput';
-  public resultsAvailable = false;
-  public readyForExport = false;
-  public extractedVariables!: CssVariable[];
-  public customVariables!: CssVariable[];
 
   constructor() {
+    super({
+      activeStep: 0,
+      resultsAvailable: false,
+      readyForExport: false,
+      extractedVariables: [],
+      customVariables: [],
+    });
+
     this.cssForm = this._fb.group({
       cssInput: [''],
       mergeDuplicates: [true],
     });
   }
 
-  public parseCss(): void {
-    this.readyForExport = false;
-    this.resultsAvailable = false;
+  readonly activeStep$ = this.select((state) => state.activeStep);
+  readonly resultsAvailable$ = this.select((state) => state.resultsAvailable);
+  readonly readyForExport$ = this.select((state) => state.readyForExport);
+  readonly extractedVariables$ = this.select(
+    (state) => state.extractedVariables
+  );
+  readonly customVariables$ = this.select((state) => state.customVariables);
 
+  readonly setStep = this.updater((state, step: number) => ({
+    ...state,
+    activeStep: step,
+  }));
+
+  readonly parseCss = this.updater((state) => {
     const cssInput = this.cssForm.get('cssInput')?.value.trim();
     const mergeDuplicates = this.cssForm.get('mergeDuplicates')?.value;
-    if (!cssInput) return alert('Please enter some CSS before parsing!');
+    if (!cssInput) {
+      alert('Please enter some CSS before parsing!');
+      return state;
+    }
 
-    this.readyForExport = true;
-    this.switchTab('export');
-
-    this.extractedVariables =
+    const extractedVariables =
       this._cssVariableExtractorService.convertToCssVariables(
         cssInput,
         mergeDuplicates
       );
-    this._initializeExportForm();
-  }
 
-  public clearInput(): void {
+    this._initializeExportForm(extractedVariables);
+
+    return {
+      ...state,
+      readyForExport: true,
+      activeStep: 1,
+      extractedVariables,
+    };
+  });
+
+  readonly clearInput = this.updater((state) => {
     this.cssForm.reset();
-    this.readyForExport = false;
-    this.resultsAvailable = false;
-    this.activeTab = 'cssInput';
-  }
+    return {
+      ...state,
+      readyForExport: false,
+      resultsAvailable: false,
+      activeStep: 0,
+      extractedVariables: [],
+      customVariables: [],
+    };
+  });
 
-  public switchTab(tab: 'cssInput' | 'results' | 'export'): void {
-    if (tab === 'export' && !this.readyForExport) return;
+  readonly exportVariables = this.updater((state) => {
+    const exportedResults: CssVariable[] = [];
 
-    if (tab === 'results' && !this.resultsAvailable) return;
+    state.extractedVariables.forEach((variable, index) => {
+      const shouldExport = this.exportForm.get(`export-${index}`)?.value;
+      if (!shouldExport) return;
 
-    this.activeTab = tab;
-  }
+      exportedResults.push({
+        name: this.exportForm.get(`name-${index}`)?.value,
+        value: this.exportForm.get(`value-${index}`)?.value,
+      });
+    });
 
-  private _initializeExportForm(): void {
+    return {
+      ...state,
+      customVariables: exportedResults,
+      resultsAvailable: true,
+      activeStep: 2,
+    };
+  });
+
+  readonly copyToClipboard = this.effect((trigger$) =>
+    trigger$.pipe(
+      withLatestFrom(this.customVariables$),
+      tap(([_, customVariables]) => {
+        const jsonString = JSON.stringify(customVariables, null, 2);
+        navigator.clipboard.writeText(jsonString).then(
+          () => alert('Copied to clipboard!'),
+          (err) => alert('Failed to copy: ' + err)
+        );
+      })
+    )
+  );
+
+  private _initializeExportForm(extractedVariables: CssVariable[]): void {
     this.exportForm = this._fb.group({});
-    this.extractedVariables.forEach((variable, index) => {
+    extractedVariables.forEach((variable, index) => {
       this.exportForm.addControl(`export-${index}`, new FormControl(true));
       this.exportForm.addControl(
         `name-${index}`,
@@ -77,24 +138,5 @@ export class LayoutComponent {
         new FormControl(variable.value)
       );
     });
-  }
-
-  public exportVariables(): void {
-    console.log(this.exportForm.getRawValue());
-    const exportedResults: CssVariable[] = [];
-
-    this.extractedVariables.forEach((variable, index) => {
-      const shouldExport = this.exportForm.get(`export-${index}`)?.value;
-      if (!shouldExport) return;
-
-      exportedResults.push({
-        name: this.exportForm.get(`name-${index}`)?.value,
-        value: this.exportForm.get(`value-${index}`)?.value,
-      });
-    });
-
-    this.customVariables = exportedResults;
-    this.resultsAvailable = true;
-    this.switchTab('results');
   }
 }
