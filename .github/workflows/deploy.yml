@@ -9,6 +9,10 @@ on:
 permissions:
   contents: write
 
+env:
+  AZURE_WEBAPP_NAME: css-variable-extractor
+  AZURE_WEBAPP_PACKAGE_PATH: "./dist/css-variable-extractor"
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -42,15 +46,9 @@ jobs:
       - name: Debug Build Directory
         run: ls -la dist/
 
-      - name: Archive build output
-        run: |
-          cd dist/css-variable-extractor
-          zip -r build.zip .
-
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v2
+      - name: "Deploy to Azure WebApp"
+        uses: azure/webapps-deploy@v1
         with:
-          app-name: "css-variables-extractor"
-          slot-name: "production"
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: build.zip
+          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
