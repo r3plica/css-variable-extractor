@@ -5,8 +5,9 @@ import {
   FormControl,
   Validators,
 } from '@angular/forms';
-import { FormErrorComponent } from './form-error.component';
 import { By } from '@angular/platform-browser';
+
+import { FormErrorComponent } from './form-error.component';
 
 describe('FormErrorComponent', () => {
   let component: FormErrorComponent;

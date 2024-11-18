@@ -1,14 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject } from '@angular/core';
-import {
-  Form,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
-
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ComponentStore } from '@ngrx/component-store';
-import { withLatestFrom, tap, startWith } from 'rxjs';
+import { withLatestFrom, tap } from 'rxjs';
 import { JSONPath } from 'jsonpath-plus';
 
 import {
@@ -61,7 +55,7 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
             this._requireOne('cssInput', 'jsonInput'),
             this._requireXpathIfJsonInput(),
           ],
-        }
+        },
       ),
       exportForm: this._fb.group({}),
     });
@@ -111,7 +105,7 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
 
   readonly activeStep$ = this.select((state) => state.activeStep);
   readonly extractedVariables$ = this.select(
-    (state) => state.extractedVariables
+    (state) => state.extractedVariables,
   );
   readonly customVariables$ = this.select((state) => state.customVariables);
   readonly cssForm$ = this.select((state) => state.cssForm);
@@ -137,7 +131,7 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
       exportForm,
       jsonItemCount,
       currentItemIndex,
-      errors
+      errors,
     ) => ({
       activeStep,
       extractedVariables,
@@ -147,7 +141,7 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
       jsonItemCount,
       currentItemIndex,
       errors,
-    })
+    }),
   );
 
   readonly setStep = this.updater((state, step: number) => ({
@@ -183,7 +177,7 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
       this._cssVariableExtractorService.convertToCssVariables(
         cssInput ||
           this._extractJsonItems(jsonInput, xpath, state.currentItemIndex),
-        mergeDuplicates
+        mergeDuplicates,
       );
 
     const exportForm = state.exportForm || new FormGroup({});
@@ -247,18 +241,18 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
         const jsonString = JSON.stringify(customVariables, null, 2);
         navigator.clipboard.writeText(jsonString).then(
           () => alert('Copied to clipboard!'),
-          (err) => alert('Failed to copy: ' + err)
+          (err) => alert('Failed to copy: ' + err),
         );
-      })
-    )
+      }),
+    ),
   );
 
   readonly processNextItem = this.effect((trigger$) =>
     trigger$.pipe(
       tap(() => {
         this._processNextItem();
-      })
-    )
+      }),
+    ),
   );
 
   readonly exportToFile = this.effect((trigger$) =>
@@ -266,7 +260,7 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
       withLatestFrom(
         this.customVariables$,
         this.cssForm$,
-        this.currentItemIndex$
+        this.currentItemIndex$,
       ),
       tap(([_, customVariables, cssForm, currentItemIndex]) => {
         if (!cssForm) return;
@@ -283,8 +277,8 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
         a.click();
         window.URL.revokeObjectURL(url);
         this.processNextItem();
-      })
-    )
+      }),
+    ),
   );
 
   readonly handleFileInput = this.effect<Event>((trigger$) =>
@@ -306,14 +300,14 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
           });
         };
         reader.readAsText(file);
-      })
-    )
+      }),
+    ),
   );
 
   private _extractJsonItems(
     jsonContent: string,
     xpath: string,
-    index: number
+    index: number,
   ): any {
     if (!jsonContent || !xpath) return '';
     const jsonItems = JSONPath({ path: `$..${xpath}`, json: jsonContent });
@@ -329,7 +323,7 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
       const cssContent = this._extractJsonItems(
         state.cssForm.get('jsonInput')?.value,
         state.cssForm.get('xpath')?.value,
-        state.currentItemIndex
+        state.currentItemIndex,
       );
 
       state.cssForm.get('cssInput')?.setValue(cssContent);

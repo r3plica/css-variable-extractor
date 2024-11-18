@@ -1,10 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
-import { ResultsComponent } from './results.component';
-import { CssVariableStoreService } from '@store/css-variable-extractor.store';
-import { ExpansionPanelComponent } from '../expansion-panel/expansion-panel.component';
 import { of } from 'rxjs';
 import { By } from '@angular/platform-browser';
+
+import { CssVariableStoreService } from '@store/css-variable-extractor.store';
+
+import { ResultsComponent } from './results.component';
+import { ExpansionPanelComponent } from '../expansion-panel/expansion-panel.component';
+
 
 describe('ResultsComponent', () => {
   let component: ResultsComponent;

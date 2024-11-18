@@ -9,7 +9,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "release": "standard-version"
+    "release": "standard-version",
+    "lint": "eslint --fix ."
   },
   "dependencies": {
     "@angular/animations": "^18.2.12",
@@ -25,10 +26,7 @@
     "jsonpath-plus": "^10.2.0",
     "postcss": "^8.4.49",
     "postcss-safe-parser": "^7.0.1",
-    "rxjs": "~7.8.0",
     "tailwindcss": "^3.4.15",
-    "tslib": "^2.3.0",
-    "zone.js": "~0.14.10"
   },
   "devDependencies": {
     "@angular/build": "^18.2.12",
@@ -36,9 +34,8 @@
     "@angular/compiler-cli": "^18.2.12",
     "@types/jest": "^29.5.14",
     "jest": "^29.7.0",
-    "jest-preset-angular": "^14.2.4",
+    "prettier": "^3.3.3",
     "standard-version": "^9.5.0",
     "ts-jest": "^29.2.5",
-    "typescript": "~5.4.5"
   }
 }

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ExpansionPanelComponent } from './expansion-panel.component';
 import { By } from '@angular/platform-browser';
+
+import { ExpansionPanelComponent } from './expansion-panel.component';
 
 describe('ExpansionPanelComponent', () => {
   let component: ExpansionPanelComponent;

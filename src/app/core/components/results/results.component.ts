@@ -3,6 +3,7 @@ import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { CssVariableStoreService } from '@store/css-variable-extractor.store';
+
 import { ExpansionPanelComponent } from '../expansion-panel/expansion-panel.component';
 
 @Component({

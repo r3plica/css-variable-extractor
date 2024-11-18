@@ -1,13 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
-import { JsonViewerComponent } from './json-viewer.component';
-import { CssVariableStoreService } from '@store/css-variable-extractor.store';
 import { of } from 'rxjs';
+
+import { CssVariableStoreService } from '@store/css-variable-extractor.store';
+
+import { JsonViewerComponent } from './json-viewer.component';
 
 describe('JsonViewerComponent', () => {
   let component: JsonViewerComponent;
   let fixture: ComponentFixture<JsonViewerComponent>;
-  let store: CssVariableStoreService;
 
   // Assemble
   beforeEach(async () => {
@@ -27,7 +28,6 @@ describe('JsonViewerComponent', () => {
 
     fixture = TestBed.createComponent(JsonViewerComponent);
     component = fixture.componentInstance;
-    store = TestBed.inject(CssVariableStoreService);
 
     component.form = new FormGroup({
       jsonInput: new FormControl([
@@ -75,7 +75,7 @@ describe('JsonViewerComponent', () => {
 
     // Assert
     expect(formattedValue).toBe(
-      'This is a long string that should be trunc...'
+      'This is a long string that should be trunc...',
     );
   });
 
@@ -103,7 +103,7 @@ describe('JsonViewerComponent', () => {
 
   it('should call populateXPath when a key is clicked', () => {
     // Act
-    spyOn(component, 'populateXPath');
+    jest.spyOn(component, 'populateXPath');
     fixture.detectChanges();
     const keyElement = fixture.debugElement.query(By.css('a')).nativeElement;
     keyElement.click();

@@ -1,18 +1,39 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { By } from '@angular/platform-browser';
+import { RouterOutlet } from '@angular/router';
 
 import { AppComponent } from './app.component';
-import { LayoutComponent } from './layout/layout.component';
 
 describe('AppComponent', () => {
-  beforeEach(() =>
-    TestBed.configureTestingModule({
-      declarations: [AppComponent, LayoutComponent],
-    })
-  );
+  let component: AppComponent;
+  let fixture: ComponentFixture<AppComponent>;
+
+  // Assemble
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [RouterTestingModule, AppComponent],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(AppComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
   it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
+    // Act
+    const compiled = fixture.nativeElement;
+
+    // Assert
+    expect(component).toBeTruthy();
+    expect(compiled).toBeTruthy();
+  });
+
+  it('should have a router outlet', () => {
+    // Act
+    const routerOutlet = fixture.debugElement.query(By.directive(RouterOutlet));
+
+    // Assert
+    expect(routerOutlet).not.toBeNull();
   });
 });

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import { Component, inject, Input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -27,7 +28,7 @@ export class JsonViewerComponent {
         typeof value === 'string' && value.length > 50
           ? value.substring(0, 50) + '...'
           : value,
-      2
+      2,
     );
     return formattedJson;
   }

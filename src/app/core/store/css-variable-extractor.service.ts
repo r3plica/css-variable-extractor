@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-
 import * as postcss from 'postcss';
 
 export interface CssVariable {
@@ -11,35 +10,51 @@ export interface CssVariable {
   providedIn: 'root',
 })
 export class CssVariableExtractorService {
-  convertToCssVariables(css: string, mergeDuplicates: boolean): CssVariable[] {
+  public convertToCssVariables(
+    css: string,
+    mergeDuplicates: boolean,
+  ): CssVariable[] {
     const root = postcss.parse(css);
     const variables: CssVariable[] = [];
+    const valueToVarName: { [key: string]: string } = {};
 
     root.walkDecls((decl) => {
       const { prop, value, parent } = decl;
-      if (
-        !parent ||
-        parent.type !== 'rule' ||
-        (!value.startsWith('#') && !/^[a-z]+$/i.test(value))
-      )
+      if (!parent || parent.type !== 'rule' || !this.isValidCssValue(value))
         return;
 
-      const rule = parent as postcss.Rule;
-      const varName = `--${rule.selector.replace(/[\W]+/g, '-')}-${prop.replace(
-        /[\W]+/g,
-        '-'
-      )}`;
-      variables.push({ name: varName, value });
+      let varName: string;
+      if (mergeDuplicates && valueToVarName[value]) {
+        varName = valueToVarName[value];
+      } else {
+        const rule = parent as postcss.Rule;
+        varName = this.generateVariableName(rule.selector, prop);
+        valueToVarName[value] = varName;
+        variables.push({ name: varName, value });
+      }
       decl.value = `var(${varName})`;
     });
 
     variables.sort(
-      (a, b) => this._getSortValue(a.value) - this._getSortValue(b.value)
+      (a, b) => this._getSortValue(a.value) - this._getSortValue(b.value),
     );
 
     if (!mergeDuplicates) return variables;
 
     return this._removeDuplicateValues(variables);
+  }
+
+  private isValidCssValue(value: string): boolean {
+    // Match hex, rgb, or simple words like 'red'
+    return (
+      /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(value) || /^[a-z]+$/i.test(value)
+    );
+  }
+
+  private generateVariableName(selector: string, prop: string): string {
+    let varName = `--${selector.replace(/[\W]+/g, '-')}-${prop.replace(/[\W]+/g, '-')}`;
+    if (varName.startsWith('---')) varName = varName.replace('---', '--');
+    return varName;
   }
 
   private _getSortValue(value: string): number {
@@ -79,8 +94,9 @@ export class CssVariableExtractorService {
     const seenValues = new Set<string>();
 
     for (const variable of variables) {
-      if (seenValues.has(variable.value)) continue;
-      seenValues.add(variable.value);
+      const normalizedValue = variable.value.trim().toLowerCase();
+      if (seenValues.has(normalizedValue)) continue;
+      seenValues.add(normalizedValue);
       uniqueVariables.push(variable);
     }
 

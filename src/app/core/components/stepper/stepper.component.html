@@ -13,6 +13,7 @@
   <!-- Stepper -->
   <div class="flex bg-orange-600 text-white">
     <div
+      id="step-1"
       class="flex-1 p-4 text-center cursor-pointer"
       [class.bg-orange-700]="vm.activeStep === 0"
       (click)="vm.activeStep > 0 ? setStep(0) : null"
@@ -20,6 +21,7 @@
       Step 1: CSS input
     </div>
     <div
+      id="step-2"
       class="flex-1 p-4 text-center cursor-pointer"
       [class.bg-orange-700]="vm.activeStep === 1"
       (click)="vm.activeStep > 1 ? setStep(1) : null"
@@ -27,6 +29,7 @@
       Step 2: Variables to Extract
     </div>
     <div
+      id="step-3"
       class="flex-1 p-4 text-center cursor-pointer"
       [class.bg-orange-700]="vm.activeStep === 2"
       (click)="vm.activeStep === 2 ? setStep(2) : null"
