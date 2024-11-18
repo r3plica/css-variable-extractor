@@ -39,6 +39,9 @@ jobs:
       - name: Build project
         run: npm run build --omit=dev
 
+      - name: Debug Build Directory
+        run: ls -la dist/
+
       - name: Archive build output
         run: zip -r build.zip dist/css-variables-extractor/
         env:
