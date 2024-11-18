@@ -43,9 +43,7 @@ jobs:
         run: ls -la dist/
 
       - name: Archive build output
-        run: zip -r build.zip dist/css-variable-extractor/
-        env:
-          CI: true
+        run: zip -r build.zip dist/css-variable-extractor/*
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
