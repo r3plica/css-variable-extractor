@@ -1,1 +1,21 @@
-<app-layout></app-layout>
+<header class="p-4 bg-purple-700 text-white flex justify-between items-center">
+  <h1 class="text-xl font-bold">CSS Variable Extractor</h1>
+  <nav class="flex space-x-4">
+    <a
+      routerLink="/css"
+      routerLinkActive="active"
+      class="text-white hover:text-gray-300 transition"
+      >CSS</a
+    >
+    <a
+      routerLink="/json"
+      routerLinkActive="active"
+      class="text-white hover:text-gray-300 transition"
+      >JSON</a
+    >
+  </nav>
+</header>
+<main>
+  <router-outlet></router-outlet>
+</main>
+<footer class="p-4 bg-purple-800 text-center">&copy; 2024 r3plica ltd.</footer>

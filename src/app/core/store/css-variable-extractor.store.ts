@@ -1,9 +1,12 @@
-import { Component, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+
 import { ComponentStore } from '@ngrx/component-store';
+import { withLatestFrom, tap } from 'rxjs';
+
 import {
-  CssVariableExtractorService,
   CssVariable,
+  CssVariableExtractorService,
 } from './css-variable-extractor.service';
 
 interface LayoutState {
@@ -14,13 +17,10 @@ interface LayoutState {
   customVariables: CssVariable[];
 }
 
-@Component({
-  selector: 'app-layout',
-  templateUrl: './layout.component.html',
-  styleUrls: ['./layout.component.scss'],
-  providers: [ComponentStore],
+@Injectable({
+  providedIn: 'root',
 })
-export class LayoutComponent extends ComponentStore<LayoutState> {
+export class CssVariableStoreService extends ComponentStore<LayoutState> {
   private _fb = inject(FormBuilder);
   private _cssVariableExtractorService = inject(CssVariableExtractorService);
 
@@ -50,6 +50,27 @@ export class LayoutComponent extends ComponentStore<LayoutState> {
   );
   readonly customVariables$ = this.select((state) => state.customVariables);
 
+  readonly viewModel$ = this.select(
+    this.activeStep$,
+    this.resultsAvailable$,
+    this.readyForExport$,
+    this.extractedVariables$,
+    this.customVariables$,
+    (
+      activeStep,
+      resultsAvailable,
+      readyForExport,
+      extractedVariables,
+      customVariables
+    ) => ({
+      activeStep,
+      resultsAvailable,
+      readyForExport,
+      extractedVariables,
+      customVariables,
+    })
+  );
+
   readonly setStep = this.updater((state, step: number) => ({
     ...state,
     activeStep: step,
@@ -68,7 +89,6 @@ export class LayoutComponent extends ComponentStore<LayoutState> {
         cssInput,
         mergeDuplicates
       );
-
     this._initializeExportForm(extractedVariables);
 
     return {
@@ -121,6 +141,22 @@ export class LayoutComponent extends ComponentStore<LayoutState> {
           () => alert('Copied to clipboard!'),
           (err) => alert('Failed to copy: ' + err)
         );
+      })
+    )
+  );
+
+  readonly exportToFile = this.effect((trigger$) =>
+    trigger$.pipe(
+      withLatestFrom(this.customVariables$),
+      tap(([_, customVariables]) => {
+        const jsonString = JSON.stringify(customVariables, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'custom-variables.json';
+        a.click();
+        window.URL.revokeObjectURL(url);
       })
     )
   );
