@@ -43,7 +43,7 @@ jobs:
         run: ls -la dist/
 
       - name: Archive build output
-        run: zip -r build.zip dist/css-variables-extractor/
+        run: zip -r build.zip dist/css-variable-extractor/
         env:
           CI: true
 
