@@ -58,10 +58,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "css-variable-extractor:build:production"
+              "buildTarget": "css-variable-extractor:build:production"
             },
             "development": {
-              "browserTarget": "css-variable-extractor:build:development"
+              "buildTarget": "css-variable-extractor:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -69,7 +69,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "css-variable-extractor:build"
+            "buildTarget": "css-variable-extractor:build"
           }
         }
       }
