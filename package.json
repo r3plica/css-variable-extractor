@@ -1,6 +1,10 @@
 {
   "name": "css-variable-extractor",
+<<<<<<< Updated upstream
   "version": "1.6.2",
+=======
+  "version": "1.6.0",
+>>>>>>> Stashed changes
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
