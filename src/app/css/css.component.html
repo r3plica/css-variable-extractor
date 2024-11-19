@@ -1,55 +1,57 @@
-<div
-  class="min-h-screen bg-orange-500 text-white flex flex-col"
-  *ngIf="viewModel$ | async as vm"
->
+<div *ngIf="viewModel$ | async as vm">
   <!-- Stepper -->
-  <app-stepper class="top-0 bg-orange-500 p-4 rounded-t-lg shadow-md" />
+  <app-stepper />
 
-  <!-- Main Content -->
-  <main class="flex-1 p-8">
-    <!-- Step 1: CSS Input -->
-    <div *ngIf="vm.activeStep === 0">
-      <form
-        [formGroup]="vm.cssForm"
-        (ngSubmit)="parseCss()"
-        class="mt-4"
-        *ngIf="vm.cssForm"
-      >
-        <!-- File Input -->
-        <textarea
-          formControlName="cssInput"
-          class="w-full h-64 p-4 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-300"
-          placeholder="Paste your CSS here..."
-        ></textarea>
+  <main
+    class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded"
+  >
+    <div class="px-4 py-5 flex-auto">
+      <div *ngIf="vm.activeStep === 0">
+        <p class="text-base font-light leading-relaxed mt-0 mb-4 text-red-800">
+          Paste your CSS in the box below and click the Parse button to generate
+          a list of all the CSS variables used in your stylesheet.
+        </p>
 
-        <!-- Form Actions -->
-        <div class="mt-4 flex justify-end gap-6">
-          <label class="flex items-center">
-            <input
-              type="checkbox"
-              formControlName="mergeDuplicates"
-              class="mr-2"
-            />
-            Merge Duplicates
-          </label>
-          <button
-            type="button"
-            (click)="clearInput()"
-            class="px-4 py-2 bg-purple-700 hover:bg-purple-800 text-white rounded-md transition"
-          >
-            Clear
-          </button>
-          <button
-            type="submit"
-            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition"
-          >
-            Parse
-          </button>
-        </div>
-      </form>
+        <form
+          [formGroup]="vm.cssForm"
+          (ngSubmit)="parseCss()"
+          class="mt-4"
+          *ngIf="vm.cssForm"
+        >
+          <textarea
+            formControlName="cssInput"
+            class="px-3 py-3 h-64 placeholder-blueGray-300 text-blueGray-600 relative bg-white rounded text-sm shadow outline-none focus:outline-none focus:shadow-outline w-full"
+            placeholder="Paste your CSS here..."
+          ></textarea>
+
+          <div class="mt-4 flex justify-end gap-4">
+            <label class="flex items-center">
+              <input
+                type="checkbox"
+                formControlName="mergeDuplicates"
+                class="mr-2"
+              />
+              Merge Duplicates
+            </label>
+            <button
+              type="button"
+              (click)="clearInput()"
+              class="bg-blueGray-500 text-white active:bg-blueGray-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+            >
+              Clear
+            </button>
+            <button
+              type="submit"
+              class="bg-red-500 text-white active:bg-red-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+            >
+              Parse
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <app-variables *ngIf="vm.activeStep === 1" />
+      <app-results *ngIf="vm.activeStep === 2" />
     </div>
-
-    <app-variables *ngIf="vm.activeStep === 1" />
-    <app-results *ngIf="vm.activeStep === 2" />
   </main>
 </div>

@@ -21,9 +21,9 @@
     "useDefineForClassFields": false,
     "lib": ["ES2022", "dom"],
     "paths": {
-      "@services/*": ["src/app/core/services/*"],
-      "@store/*": ["src/app/core/store/*"],
-      "@components/*": ["src/app/core/components/*"]
+      "@services": ["src/app/core/services"],
+      "@store": ["src/app/core/store"],
+      "@components": ["src/app/core/components"]
     }
   },
   "angularCompilerOptions": {
