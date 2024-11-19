@@ -1,20 +1,26 @@
 #!/bin/bash
 
-echo "Running standard-version to bump version and update changelog..."
-npx standard-version
+echo "Running version control to bump version and update changelog..."
+git checkout master
+git pull
+npx release-it
 
 new_version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
-
 if [ -z "$new_version" ]; then
   echo "Failed to bump the version with standard-version!"
   exit 1
 fi
 
-echo "Pushing version bump commit to develop..."
-git push origin develop --tags
+git stash
+git checkout develop
+git pull
 
 echo "Starting new release branch: $new_version"
 git flow release start "$new_version"
+
+git stash apply
+git add .
+git commit -m "Bump version to $new_version"
 
 git push origin "release/$new_version"
 

@@ -1,12 +1,5 @@
 #!/bin/bash
 
-version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
-
-if [ -z "$version" ]; then
-  echo "Version not found in package.json!"
-  exit 1
-fi
-
 latest_release=$(git branch -r | grep 'origin/release/' | sort -V | tail -n 1)
 
 if [ -z "$latest_release" ]; then
@@ -16,6 +9,16 @@ fi
 
 release_name=$(echo "$latest_release" | sed 's|origin/release/||' | xargs)
 
+git checkout "release/$release_name"
+git pull
+
+version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
+
+if [ -z "$version" ]; then
+  echo "Version not found in package.json!"
+  exit 1
+fi
+
 echo "Finishing release branch: $release_name"
 git flow release finish "$release_name" --message "Release $version"
 if [ $? -ne 0 ]; then
@@ -24,7 +27,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Pushing updates to master and tags..."
-git push origin master --tags --force
+git push origin master --tags
 
 echo "Deleting release branch locally and on origin..."
 git push origin --delete "release/$release_name"
