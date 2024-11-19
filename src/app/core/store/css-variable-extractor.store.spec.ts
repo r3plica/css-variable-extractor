@@ -1,3 +1,4 @@
+/* eslint-disable jest/no-done-callback */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
@@ -249,7 +250,6 @@ describe('CssVariableStoreService', () => {
         { id: 1, name: 'Example 1' },
       ]);
       expect(state.jsonItemCount).toBe(1);
-
       done();
     });
   });

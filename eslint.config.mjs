@@ -18,7 +18,14 @@ const compat = new FlatCompat({
 
 export default [
   {
-    ignores: ["**/dist/"],
+    ignores: [
+      ".angular/",
+      ".github/",
+      ".vscode/",
+      "dist/",
+      "node_modules/",
+      "**/dist/",
+    ],
   },
   ...fixupConfigRules(
     compat.extends(
@@ -48,8 +55,6 @@ export default [
       ecmaVersion: 2020,
       sourceType: "module",
     },
-
-    ignores: [".angular/", ".github/", ".vscode/", "dist/", "node_modules/"],
 
     settings: {
       "import/resolver": {
