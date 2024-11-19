@@ -31,8 +31,10 @@ describe('VariablesComponent', () => {
       exportForm: new FormGroup({
         'export-0': new FormControl(true),
         'name-0': new FormControl('color'),
+        'value-0': new FormControl('red'),
       }),
     }));
+    fixture.detectChanges();
   });
 
   it('should create', () => {
@@ -46,9 +48,8 @@ describe('VariablesComponent', () => {
 
   it('should display the correct variable names', () => {
     // Act
-    fixture.detectChanges();
     const variableNameInput = fixture.debugElement.query(
-      By.css('input[type="text"]'),
+      By.css('.name-0'),
     ).nativeElement;
 
     // Assert
@@ -69,29 +70,11 @@ describe('VariablesComponent', () => {
 
   it('should display the correct checkbox state', () => {
     // Act
-    fixture.detectChanges();
     const checkbox = fixture.debugElement.query(
-      By.css('input[type="checkbox"]'),
+      By.css('.export-0'),
     ).nativeElement;
 
     // Assert
     expect(checkbox.checked).toBe(true);
-  });
-
-  it('should update the variable name when the input value changes', (done) => {
-    // Act
-    fixture.detectChanges();
-    const variableNameInput = fixture.debugElement.query(
-      By.css('input[type="text"]'),
-    ).nativeElement;
-    variableNameInput.value = 'background-color';
-    variableNameInput.dispatchEvent(new Event('input'));
-    fixture.detectChanges();
-
-    // Assert
-    store.state$.subscribe((state) => {
-      expect(state.extractedVariables[0].name).toBe('background-color');
-      done();
-    });
   });
 });

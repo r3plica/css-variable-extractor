@@ -10,12 +10,13 @@
     <!-- Variables Loop -->
     <div
       *ngFor="let variable of vm.extractedVariables; let i = index"
-      class="flex items-center mb-4"
+      class="flex gap-4 items-center mb-4"
     >
       <!-- Checkbox for Export -->
       <input
         type="checkbox"
         [formControlName]="'export-' + i"
+        [ngClass]="'export-' + i"
         class="mr-3 text-orange-500 focus:ring-orange-300"
       />
 
@@ -23,8 +24,18 @@
       <input
         type="text"
         [formControlName]="'name-' + i"
+        [ngClass]="'name-' + i"
         class="w-full p-4 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-300"
         placeholder="Variable name"
+      />
+
+      <!-- Variable value Input -->
+      <input
+        type="text"
+        [formControlName]="'value-' + i"
+        [ngClass]="'value-' + i"
+        class="w-full p-4 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-300"
+        placeholder="Variable value"
       />
     </div>
 

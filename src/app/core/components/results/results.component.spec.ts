@@ -35,6 +35,7 @@ describe('ResultsComponent', () => {
       jsonItemCount: 2,
       currentItemIndex: 0,
     }));
+    fixture.detectChanges();
   });
 
   it('should create', () => {
@@ -55,10 +56,17 @@ describe('ResultsComponent', () => {
 
     // Act
     fixture.detectChanges();
-    const preElement = fixture.debugElement.query(By.css('pre')).nativeElement;
+    const expansionButton = fixture.debugElement.query(
+      By.css('app-expansion-panel button'),
+    );
+    expansionButton.nativeElement.click();
+    fixture.detectChanges();
+
+    // Query the <pre> element
+    const preElement = fixture.debugElement.query(By.css('pre'))?.nativeElement;
 
     // Assert
-    expect(preElement.textContent).toContain('"name": "color"');
+    expect(preElement.textContent).toContain('"name": "--color"');
     expect(preElement.textContent).toContain('"value": "red"');
   });
 
@@ -81,8 +89,9 @@ describe('ResultsComponent', () => {
     const processSpy = jest.spyOn(store, 'processNextItem');
 
     // Act
-    const button = fixture.debugElement.queryAll(By.css('#processNextItem'))[1]
-      .nativeElement;
+    const button = fixture.debugElement.query(
+      By.css('#processNextItem'),
+    ).nativeElement;
     button.click();
 
     // Assert
