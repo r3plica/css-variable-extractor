@@ -27,6 +27,7 @@ fi
 git push origin master --tags
 
 git push origin --delete "release/$release_name"
+git branch -d "release/$release_name"
 
 echo "Release '$release_name' finished, pushed, and deleted from origin successfully!"
 
