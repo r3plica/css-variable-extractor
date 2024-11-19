@@ -49,7 +49,7 @@ export default [
       sourceType: "module",
     },
 
-    ignores: [".angular", ".github", ".vscode", "dist/", "node_modules/"],
+    ignores: [".angular/", ".github/", ".vscode/", "dist/", "node_modules/"],
 
     settings: {
       "import/resolver": {
