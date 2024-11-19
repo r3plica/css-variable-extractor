@@ -2,7 +2,10 @@
   "github.copilot.chat.experimental.codeGeneration.useInstructionFiles": true,
   "eslint.options": {},
   "eslint.run": "onType",
+  "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
-  }
+    "source.fixAll": "always",
+    "source.fixAll.eslint": "always"
+  },
+  "eslint.validate": ["typescript", "typescriptreact", "html"]
 }

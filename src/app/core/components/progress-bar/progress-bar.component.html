@@ -1,0 +1,13 @@
+<div class="w-full bg-orange-200 h-4 relative">
+  <div
+    id="progressBar"
+    class="bg-orange-400 h-4 transition-all duration-300"
+    [style.width.%]="(currentValue / maxValue) * 100"
+  ></div>
+  <span
+    id="progressText"
+    class="absolute inset-0 flex items-center justify-center text-sm text-gray-700 font-medium"
+  >
+    {{ currentValue }} / {{ maxValue }}
+  </span>
+</div>

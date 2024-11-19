@@ -1,0 +1,55 @@
+<div
+  class="min-h-screen bg-orange-500 text-white flex flex-col"
+  *ngIf="viewModel$ | async as vm"
+>
+  <!-- Stepper -->
+  <app-stepper class="top-0 bg-orange-500 p-4 rounded-t-lg shadow-md" />
+
+  <!-- Main Content -->
+  <main class="flex-1 p-8">
+    <!-- Step 1: CSS Input -->
+    <div *ngIf="vm.activeStep === 0">
+      <form
+        [formGroup]="vm.cssForm"
+        (ngSubmit)="parseCss()"
+        class="mt-4"
+        *ngIf="vm.cssForm"
+      >
+        <!-- File Input -->
+        <textarea
+          formControlName="cssInput"
+          class="w-full h-64 p-4 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-300"
+          placeholder="Paste your CSS here..."
+        ></textarea>
+
+        <!-- Form Actions -->
+        <div class="mt-4 flex justify-end gap-6">
+          <label class="flex items-center">
+            <input
+              type="checkbox"
+              formControlName="mergeDuplicates"
+              class="mr-2"
+            />
+            Merge Duplicates
+          </label>
+          <button
+            type="button"
+            (click)="clearInput()"
+            class="px-4 py-2 bg-purple-700 hover:bg-purple-800 text-white rounded-md transition"
+          >
+            Clear
+          </button>
+          <button
+            type="submit"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition"
+          >
+            Parse
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <app-variables *ngIf="vm.activeStep === 1" />
+    <app-results *ngIf="vm.activeStep === 2" />
+  </main>
+</div>
