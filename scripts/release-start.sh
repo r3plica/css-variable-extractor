@@ -18,6 +18,11 @@ git stash
 echo "Starting new release branch: $new_version"
 git flow release start "$new_version"
 
+while ! git show-ref --verify --quiet refs/heads/release/"$new_version"; do
+  echo "Waiting for release branch $new_version to be created..."
+  sleep 1
+done
+
 git stash apply
 git add .
 git commit -m "Bump version to $new_version"
