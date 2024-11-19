@@ -7,20 +7,22 @@ if [ -z "$version" ]; then
   exit 1
 fi
 
-latest_release=$(git branch -r | grep 'origin/release/' | sort -V | tail -n 1 | sed 's/origin\///')
+latest_release=$(git branch -r | grep 'origin/release/' | sort -V | tail -n 1)
 
 if [ -z "$latest_release" ]; then
-  echo "No release branch found!"
+  echo "No release branches found!"
   exit 1
 fi
 
-git flow release finish "$latest_release" --message "Release $version"
+release_name=${latest_release#origin/release/}
+
+git flow release finish "$release_name" --message "Release $version"
 if [ $? -ne 0 ]; then
-  echo "Failed to finish release '$latest_release'."
+  echo "Failed to finish release '$release_name'."
   exit 1
 fi
 
 git push origin master --tags
 
-echo "Release '$latest_release' finished and pushed successfully!"
+echo "Release '$release_name' finished and pushed successfully!"
 exit 0

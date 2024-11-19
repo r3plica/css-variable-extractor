@@ -6,7 +6,9 @@ if [[ ! "$current_branch" =~ ^feature/ ]]; then
   exit 1
 fi
 
-git flow feature finish "$current_branch"
+feature_name=${current_branch#feature/}
+
+git flow feature finish "$feature_name"
 if [ $? -ne 0 ]; then
   echo "Failed to finish feature '$current_branch'."
   exit 1

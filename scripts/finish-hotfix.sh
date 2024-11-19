@@ -7,13 +7,15 @@ if [ -z "$latest_hotfix" ]; then
   exit 1
 fi
 
+hotfix_name=${latest_hotfix#origin/hotfix/}
+
 echo "Running standard-version to bump version and update changelog..."
 npx standard-version --release-as patch
 
 hotfix_version=$(jq -r '.version' package.json)
 
-git flow hotfix finish "$latest_hotfix" -m "Hotfix $hotfix_version"
+git flow hotfix finish "$hotfix_name" -m "Hotfix $hotfix_version"
 git push --follow-tags
 
-echo "Hotfix $latest_hotfix finished and pushed!"
+echo "Hotfix '$hotfix_name' finished and pushed!"
 exit 0
