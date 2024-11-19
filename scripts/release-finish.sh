@@ -14,7 +14,9 @@ if [ -z "$latest_release" ]; then
   exit 1
 fi
 
-release_name=${latest_release#origin/release/}
+release_name=$(echo "$latest_release" | sed 's|origin/release/||' | xargs)
+
+echo "Release name: '$release_name'"
 
 git flow release finish "$release_name" --message "Release $version"
 if [ $? -ne 0 ]; then
