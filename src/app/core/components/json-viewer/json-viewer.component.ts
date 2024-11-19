@@ -1,49 +1,56 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import { Component, inject, Input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 import { CssVariableStoreService } from '@store/css-variable-extractor.store';
 
+interface JsonObject {
+  [key: string]: string | number | boolean | JsonObject | JsonObject[];
+}
+
 @Component({
   selector: 'app-json-viewer',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './json-viewer.component.html',
-  styleUrl: './json-viewer.component.scss',
+  styleUrls: ['./json-viewer.component.scss'],
 })
 export class JsonViewerComponent {
-  private _store = inject(CssVariableStoreService);
+  private readonly _store = inject(CssVariableStoreService);
+  public readonly viewModel$ = this._store.viewModel$;
 
-  public viewModel$ = this._store.viewModel$;
+  @Input() public form!: FormGroup;
+  @Input() public controlName!: string;
 
-  @Input({ required: true }) form!: FormGroup;
-  @Input({ required: true }) controlName!: string;
-
-  public formatJson(json: any): string {
-    if (Array.isArray(json)) json = json[0];
-    const formattedJson = JSON.stringify(
-      json,
-      (_, value) =>
-        typeof value === 'string' && value.length > 50
-          ? value.substring(0, 50) + '...'
-          : value,
-      2,
-    );
-    return formattedJson;
+  private formatLongString(value: string): string {
+    return value.length > 50 ? value.substring(0, 50) + '...' : value;
   }
 
-  public getObjectKeys(obj: any): string[] {
+  public formatJson(json: JsonObject | JsonObject[]): string {
+    if (Array.isArray(json)) json = json[0];
+
+    return JSON.stringify(
+      json,
+      (_, value) =>
+        typeof value === 'string' ? this.formatLongString(value) : value,
+      2,
+    );
+  }
+
+  public getObjectKeys(obj: JsonObject): string[] {
     return Object.keys(obj);
   }
 
-  public formatJsonValue(value: any): string {
-    if (typeof value === 'string' && value.length > 50)
-      return value.substring(0, 50) + '...';
+  public formatJsonValue(
+    value: string | number | boolean | JsonObject | JsonObject[],
+  ): string {
+    if (typeof value === 'string') {
+      return this.formatLongString(value);
+    }
     return JSON.stringify(value, null, 2);
   }
 
   public populateXPath(key: string): void {
-    this.form.get(this.controlName)?.setValue(key);
+    this.form.get(this.controlName)?.setValue(key ?? '');
   }
 }

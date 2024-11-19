@@ -1,34 +1,27 @@
+/* eslint-disable jest/no-done-callback */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { of } from 'rxjs';
+import { of, take } from 'rxjs';
 
 import { CssVariableExtractorService } from './css-variable-extractor.service';
 import { CssVariableStoreService } from './css-variable-extractor.store';
 
 describe('CssVariableStoreService', () => {
   let service: CssVariableStoreService;
-  let cssVariableExtractorService: jest.Mocked<CssVariableExtractorService>;
 
   // Assemble
   beforeEach(() => {
-    const spy = {
-      convertToCssVariables: jest.fn(),
-    };
-
     TestBed.configureTestingModule({
       imports: [ReactiveFormsModule],
       providers: [
         CssVariableStoreService,
         FormBuilder,
-        { provide: CssVariableExtractorService, useValue: spy },
+        CssVariableExtractorService,
       ],
     });
 
     service = TestBed.inject(CssVariableStoreService);
-    cssVariableExtractorService = TestBed.inject(
-      CssVariableExtractorService,
-    ) as jest.Mocked<CssVariableExtractorService>;
   });
 
   beforeAll(() => {
@@ -69,9 +62,6 @@ describe('CssVariableStoreService', () => {
 
   it('should parse CSS', () => {
     // Assemble
-    cssVariableExtractorService.convertToCssVariables.mockReturnValue([
-      { name: '--example-color', value: 'red' },
-    ]);
     service.patchState({
       cssForm: new FormBuilder().group({
         cssInput: ['body { color: red; }'],
@@ -161,7 +151,7 @@ describe('CssVariableStoreService', () => {
     );
   });
 
-  it('should process next item', () => {
+  it('should process next item', (done) => {
     // Assemble
     service.patchState({
       cssForm: new FormBuilder().group({
@@ -184,10 +174,104 @@ describe('CssVariableStoreService', () => {
 
     // Assert
     service.state$.subscribe((state) => {
-      expect(state.cssForm?.get('cssInput')?.value).toBe(
-        'body { color: red; }',
-      );
+      state.extractedVariables.forEach((variable) => {
+        expect(variable.name).toBe('--body-color');
+        expect(variable.value).toBe('red');
+      });
       expect(state.currentItemIndex).toBe(1);
+      done();
+    });
+  });
+
+  it('should process next item and parse new CSS', (done) => {
+    // Assemble
+    service.patchState({
+      cssForm: new FormBuilder().group({
+        cssInput: [''],
+        jsonInput: [
+          [
+            { id: 1, name: 'Example 1', css: 'body { color: red; }' },
+            { id: 2, name: 'Example 2', css: 'body { color: blue; }' },
+          ],
+        ],
+        mergeDuplicates: [true],
+        xpath: ['css'],
+      }),
+      jsonItemCount: 2,
+      currentItemIndex: 0,
+    });
+
+    // Act & Assert
+    service.parseCss();
+
+    service.state$.pipe(take(1)).subscribe((state) => {
+      state.extractedVariables.forEach((variable) => {
+        expect(variable.name).toBe('--body-color');
+        expect(variable.value).toBe('red');
+      });
+      expect(state.currentItemIndex).toBe(0);
+
+      service.processNextItem();
+      service.parseCss();
+
+      service.state$.pipe(take(1)).subscribe((state) => {
+        state.extractedVariables.forEach((variable) => {
+          expect(variable.name).toBe('--body-color');
+          expect(variable.value).toBe('blue');
+        });
+        expect(state.currentItemIndex).toBe(1);
+        done();
+      });
+    });
+  });
+
+  it('should process next item and parse new CSS and create custom variables', (done) => {
+    // Assemble
+    service.patchState({
+      cssForm: new FormBuilder().group({
+        cssInput: [''],
+        jsonInput: [
+          [
+            { id: 1, name: 'Example 1', css: 'body { color: red; }' },
+            { id: 2, name: 'Example 2', css: 'body { color: blue; }' },
+          ],
+        ],
+        mergeDuplicates: [true],
+        xpath: ['css'],
+      }),
+      jsonItemCount: 2,
+      currentItemIndex: 0,
+    });
+
+    // Act & Assert
+    service.parseCss();
+    service.exportVariables();
+
+    service.state$.pipe(take(1)).subscribe((state) => {
+      state.extractedVariables.forEach((variable) => {
+        expect(variable.name).toBe('--body-color');
+        expect(variable.value).toBe('red');
+      });
+      expect(state.customVariables).toEqual([
+        { name: '--body-color', value: 'red' },
+      ]);
+      expect(state.currentItemIndex).toBe(0);
+
+      service.processNextItem();
+      service.parseCss();
+      service.exportVariables();
+
+      service.state$.pipe(take(1)).subscribe((state) => {
+        state.extractedVariables.forEach((variable) => {
+          expect(variable.name).toBe('--body-color');
+          expect(variable.value).toBe('blue');
+        });
+        expect(state.customVariables).toEqual([
+          { name: '--body-color', value: 'blue' },
+        ]);
+        expect(state.currentItemIndex).toBe(1);
+        done();
+      });
     });
   });
 
@@ -249,7 +333,6 @@ describe('CssVariableStoreService', () => {
         { id: 1, name: 'Example 1' },
       ]);
       expect(state.jsonItemCount).toBe(1);
-
       done();
     });
   });
