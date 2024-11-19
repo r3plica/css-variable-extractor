@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version=$(jq -r '.version' package.json)
+version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
 
 if [ -z "$version" ]; then
   echo "Version not found in package.json!"

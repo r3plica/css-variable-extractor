@@ -11,12 +11,12 @@
     "test:coverage": "jest --coverage",
     "release": "standard-version",
     "lint": "eslint --fix .",
-    "start-feature": "bash ./scripts/start-feature.sh",
-    "finish-feature": "bash ./scripts/finish-feature.sh",
-    "start-release": "bash ./scripts/start-release.sh",
-    "finish-release": "bash ./scripts/finish-release.sh",
-    "start-hotfix": "bash ./scripts/start-hotfix.sh",
-    "finish-hotfix": "bash ./scripts/finish-hotfix.sh"
+    "feature-start": "bash ./scripts/feature-start.sh",
+    "feature-finish": "bash ./scripts/feature-finish.sh",
+    "release-start": "bash ./scripts/release-start.sh",
+    "release-finish": "bash ./scripts/release-finish.sh",
+    "hotfix-start": "bash ./scripts/hotfix-start.sh",
+    "hotfix-finish": "bash ./scripts/hotfix-finish.sh"
   },
   "dependencies": {
     "@angular/animations": "^18.2.12",
