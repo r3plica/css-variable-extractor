@@ -11,6 +11,8 @@ if [ -z "$new_version" ]; then
   exit 1
 fi
 
+git log | head
+
 git stash
 
 echo "Starting new release branch: $new_version"
