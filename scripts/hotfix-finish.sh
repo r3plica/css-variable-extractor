@@ -1,6 +1,10 @@
 #!/bin/bash
 
-. ./utils.sh
+# Get the directory of the current script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source utils.sh from the script's directory
+source "$SCRIPT_DIR/utils.sh"
 
 latest_hotfix=$(git branch -r | grep 'origin/hotfix/' | sort -V | tail -n 1)
 
