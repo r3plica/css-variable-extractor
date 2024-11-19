@@ -1,7 +1,7 @@
 <ng-container *ngIf="viewModel$ | async as vm">
   <!-- Expansion Panel for Parsed Results -->
   <app-expansion-panel title="Parsed Results">
-    <pre class="mt-4 p-4 bg-orange-200 text-black rounded-md">
+    <pre class="mt-4 p-4 text-black rounded-md">
       {{ vm.customVariables | json }}
     </pre>
   </app-expansion-panel>
@@ -34,7 +34,7 @@
       <button
         id="exportToFile"
         type="submit"
-        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition"
+        class="bg-red-500 text-white active:bg-red-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
       >
         Export to File
       </button>

@@ -1,47 +1,51 @@
 <ng-container *ngIf="viewModel$ | async as vm">
-  <!-- Welcome Section -->
-  <div class="p-6">
-    <h2 class="text-lg font-semibold text-white">
-      Welcome to my CSS Variable Extractor Tool
-    </h2>
-    <p class="mt-2 text-gray-300">
-      To use it, upload your JSON file and specify the XPath to extract CSS data
-      from an array.
-    </p>
-  </div>
-
-  <!-- Stepper -->
-  <div class="flex bg-orange-600 text-white">
-    <div
-      id="step-1"
-      class="flex-1 p-4 text-center cursor-pointer"
-      [class.bg-orange-700]="vm.activeStep === 0"
-      (click)="vm.activeStep > 0 ? setStep(0) : null"
-    >
-      Step 1: CSS input
-    </div>
-    <div
-      id="step-2"
-      class="flex-1 p-4 text-center cursor-pointer"
-      [class.bg-orange-700]="vm.activeStep === 1"
-      (click)="vm.activeStep > 1 ? setStep(1) : null"
-    >
-      Step 2: Variables to Extract
-    </div>
-    <div
-      id="step-3"
-      class="flex-1 p-4 text-center cursor-pointer"
-      [class.bg-orange-700]="vm.activeStep === 2"
-      (click)="vm.activeStep === 2 ? setStep(2) : null"
-    >
-      Step 3: Results
-    </div>
+  <div class="w-full">
+    <ul class="flex mb-0 list-none flex-wrap pt-3 pb-4 flex-row">
+      <li class="-mb-px mr-2 last:mr-0 flex-auto text-center">
+        <a
+          id="step-1"
+          class="text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal step"
+          (click)="vm.activeStep > 0 ? setStep(0) : null"
+          [ngClass]="{
+            'text-red-600 bg-white cursor-pointer': vm.activeStep > 0,
+            'text-white bg-red-600': vm.activeStep === 0,
+          }"
+        >
+          Step 1: CSS input
+        </a>
+      </li>
+      <li class="-mb-px mr-2 last:mr-0 flex-auto text-center">
+        <a
+          id="step-2"
+          class="text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal step"
+          (click)="vm.activeStep > 1 ? setStep(1) : null"
+          [ngClass]="{
+            'text-red-600 bg-white cursor-pointer': vm.activeStep > 1,
+            'text-white bg-red-600': vm.activeStep === 1,
+          }"
+        >
+          Step 2: Variables to Extract
+        </a>
+      </li>
+      <li class="-mb-px mr-2 last:mr-0 flex-auto text-center">
+        <a
+          id="step-3"
+          class="text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal step"
+          (click)="vm.activeStep === 2 ? setStep(2) : null"
+          [ngClass]="{
+            'text-white bg-red-600': vm.activeStep === 2,
+          }"
+        >
+          Step 3: Results
+        </a>
+      </li>
+    </ul>
   </div>
 
   <!-- Progress Bar -->
   <app-progress-bar
-    [currentValue]="vm.currentItemIndex"
-    [maxValue]="vm.jsonItemCount - 1"
+    [currentValue]="vm.currentItemIndex + 1"
+    [maxValue]="vm.jsonItemCount"
     *ngIf="vm.jsonItemCount"
     class="mt-4"
   />

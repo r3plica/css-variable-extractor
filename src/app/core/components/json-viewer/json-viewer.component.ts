@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, Input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 
-import { CssVariableStoreService } from '@store/css-variable-extractor.store';
+import { CssVariableStoreService } from '@store';
 
 interface JsonObject {
   [key: string]: string | number | boolean | JsonObject | JsonObject[];

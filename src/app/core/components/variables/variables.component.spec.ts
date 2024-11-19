@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 
-import { CssVariableStoreService } from '@store/css-variable-extractor.store';
+import { CssVariableStoreService } from '@store';
 
 import { VariablesComponent } from './variables.component';
 

@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { By } from '@angular/platform-browser';
 
-import { CssVariableStoreService } from '@store/css-variable-extractor.store';
+import { CssVariableStoreService } from '@store';
 
 import { StepperComponent } from './stepper.component';
 import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
@@ -49,7 +49,7 @@ describe('StepperComponent', () => {
   it('should display the correct step titles', () => {
     // Act
     fixture.detectChanges();
-    const stepTitles = fixture.debugElement.queryAll(By.css('.flex-1'));
+    const stepTitles = fixture.debugElement.queryAll(By.css('.step'));
 
     // Assert
     expect(stepTitles.length).toBe(3);
@@ -94,7 +94,7 @@ describe('StepperComponent', () => {
     ).componentInstance;
 
     // Assert
-    expect(progressBar.currentValue).toBe(0);
-    expect(progressBar.maxValue).toBe(2);
+    expect(progressBar.currentValue).toBe(1);
+    expect(progressBar.maxValue).toBe(3);
   });
 });

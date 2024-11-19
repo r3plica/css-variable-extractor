@@ -3,7 +3,7 @@ import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { of } from 'rxjs';
 import { By } from '@angular/platform-browser';
 
-import { CssVariableStoreService } from '@store/css-variable-extractor.store';
+import { CssVariableStoreService } from '@store';
 
 import { JsonViewerComponent } from './json-viewer.component';
 

@@ -1,4 +1,4 @@
-name: Deploy to Azure Web App
+name: Deploy to Vercel (and Azure Web App)
 
 on:
   push:
@@ -8,10 +8,6 @@ on:
 
 permissions:
   contents: write
-
-env:
-  AZURE_WEBAPP_NAME: css-variable-extractor
-  AZURE_WEBAPP_PACKAGE_PATH: "./dist/css-variable-extractor"
 
 jobs:
   build-and-deploy:
@@ -54,12 +50,9 @@ jobs:
           mv dist/css-variable-extractor/browser/* dist/css-variable-extractor/
           rm -r dist/css-variable-extractor/browser
 
-      # - name: Debug Build Directory
-      #   run: ls -la dist/
-
-      - name: "Deploy to Azure WebApp"
-        uses: azure/webapps-deploy@v1
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v20
         with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: "--prod"

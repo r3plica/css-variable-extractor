@@ -3,14 +3,16 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 
-import { CssVariableStoreService } from '@store/css-variable-extractor.store';
-import { FormErrorComponent } from '@components/index';
+import { CssVariableStoreService } from '@store';
+import {
+  FormErrorComponent,
+  JsonViewerComponent,
+  ResultsComponent,
+  StepperComponent,
+  VariablesComponent,
+} from '@components';
 
 import { JsonComponent } from './json.component';
-import { VariablesComponent } from '../core/components/variables/variables.component';
-import { ResultsComponent } from '../core/components/results/results.component';
-import { StepperComponent } from '../core/components/stepper/stepper.component';
-import { JsonViewerComponent } from '../core/components/json-viewer/json-viewer.component';
 
 describe('JsonComponent', () => {
   let component: JsonComponent;
