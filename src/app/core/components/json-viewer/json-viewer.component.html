@@ -1,6 +1,8 @@
 <ng-container *ngIf="viewModel$ | async as vm">
-  <div *ngIf="form.get('jsonInput')?.value" class="mb-4">
-    <div class="mt-2 p-4 bg-orange-200 text-black rounded-md">
+  <div *ngIf="form.get('jsonInput')?.value" class="mt-4">
+    <div
+      class="text-white px-6 py-4 border-0 rounded relative mb-4 bg-blueGray-500"
+    >
       <div
         *ngFor="
           let key of getObjectKeys(

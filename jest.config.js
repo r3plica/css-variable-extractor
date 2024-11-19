@@ -13,8 +13,8 @@ module.exports = {
   },
   moduleFileExtensions: ["ts", "html", "js", "json", "mjs"],
   moduleNameMapper: {
-    "@services/(.*)": "<rootDir>/src/app/core/services/$1",
-    "@store/(.*)": "<rootDir>/src/app/core/store/$1",
-    "@components/(.*)": "<rootDir>/src/app/core/components/$1",
+    "^@services(.*)$": "<rootDir>/src/app/core/services$1",
+    "^@store(.*)$": "<rootDir>/src/app/core/store$1",
+    "^@components(.*)$": "<rootDir>/src/app/core/components$1",
   },
 };

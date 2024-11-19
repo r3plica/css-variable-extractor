@@ -2,12 +2,12 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 
-import { CssVariableStoreService } from '@store/css-variable-extractor.store';
+import { CssVariableStoreService } from '@store';
 import {
   ResultsComponent,
   StepperComponent,
   VariablesComponent,
-} from '@components/index';
+} from '@components';
 
 @Component({
   templateUrl: './css.component.html',
@@ -28,6 +28,7 @@ export class CssComponent implements OnInit {
 
   public ngOnInit(): void {
     this._store.clearInput();
+    this._store.setStep(0);
   }
 
   public setStep(step: number): void {
