@@ -53,7 +53,7 @@ update_version() {
   echo "Current version: $old_version"
 
   # Run release-it to bump the version
-  npx release-it --no-commit --no-tag --no-push --patch --npm.publish=false --git.verifyCollaborator=false --ci || {
+  npx release-it --patch || {
     echo "Failed to bump version"; exit 1;
   }
 
