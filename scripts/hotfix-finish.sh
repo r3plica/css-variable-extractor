@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source ./utils.sh
+
 latest_hotfix=$(git branch -r | grep 'origin/hotfix/' | sort -V | tail -n 1)
 
 if [ -z "$latest_hotfix" ]; then
@@ -7,29 +9,28 @@ if [ -z "$latest_hotfix" ]; then
   exit 1
 fi
 
+# Check if on the correct branch
+check_out_branch "$latest_hotfix"
+
+# update version
+new_version=$(update_version)
+
+git add . || { echo "Failed to add changes"; exit 1; }
+git commit -m "Bump version to $new_version" || { echo "Failed to commit changes"; exit 1; }
+
+commit_hash=$(git rev-parse --short HEAD)
+full_version="${new_version}-${commit_hash}"
+
 hotfix_name=$(echo "$latest_hotfix" | sed 's|origin/hotfix/||' | xargs)
 
-echo "Running version control to bump version and update changelog..."
-git checkout "hotfix/$hotfix_name"
-git pull
-npx release-it patch
+git tag "$full_version" || { echo "Failed to create tag"; exit 1; }
+git flow hotfix finish "$hotfix_name" || { echo "Failed to finish hotfix"; exit 1; }
+git push origin master || { echo "Failed to push to master"; exit 1; }
+git push origin develop || { echo "Failed to push to develop"; exit 1; }
+git push --follow-tags || { echo "Failed to push tags"; exit 1; }
 
-new_version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
-if [ -z "$new_version" ]; then
-  echo "Failed to bump the version with standard-version!"
-  exit 1
-fi
-
-git add .
-git commit -m "Bump version to $new_version"
-
-git flow hotfix finish "$hotfix_name" -m "Hotfix $new_version"
-git push origin master
-git push origin develop
-git push --follow-tags
-
-git push origin --delete "hotfix/$hotfix_name"
-git branch -d "hotfix/$hotfix_name"
+# Delete the remote branch
+delete_branch "$latest_hotfix"
 
 echo "Hotfix '$hotfix_name' finished and pushed!"
 exit 0

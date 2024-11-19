@@ -1,19 +1,13 @@
 {
+  "ci": true,
   "git": {
-    "commit": false,
     "tag": false,
-    "push": false
+    "push": false,
+    "commit": false,
+    "skipCheck": true
   },
   "npm": {
     "publish": false
   },
-  "changelog": {
-    "enabled": true,
-    "file": "CHANGELOG.md",
-    "prepend": "### Release Notes\n\n"
-  },
-  "hooks": {
-    "before:bump": "echo Preparing for version bump...",
-    "after:bump": "echo Version bumped, changelog updated!"
-  }
+  "increment": "patch"
 }

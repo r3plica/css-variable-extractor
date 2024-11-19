@@ -1,33 +1,37 @@
 #!/bin/bash
 
-echo "Running version control to bump version and update changelog..."
-git checkout develop
-git pull
-npx release-it
+source ./utils.sh
 
-new_version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
-if [ -z "$new_version" ]; then
-  echo "Failed to bump the version with standard-version!"
-  exit 1
-fi
+# Check if on the correct branch
+check_out_branch "develop"
 
-git log | head
+# update version
+new_version=$(update_version)
 
-git stash
+git stash || { echo "Failed to stash changes"; exit 1; }
 
 echo "Starting new release branch: $new_version"
-git flow release start "$new_version"
+git flow release start "$new_version" || { echo "Failed to start release branch"; exit 1; }
 
+# Wait for the release branch to be created
 while ! git show-ref --verify --quiet refs/heads/release/"$new_version"; do
   echo "Waiting for release branch $new_version to be created..."
   sleep 1
 done
 
-git stash apply
-git add .
-git commit -m "Bump version to $new_version"
+echo "Release branch $new_version created successfully"
 
-git push origin "release/$new_version"
+# Apply the stash after the branch creation
+echo "Applying the stash..."
+git stash apply || { echo "Failed to apply stash"; exit 1; }
+
+# Check for unstaged changes after applying stash
+git diff || { echo "There are unexpected changes after applying the stash"; exit 1; }
+
+git add . || { echo "Failed to stage changes"; exit 1; }
+git commit -m "Bump version to $new_version" || { echo "Failed to commit version bump"; exit 1; }
+
+git push origin "release/$new_version" || { echo "Failed to push release branch"; exit 1; }
 
 echo "Release branch $new_version started and pushed to origin!"
 

@@ -1,23 +1,26 @@
 #!/bin/bash
 
-current_branch=$(git rev-parse --abbrev-ref HEAD)
-if [[ ! "$current_branch" =~ ^feature/ ]]; then
-  echo "You must be on a feature branch to run this script. Current branch: $current_branch"
-  exit 1
-fi
+source ./utils.sh
 
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+# Check if on the correct branch
+check_out_branch "$current_branch"
+
+# Get the feature name from the current branch
 feature_name=${current_branch#feature/}
 
-git pull "feature/$feature_name"
-git flow feature finish "$feature_name"
-if [ $? -ne 0 ]; then
-  echo "Failed to finish feature '$current_branch'."
-  exit 1
-fi
+# Pull the latest changes from the remote feature branch
+git pull origin "$current_branch" || { echo "Failed to pull changes from the feature branch"; exit 1; }
 
-git push origin develop --tags
+# Finish the feature using git flow (merges into develop)
+git flow feature finish "$feature_name" || { echo "Failed to finish feature '$feature_name'."; exit 1; }
 
-git push origin --delete "$current_branch"
-git branch -d "$current_branch"
+# Push develop and tags (if any)
+git push origin develop --tags || { echo "Failed to push to develop or tags"; exit 1; }
+
+# Delete the remote branch
+delete_branch "$current_branch"
 
 echo "Feature '$current_branch' finished, merged into develop, and remote branch deleted."
+exit 0
