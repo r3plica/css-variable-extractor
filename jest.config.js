@@ -1,6 +1,6 @@
 module.exports = {
   preset: "jest-preset-angular",
-  setupFilesAfterEnv: ["<rootDir>/src/setup.jest.ts"],
+  setupFilesAfterEnv: ["<rootDir>/src/setup-jest.ts"],
   transformIgnorePatterns: ["node_modules/(?!@angular|@ngrx|jsonpath-plus)"],
   transform: {
     "^.+\\.(ts|js|mjs|html|svg)$": [
