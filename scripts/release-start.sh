@@ -3,11 +3,17 @@
 echo "Running version control to bump version and update changelog..."
 git checkout develop
 git pull
+
+old_version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
+echo "Current version: $old_version"
+
 npx release-it
 
 new_version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
-if [ -z "$new_version" ]; then
-  echo "Failed to bump the version with standard-version!"
+echo "New version: $new_version"
+
+if [ "$old_version" == "$new_version" ]; then
+  echo "Error: release-it did not update package.json version!"
   exit 1
 fi
 
