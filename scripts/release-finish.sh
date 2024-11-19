@@ -14,15 +14,22 @@ if [ -z "$latest_release" ]; then
   exit 1
 fi
 
-release_name=${latest_release#origin/release/}
+release_name=$(echo "$latest_release" | sed 's|origin/release/||' | xargs)
 
+echo "Finishing release branch: $release_name"
 git flow release finish "$release_name" --message "Release $version"
 if [ $? -ne 0 ]; then
   echo "Failed to finish release '$release_name'."
   exit 1
 fi
 
-git push origin master --tags
+echo "Pushing updates to master and tags..."
+git push origin master --tags --force
 
-echo "Release '$release_name' finished and pushed successfully!"
+echo "Deleting release branch locally and on origin..."
+git push origin --delete "release/$release_name"
+git branch -d "release/$release_name"
+
+echo "Release '$release_name' finished, pushed, and cleaned up successfully!"
+
 exit 0

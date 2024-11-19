@@ -9,7 +9,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "release": "standard-version",
+    "release": "release-it",
     "lint": "eslint --fix .",
     "feature-start": "bash ./scripts/feature-start.sh",
     "feature-finish": "bash ./scripts/feature-finish.sh",
@@ -57,6 +57,7 @@
     "jest": "^29.7.0",
     "jest-preset-angular": "^14.3.1",
     "prettier": "^3.3.3",
+    "release-it": "^17.10.0",
     "standard-version": "^9.5.0",
     "ts-jest": "^29.2.5"
   }
