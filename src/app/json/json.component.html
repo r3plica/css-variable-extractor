@@ -1,0 +1,93 @@
+<div
+  class="min-h-screen bg-orange-500 text-white flex flex-col"
+  *ngIf="viewModel$ | async as vm"
+>
+  <!-- Stepper -->
+  <app-stepper class="top-0 bg-orange-500 p-4 rounded-t-lg shadow-md" />
+
+  <!-- Main Content -->
+  <main class="flex-1 p-8">
+    <!-- Step 1: JSON Input -->
+    <div *ngIf="vm.activeStep === 0">
+      <!-- Error message for the form -->
+      <div
+        *ngIf="
+          vm.errors[vm.activeStep] && vm.cssForm?.touched && !vm.cssForm?.valid
+        "
+        class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg relative"
+        role="alert"
+      >
+        <strong class="font-bold">Error: </strong>
+        <span class="block sm:inline">{{ vm.errors[vm.activeStep] }}</span>
+      </div>
+
+      <!-- Form for JSON input -->
+      <form
+        [formGroup]="vm.cssForm"
+        (ngSubmit)="parseCss()"
+        class="mt-4"
+        *ngIf="vm.cssForm"
+      >
+        <!-- File Input for JSON -->
+        <input
+          type="file"
+          (change)="handleFileInput($event)"
+          accept=".json"
+          class="w-full p-4 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-300 mt-4"
+        />
+
+        <!-- Form Error for JSON Input -->
+        <app-form-error
+          [form]="vm.cssForm"
+          controlName="jsonInput"
+          errorMessage="You must select a JSON file."
+        />
+
+        <!-- JSON Viewer Component (If any) -->
+        <app-json-viewer [form]="vm.cssForm" controlName="xpath" class="mt-4" />
+
+        <!-- XPath Input -->
+        <input
+          formControlName="xpath"
+          type="text"
+          class="w-full p-4 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-orange-300 mt-4"
+          placeholder="Enter XPath to extract CSS data..."
+        />
+
+        <!-- Form Error for XPath Input -->
+        <app-form-error [form]="vm.cssForm" controlName="xpath" />
+
+        <!-- Buttons for actions -->
+        <div class="mt-6 flex justify-end gap-4">
+          <label class="flex items-center">
+            <input
+              type="checkbox"
+              formControlName="mergeDuplicates"
+              class="mr-2"
+            />
+            Merge Duplicates
+          </label>
+          <button
+            type="button"
+            (click)="clearInput()"
+            class="px-4 py-2 bg-purple-700 hover:bg-purple-800 text-white rounded-md transition"
+          >
+            Clear
+          </button>
+          <button
+            type="submit"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition"
+          >
+            Parse
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Step 2: Display Variables -->
+    <app-variables *ngIf="vm.activeStep === 1" class="mt-8" />
+
+    <!-- Step 3: Display Results -->
+    <app-results *ngIf="vm.activeStep === 2" class="mt-8" />
+  </main>
+</div>
