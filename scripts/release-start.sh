@@ -13,6 +13,8 @@ fi
 echo "Starting new release branch: $new_version"
 git flow release start "$new_version"
 
-echo "Release branch $new_version started"
+git push origin "release/$new_version"
+
+echo "Release branch $new_version started and pushed to origin!"
 
 exit 0

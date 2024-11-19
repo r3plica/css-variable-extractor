@@ -8,4 +8,6 @@ fi
 
 git flow feature start "$name"
 
-echo "Feature $name started!"
+git push origin "$name"
+
+echo "Feature $name started and pushed to develop!"
