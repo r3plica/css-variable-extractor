@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
@@ -59,48 +60,6 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
       ),
       exportForm: this._fb.group({}),
     });
-  }
-
-  private _requireOne(controlName1: string, controlName2: string) {
-    return (formGroup: FormGroup) => {
-      const control1 = formGroup.controls[controlName1];
-      const control2 = formGroup.controls[controlName2];
-
-      if (control1.value || control2.value) {
-        control1.setErrors(null);
-        control2.setErrors(null);
-      } else {
-        control1.setErrors({ required: true });
-        control2.setErrors({ required: true });
-        this.patchState((state) => ({
-          ...state,
-          errors: {
-            ...state.errors,
-            [state.activeStep]: 'One of the inputs is required',
-          },
-        }));
-      }
-    };
-  }
-
-  private _requireXpathIfJsonInput() {
-    return (formGroup: FormGroup) => {
-      const jsonInput = formGroup.controls['jsonInput'];
-      const xpath = formGroup.controls['xpath'];
-
-      if (jsonInput.value && !xpath.value) {
-        xpath.setErrors({ required: true });
-        this.patchState((state) => ({
-          ...state,
-          errors: {
-            ...state.errors,
-            [state.activeStep]: 'XPath is required when JSON input is provided',
-          },
-        }));
-      } else {
-        xpath.setErrors(null);
-      }
-    };
   }
 
   readonly activeStep$ = this.select((state) => state.activeStep);
@@ -351,5 +310,47 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
         activeStep: 0,
       };
     });
+  }
+
+  private _requireOne(controlName1: string, controlName2: string) {
+    return (formGroup: FormGroup) => {
+      const control1 = formGroup.controls[controlName1];
+      const control2 = formGroup.controls[controlName2];
+
+      if (control1.value || control2.value) {
+        control1.setErrors(null);
+        control2.setErrors(null);
+      } else {
+        control1.setErrors({ required: true });
+        control2.setErrors({ required: true });
+        this.patchState((state) => ({
+          ...state,
+          errors: {
+            ...state.errors,
+            [state.activeStep]: 'One of the inputs is required',
+          },
+        }));
+      }
+    };
+  }
+
+  private _requireXpathIfJsonInput() {
+    return (formGroup: FormGroup) => {
+      const jsonInput = formGroup.controls['jsonInput'];
+      const xpath = formGroup.controls['xpath'];
+
+      if (jsonInput.value && !xpath.value) {
+        xpath.setErrors({ required: true });
+        this.patchState((state) => ({
+          ...state,
+          errors: {
+            ...state.errors,
+            [state.activeStep]: 'XPath is required when JSON input is provided',
+          },
+        }));
+      } else {
+        xpath.setErrors(null);
+      }
+    };
   }
 }
