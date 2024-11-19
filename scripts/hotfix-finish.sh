@@ -12,25 +12,16 @@ fi
 # Check if on the correct branch
 check_out_branch "$latest_hotfix"
 
-hotfix_name=$(echo "$latest_hotfix" | sed 's|origin/hotfix/||' | xargs)
-old_version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
-echo "Current version: $old_version"
-
-npx release-it --no-commit --no-tag --no-push --patch --npm.publish=false --git.verifyCollaborator=false || { echo "Failed to bump version"; exit 1; }
-
-new_version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
-echo "New version: $new_version"
-
-if [ "$old_version" == "$new_version" ]; then
-  echo "Error: release-it did not update package.json version!"
-  exit 1
-fi
+# update version
+new_version=$(update_version)
 
 git add . || { echo "Failed to add changes"; exit 1; }
 git commit -m "Bump version to $new_version" || { echo "Failed to commit changes"; exit 1; }
 
 commit_hash=$(git rev-parse --short HEAD)
 full_version="${new_version}-${commit_hash}"
+
+hotfix_name=$(echo "$latest_hotfix" | sed 's|origin/hotfix/||' | xargs)
 
 git tag "$full_version" || { echo "Failed to create tag"; exit 1; }
 git flow hotfix finish "$hotfix_name" || { echo "Failed to finish hotfix"; exit 1; }
