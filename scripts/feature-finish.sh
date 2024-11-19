@@ -17,4 +17,7 @@ fi
 
 git push origin develop --tags
 
-echo "Feature '$current_branch' finished and merged into develop."
+git push origin --delete "$current_branch"
+git branch -d "$current_branch"
+
+echo "Feature '$current_branch' finished, merged into develop, and remote branch deleted."

@@ -11,4 +11,6 @@ fi
 
 git flow hotfix start "$name"
 
-echo "Hotfix $name started!"
+git push origin "hotfix/$name"
+
+echo "Hotfix $name started and pushed to origin!"
