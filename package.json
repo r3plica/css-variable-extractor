@@ -16,7 +16,8 @@
     "release-start": "bash ./scripts/release-start.sh",
     "release-finish": "bash ./scripts/release-finish.sh",
     "hotfix-start": "bash ./scripts/hotfix-start.sh",
-    "hotfix-finish": "bash ./scripts/hotfix-finish.sh"
+    "hotfix-finish": "bash ./scripts/hotfix-finish.sh",
+    "prune": "bash ./scripts/prune.sh"
   },
   "dependencies": {
     "@angular/animations": "^18.2.12",
