@@ -39,9 +39,6 @@ jobs:
       - name: Run Tests
         run: npm run test
 
-      - name: Bump version and generate changelog
-        run: npx standard-version --release-as minor
-
       - name: Build project
         run: npm run build --omit=dev
 

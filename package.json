@@ -1,6 +1,6 @@
 {
   "name": "css-variable-extractor",
-  "version": "1.5.8",
+  "version": "1.6.3",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -9,14 +9,15 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "release": "standard-version",
+    "release": "release-it",
     "lint": "eslint --fix .",
     "feature-start": "bash ./scripts/feature-start.sh",
     "feature-finish": "bash ./scripts/feature-finish.sh",
     "release-start": "bash ./scripts/release-start.sh",
     "release-finish": "bash ./scripts/release-finish.sh",
     "hotfix-start": "bash ./scripts/hotfix-start.sh",
-    "hotfix-finish": "bash ./scripts/hotfix-finish.sh"
+    "hotfix-finish": "bash ./scripts/hotfix-finish.sh",
+    "prune": "bash ./scripts/prune.sh"
   },
   "dependencies": {
     "@angular/animations": "^18.2.12",
@@ -57,6 +58,7 @@
     "jest": "^29.7.0",
     "jest-preset-angular": "^14.3.1",
     "prettier": "^3.3.3",
+    "release-it": "^17.10.0",
     "standard-version": "^9.5.0",
     "ts-jest": "^29.2.5"
   }

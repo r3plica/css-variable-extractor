@@ -1,5 +1,8 @@
 #!/bin/bash
 
+git checkout master
+git pull
+
 name=$1
 if [ -z "$name" ]; then
   echo "Please provide a hotfix name."

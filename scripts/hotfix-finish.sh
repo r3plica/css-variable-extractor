@@ -9,16 +9,27 @@ fi
 
 hotfix_name=$(echo "$latest_hotfix" | sed 's|origin/hotfix/||' | xargs)
 
-echo "Running standard-version to bump version and update changelog..."
-npx standard-version --release-as patch
+echo "Running version control to bump version and update changelog..."
+git checkout "hotfix/$hotfix_name"
+git pull
+npx release-it patch
 
-hotfix_version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
+new_version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
+if [ -z "$new_version" ]; then
+  echo "Failed to bump the version with standard-version!"
+  exit 1
+fi
 
-git flow hotfix finish "$hotfix_name" -m "Hotfix $hotfix_version"
-git push --follow-tags --force
+git add .
+git commit -m "Bump version to $new_version"
+
+git flow hotfix finish "$hotfix_name" -m "Hotfix $new_version"
+git push origin master
+git push origin develop
+git push --follow-tags
 
 git push origin --delete "hotfix/$hotfix_name"
 git branch -d "hotfix/$hotfix_name"
 
-echo "Hotfix '$hotfix_name' finished, pushed, and remote branch deleted!"
+echo "Hotfix '$hotfix_name' finished and pushed!"
 exit 0
