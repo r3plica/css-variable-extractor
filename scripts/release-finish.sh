@@ -16,15 +16,13 @@ fi
 
 release_name=$(echo "$latest_release" | sed 's|origin/release/||' | xargs)
 
-echo "Release name: '$release_name'"
-
 git flow release finish "$release_name" --message "Release $version"
 if [ $? -ne 0 ]; then
   echo "Failed to finish release '$release_name'."
   exit 1
 fi
 
-git push origin master --tags
+git push origin master --tags --force
 
 git push origin --delete "release/$release_name"
 git branch -d "release/$release_name"

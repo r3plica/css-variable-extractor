@@ -15,8 +15,7 @@ npx standard-version --release-as patch
 hotfix_version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
 
 git flow hotfix finish "$hotfix_name" -m "Hotfix $hotfix_version"
-
-git push --follow-tags
+git push --follow-tags --force
 
 git push origin --delete "hotfix/$hotfix_name"
 git branch -d "hotfix/$hotfix_name"
