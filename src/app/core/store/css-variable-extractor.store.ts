@@ -139,7 +139,7 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
         mergeDuplicates,
       );
 
-    const exportForm = state.exportForm || new FormGroup({});
+    const exportForm = (state.exportForm = new FormGroup({}));
 
     extractedVariables.forEach((variable, index) => {
       exportForm.addControl(`export-${index}`, new FormControl(true));
@@ -295,13 +295,6 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
         return state;
       }
 
-      const cssContent = this._extractJsonItems(
-        state.cssForm.get('jsonInput')?.value,
-        state.cssForm.get('xpath')?.value,
-        state.currentItemIndex,
-      );
-
-      state.cssForm.get('cssInput')?.setValue(cssContent);
       state.cssForm.markAsUntouched();
 
       return {
