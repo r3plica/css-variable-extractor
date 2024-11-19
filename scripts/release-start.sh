@@ -7,7 +7,7 @@ git pull
 old_version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
 echo "Current version: $old_version"
 
-npx release-it
+npm run release
 
 new_version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
 echo "New version: $new_version"
