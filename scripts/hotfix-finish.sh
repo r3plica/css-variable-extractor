@@ -7,7 +7,7 @@ if [ -z "$latest_hotfix" ]; then
   exit 1
 fi
 
-hotfix_name=${latest_hotfix#origin/hotfix/}
+hotfix_name=$(echo "$latest_hotfix" | sed 's|origin/hotfix/||' | xargs)
 
 echo "Running standard-version to bump version and update changelog..."
 npx standard-version --release-as patch
