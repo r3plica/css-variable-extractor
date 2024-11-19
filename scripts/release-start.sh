@@ -23,6 +23,9 @@ while ! git show-ref --verify --quiet refs/heads/release/"$new_version"; do
   sleep 1
 done
 
+echo "about to apply the stash"
+git diff
+
 git stash apply
 git add .
 git commit -m "Bump version to $new_version"
