@@ -8,6 +8,7 @@ fi
 
 feature_name=${current_branch#feature/}
 
+git pull "feature/$feature_name"
 git flow feature finish "$feature_name"
 if [ $? -ne 0 ]; then
   echo "Failed to finish feature '$current_branch'."
