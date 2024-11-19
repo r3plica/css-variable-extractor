@@ -86,7 +86,7 @@ export default [
   {
     files: [
       "**/tailwind.config.js",
-      "**/setup.jest.ts",
+      "**/setup-jest.ts",
       "**/*.d.ts",
       "**/index.ts",
     ],

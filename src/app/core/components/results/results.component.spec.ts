@@ -1,13 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
-import { of } from 'rxjs';
 import { By } from '@angular/platform-browser';
 
 import { CssVariableStoreService } from '@store/css-variable-extractor.store';
 
 import { ResultsComponent } from './results.component';
 import { ExpansionPanelComponent } from '../expansion-panel/expansion-panel.component';
-
 
 describe('ResultsComponent', () => {
   let component: ResultsComponent;
@@ -18,30 +16,25 @@ describe('ResultsComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, ResultsComponent, ExpansionPanelComponent],
-      providers: [
-        {
-          provide: CssVariableStoreService,
-          useValue: {
-            viewModel$: of({
-              customVariables: [{ name: 'color', value: 'red' }],
-              cssForm: new FormGroup({
-                fileName: new FormControl('custom-variables.json'),
-              }),
-              jsonItemCount: 2,
-              currentItemIndex: 0,
-            }),
-            copyToClipboard: jest.fn(),
-            exportToFile: jest.fn(),
-            processNextItem: jest.fn(),
-          },
-        },
-      ],
+      providers: [CssVariableStoreService],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ResultsComponent);
     component = fixture.componentInstance;
     store = TestBed.inject(CssVariableStoreService);
     fixture.detectChanges();
+  });
+
+  beforeEach(() => {
+    store.setState((state) => ({
+      ...state,
+      customVariables: [{ name: 'color', value: 'red' }],
+      cssForm: new FormGroup({
+        fileName: new FormControl('custom-variables.json'),
+      }),
+      jsonItemCount: 2,
+      currentItemIndex: 0,
+    }));
   });
 
   it('should create', () => {
@@ -54,6 +47,12 @@ describe('ResultsComponent', () => {
   });
 
   it('should display parsed results', () => {
+    // Assemble
+    store.setState((state) => ({
+      ...state,
+      customVariables: [{ name: '--color', value: 'red' }],
+    }));
+
     // Act
     fixture.detectChanges();
     const preElement = fixture.debugElement.query(By.css('pre')).nativeElement;
@@ -64,30 +63,41 @@ describe('ResultsComponent', () => {
   });
 
   it('should call copyToClipboard when the button is clicked', () => {
+    // Assemble
+    const clipboardSpy = jest.spyOn(store, 'copyToClipboard');
+
     // Act
-    const button = fixture.debugElement.query(By.css('button')).nativeElement;
+    const button = fixture.debugElement.query(
+      By.css('#copyToClipboard'),
+    ).nativeElement;
     button.click();
 
     // Assert
-    expect(store.copyToClipboard).toHaveBeenCalled();
+    expect(clipboardSpy).toHaveBeenCalled();
   });
 
   it('should call processNextItem when the button is clicked', () => {
+    // Assemble
+    const processSpy = jest.spyOn(store, 'processNextItem');
+
     // Act
-    const button = fixture.debugElement.queryAll(By.css('button'))[1]
+    const button = fixture.debugElement.queryAll(By.css('#processNextItem'))[1]
       .nativeElement;
     button.click();
 
     // Assert
-    expect(store.processNextItem).toHaveBeenCalled();
+    expect(processSpy).toHaveBeenCalled();
   });
 
   it('should call exportToFile when the form is submitted', () => {
+    // Assemble
+    const exportSpy = jest.spyOn(store, 'exportToFile');
+
     // Act
     const form = fixture.debugElement.query(By.css('form')).nativeElement;
     form.submit();
 
     // Assert
-    expect(store.exportToFile).toHaveBeenCalled();
+    expect(exportSpy).toHaveBeenCalled();
   });
 });

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { of } from 'rxjs';
+import { By } from '@angular/platform-browser';
 
 import { CssVariableStoreService } from '@store/css-variable-extractor.store';
 
@@ -70,12 +71,13 @@ describe('JsonViewerComponent', () => {
 
   it('should format JSON value correctly', () => {
     // Act
-    const value = 'This is a long string that should be truncated.';
+    const value =
+      'This is a long long long long string that should be truncated.';
     const formattedValue = component.formatJsonValue(value);
 
     // Assert
     expect(formattedValue).toBe(
-      'This is a long string that should be trunc...',
+      'This is a long long long long string that should b...',
     );
   });
 
