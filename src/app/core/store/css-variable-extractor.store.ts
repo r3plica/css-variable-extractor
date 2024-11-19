@@ -2,7 +2,7 @@
 import { Injectable, inject } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ComponentStore } from '@ngrx/component-store';
-import { withLatestFrom, tap } from 'rxjs';
+import { withLatestFrom, tap, from } from 'rxjs';
 import { JSONPath } from 'jsonpath-plus';
 
 import {
@@ -288,18 +288,34 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
         if (!input.files?.length) return;
 
         const file = input.files[0];
-        const reader = new FileReader();
-        reader.onload = () => {
-          const jsonContent = JSON.parse(reader.result as string);
-          this.patchState((state) => {
-            state.cssForm?.get('jsonInput')?.setValue(jsonContent);
-            const jsonItemCount = Array.isArray(jsonContent)
-              ? jsonContent.length
-              : 0;
-            return { ...state, jsonItemCount, currentItemIndex: 0 };
+
+        const readFileAsText = (file: File): Promise<string> => {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = (err) => reject(err);
+            reader.readAsText(file);
           });
         };
-        reader.readAsText(file);
+
+        from(readFileAsText(file))
+          .pipe(
+            tap((fileContent) => {
+              try {
+                const jsonContent = JSON.parse(fileContent);
+                this.patchState((state) => {
+                  state.cssForm?.get('jsonInput')?.setValue(jsonContent);
+                  const jsonItemCount = Array.isArray(jsonContent)
+                    ? jsonContent.length
+                    : 0;
+                  return { ...state, jsonItemCount, currentItemIndex: 0 };
+                });
+              } catch (error) {
+                console.error('Failed to parse JSON content:', error);
+              }
+            }),
+          )
+          .subscribe();
       }),
     ),
   );

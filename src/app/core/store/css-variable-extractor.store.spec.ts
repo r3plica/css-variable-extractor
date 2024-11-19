@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { of } from 'rxjs';
@@ -30,6 +31,15 @@ describe('CssVariableStoreService', () => {
     ) as jest.Mocked<CssVariableExtractorService>;
   });
 
+  beforeAll(() => {
+    global.URL.createObjectURL = jest.fn(() => 'mocked-object-url');
+    window.alert = jest.fn();
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
   it('should be created', () => {
     // Act
     const createdService = TestBed.inject(CssVariableStoreService);
@@ -40,20 +50,21 @@ describe('CssVariableStoreService', () => {
 
   it('should initialize forms', () => {
     // Act
-    const state = service.get();
-
     // Assert
-    expect(state.cssForm).toBeTruthy();
-    expect(state.exportForm).toBeTruthy();
+    service.state$.subscribe((state) => {
+      expect(state.cssForm).toBeTruthy();
+      expect(state.exportForm).toBeTruthy();
+    });
   });
 
   it('should set step', () => {
     // Act
     service.setStep(1);
-    const state = service.get();
 
     // Assert
-    expect(state.activeStep).toBe(1);
+    service.state$.subscribe((state) => {
+      expect(state.activeStep).toBe(1);
+    });
   });
 
   it('should parse CSS', () => {
@@ -72,13 +83,14 @@ describe('CssVariableStoreService', () => {
 
     // Act
     service.parseCss();
-    const state = service.get();
 
     // Assert
-    expect(state.extractedVariables).toEqual([
-      { name: '--example-color', value: 'red' },
-    ]);
-    expect(state.activeStep).toBe(1);
+    service.state$.subscribe((state) => {
+      expect(state.extractedVariables).toEqual([
+        { name: '--example-color', value: 'red' },
+      ]);
+      expect(state.activeStep).toBe(1);
+    });
   });
 
   it('should clear input', () => {
@@ -94,11 +106,12 @@ describe('CssVariableStoreService', () => {
 
     // Act
     service.clearInput();
-    const state = service.get();
 
     // Assert
-    expect(state.cssForm?.get('cssInput')?.value).toBe('');
-    expect(state.activeStep).toBe(0);
+    service.state$.subscribe((state) => {
+      expect(state.cssForm?.get('cssInput')?.value).toBe('');
+      expect(state.activeStep).toBe(0);
+    });
   });
 
   it('should export variables', () => {
@@ -114,30 +127,38 @@ describe('CssVariableStoreService', () => {
 
     // Act
     service.exportVariables();
-    const state = service.get();
 
     // Assert
-    expect(state.customVariables).toEqual([
-      { name: '--example-color', value: 'red' },
-    ]);
-    expect(state.activeStep).toBe(2);
+    service.state$.subscribe((state) => {
+      expect(state.customVariables).toEqual([
+        { name: '--example-color', value: 'red' },
+      ]);
+      expect(state.activeStep).toBe(2);
+    });
   });
 
-  it('should copy to clipboard', (done) => {
+  it('should copy to clipboard', () => {
     // Assemble
-    jest.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+    const clipboardWriteTextMock = jest.fn().mockResolvedValue({});
+    Object.defineProperty(global, 'navigator', {
+      value: {
+        clipboard: {
+          writeText: clipboardWriteTextMock,
+        },
+      },
+      writable: true,
+    });
     service.patchState({
       customVariables: [{ name: '--example-color', value: 'red' }],
     });
 
     // Act
-    service.copyToClipboard(of(undefined)).subscribe(() => {
-      // Assert
-      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-        JSON.stringify([{ name: '--example-color', value: 'red' }], null, 2),
-      );
-      done();
-    });
+    service.copyToClipboard(of(undefined));
+
+    // Assert
+    expect(clipboardWriteTextMock).toHaveBeenCalledWith(
+      JSON.stringify([{ name: '--example-color', value: 'red' }], null, 2),
+    );
   });
 
   it('should process next item', () => {
@@ -159,10 +180,10 @@ describe('CssVariableStoreService', () => {
     });
 
     // Act
-    service.processNextItem(of(undefined)).subscribe(() => {
-      const state = service.get();
+    service.processNextItem(of(undefined));
 
-      // Assert
+    // Assert
+    service.state$.subscribe((state) => {
       expect(state.cssForm?.get('cssInput')?.value).toBe(
         'body { color: red; }',
       );
@@ -170,7 +191,7 @@ describe('CssVariableStoreService', () => {
     });
   });
 
-  it('should export to file', (done) => {
+  it('should export to file', () => {
     // Assemble
     jest.spyOn(document, 'createElement').mockReturnValue({
       href: '',
@@ -192,11 +213,10 @@ describe('CssVariableStoreService', () => {
     });
 
     // Act
-    service.exportToFile(of(undefined)).subscribe(() => {
-      // Assert
-      expect(document.createElement).toHaveBeenCalledWith('a');
-      done();
-    });
+    service.exportToFile(of(undefined));
+
+    // Assert
+    expect(document.createElement).toHaveBeenCalledWith('a');
   });
 
   it('should handle file input', (done) => {
@@ -207,16 +227,29 @@ describe('CssVariableStoreService', () => {
     const event = {
       target: { files: [file] },
     } as unknown as Event;
+    const mockReader = {
+      readAsText: jest.fn(),
+      result: JSON.stringify([{ id: 1, name: 'Example 1' }]),
+    };
+    Object.defineProperty(mockReader, 'onload', {
+      set(callback) {
+        callback();
+      },
+    });
+    jest
+      .spyOn(window, 'FileReader')
+      .mockImplementation(() => mockReader as unknown as FileReader);
 
     // Act
-    service.handleFileInput(of(event)).subscribe(() => {
-      const state = service.get();
+    service.handleFileInput(of(event));
 
-      // Assert
+    // Assert
+    service.state$.subscribe((state) => {
       expect(state.cssForm?.get('jsonInput')?.value).toEqual([
         { id: 1, name: 'Example 1' },
       ]);
       expect(state.jsonItemCount).toBe(1);
+
       done();
     });
   });

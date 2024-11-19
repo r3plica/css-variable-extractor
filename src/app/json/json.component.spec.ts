@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import { of } from 'rxjs';
 import { By } from '@angular/platform-browser';
 
 import { CssVariableStoreService } from '@store/css-variable-extractor.store';
@@ -12,7 +11,6 @@ import { VariablesComponent } from '../core/components/variables/variables.compo
 import { ResultsComponent } from '../core/components/results/results.component';
 import { StepperComponent } from '../core/components/stepper/stepper.component';
 import { JsonViewerComponent } from '../core/components/json-viewer/json-viewer.component';
-
 
 describe('JsonComponent', () => {
   let component: JsonComponent;
@@ -32,21 +30,6 @@ describe('JsonComponent', () => {
         JsonViewerComponent,
         JsonComponent,
       ],
-      providers: [
-        {
-          provide: CssVariableStoreService,
-          useValue: {
-            viewModel$: of({
-              activeStep: 0,
-              currentItemIndex: 0,
-              jsonItemCount: 3,
-            }),
-            clearInput: jest.fn(),
-            parseCss: jest.fn(),
-            handleFileInput: jest.fn(),
-          },
-        },
-      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(JsonComponent);
@@ -65,36 +48,48 @@ describe('JsonComponent', () => {
   });
 
   it('should call clearInput on init', () => {
+    // Assemble
+    const clearSpy = jest.spyOn(store, 'clearInput');
+
     // Act
     component.ngOnInit();
 
     // Assert
-    expect(store.clearInput).toHaveBeenCalled();
+    expect(clearSpy).toHaveBeenCalled();
   });
 
   it('should call parseCss when parseCss is invoked', () => {
+    // Assemble
+    const parseSpy = jest.spyOn(store, 'parseCss');
+
     // Act
     component.parseCss();
 
     // Assert
-    expect(store.parseCss).toHaveBeenCalled();
+    expect(parseSpy).toHaveBeenCalled();
   });
 
   it('should call clearInput when clearInput is invoked', () => {
+    // Assemble
+    const clearSpy = jest.spyOn(store, 'clearInput');
+
     // Act
     component.clearInput();
 
     // Assert
-    expect(store.clearInput).toHaveBeenCalled();
+    expect(clearSpy).toHaveBeenCalled();
   });
 
   it('should call handleFileInput when handleFileInput is invoked', () => {
+    // Assemble
+    const fileInputSpy = jest.spyOn(store, 'handleFileInput');
+
     // Act
     const event = new Event('change');
     component.handleFileInput(event);
 
     // Assert
-    expect(store.handleFileInput).toHaveBeenCalledWith(event);
+    expect(fileInputSpy).toHaveBeenCalledWith(event);
   });
 
   it('should display the stepper component', () => {
@@ -107,6 +102,9 @@ describe('JsonComponent', () => {
   });
 
   it('should display the variables component', () => {
+    // Assemble
+    store.setState((state) => ({ ...state, activeStep: 1 }));
+
     // Act
     fixture.detectChanges();
     const variables = fixture.debugElement.query(
@@ -118,6 +116,9 @@ describe('JsonComponent', () => {
   });
 
   it('should display the results component', () => {
+    // Assemble
+    store.setState((state) => ({ ...state, activeStep: 2 }));
+
     // Act
     fixture.detectChanges();
     const results = fixture.debugElement.query(By.directive(ResultsComponent));
