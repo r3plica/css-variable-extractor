@@ -15,7 +15,7 @@ npx standard-version --release-as patch
 hotfix_version=$(jq -r '.version' package.json)
 
 git flow hotfix finish "$hotfix_name" -m "Hotfix $hotfix_version"
-git push --follow-tags
+git push --follow-tags --force
 
 echo "Hotfix '$hotfix_name' finished and pushed!"
 exit 0

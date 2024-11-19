@@ -22,7 +22,7 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-git push origin master --tags
+git push origin master --tags --force
 
 echo "Release '$release_name' finished and pushed successfully!"
 exit 0
