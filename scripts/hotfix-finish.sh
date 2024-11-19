@@ -16,7 +16,7 @@ hotfix_name=$(echo "$latest_hotfix" | sed 's|origin/hotfix/||' | xargs)
 old_version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
 echo "Current version: $old_version"
 
-npx release-it --no-commit --no-tag --no-push --patch --git-verify-collaborator=false || { echo "Failed to bump version"; exit 1; }
+npx release-it --no-commit --no-tag --no-push --patch --npm.publish=false --git.verifyCollaborator=false || { echo "Failed to bump version"; exit 1; }
 
 new_version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
 echo "New version: $new_version"
