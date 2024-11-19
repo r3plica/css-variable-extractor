@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Running version control to bump version and update changelog..."
-git checkout master
+git checkout develop
 git pull
 npx release-it
 
@@ -12,8 +12,6 @@ if [ -z "$new_version" ]; then
 fi
 
 git stash
-git checkout develop
-git pull
 
 echo "Starting new release branch: $new_version"
 git flow release start "$new_version"

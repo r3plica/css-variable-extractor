@@ -28,6 +28,7 @@ fi
 
 echo "Pushing updates to master and tags..."
 git push origin master --tags
+git push origin develop --tags
 
 echo "Deleting release branch locally and on origin..."
 git push origin --delete "release/$release_name"

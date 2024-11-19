@@ -24,6 +24,8 @@ git add .
 git commit -m "Bump version to $new_version"
 
 git flow hotfix finish "$hotfix_name" -m "Hotfix $new_version"
+git push origin master
+git push origin develop
 git push --follow-tags
 
 git push origin --delete "hotfix/$hotfix_name"
