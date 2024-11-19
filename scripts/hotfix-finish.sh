@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./utils.sh
+. ./utils.sh
 
 latest_hotfix=$(git branch -r | grep 'origin/hotfix/' | sort -V | tail -n 1)
 

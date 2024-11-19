@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./utils.sh
+. ./utils.sh
 
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 

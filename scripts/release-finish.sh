@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./utils.sh
+. ./utils.sh
 
 # Find the latest release branch
 latest_release=$(git branch -r | grep 'origin/release/' | sort -V | tail -n 1)

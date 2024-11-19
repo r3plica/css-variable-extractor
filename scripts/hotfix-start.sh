@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./utils.sh
+. ./utils.sh
 
 # Check if on the correct branch
 check_out_branch "master"
