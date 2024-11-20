@@ -27,6 +27,7 @@ git commit -m "Bump version to $new_version" || { echo "Failed to commit changes
 commit_hash=$(git rev-parse --short HEAD)
 full_version="${new_version}-${commit_hash}"
 
+echo "$full_version"
 
 git tag "$full_version" || { echo "Failed to create tag"; exit 1; }
 git flow hotfix finish "$hotfix_name" || { echo "Failed to finish hotfix"; exit 1; }
