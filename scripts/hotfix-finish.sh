@@ -25,9 +25,7 @@ git add . || { echo "Failed to add changes"; exit 1; }
 git commit -m "Bump version to $new_version" || { echo "Failed to commit changes"; exit 1; }
 
 commit_hash=$(git rev-parse --short HEAD)
-full_version="${new_version}-${commit_hash}"
-
-echo "$full_version"
+full_version="${new_version//[^a-zA-Z0-9._-]/}-${commit_hash//[^a-zA-Z0-9._-]/}"
 
 git tag "$full_version" || { echo "Failed to create tag"; exit 1; }
 git flow hotfix finish "$hotfix_name" || { echo "Failed to finish hotfix"; exit 1; }
