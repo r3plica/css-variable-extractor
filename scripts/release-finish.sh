@@ -1,6 +1,10 @@
 #!/bin/bash
 
-source ./utils.sh
+# Get the directory of the current script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source utils.sh from the script's directory
+source "$SCRIPT_DIR/utils.sh"
 
 # Find the latest release branch
 latest_release=$(git branch -r | grep 'origin/release/' | sort -V | tail -n 1)
