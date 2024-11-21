@@ -41,6 +41,7 @@ delete_branch() {
 }
 
 update_version() {
+  local branch_name=${1:-master}
   local old_version new_version
 
   # Check if package.json exists
@@ -49,23 +50,26 @@ update_version() {
     exit 1
   fi
 
+  # Extract the current version from package.json
   old_version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
   echo "Current version: $old_version"
 
-  # Run release-it to bump the version
-  npx release-it --patch || {
+  # Run semantic-release to bump the version (without committing or tagging)
+  npx semantic-release --branch $branch_name --no-ci || {
     echo "Failed to bump version"; exit 1;
   }
 
+  # Extract the new version from package.json
   new_version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
   echo "New version: $new_version"
 
   # Verify the version was updated
   if [ "$old_version" == "$new_version" ]; then
-    echo "Error: release-it did not update package.json version!"
+    echo "Error: semantic-release did not update package.json version!"
     exit 1
   fi
 
   # Return the new version
   echo "$new_version"
 }
+
