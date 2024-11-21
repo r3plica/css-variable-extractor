@@ -5,6 +5,8 @@
     "branches": [
       "master",
       "develop"
+    { "name": "release/*", "prerelease": true },
+    { "name": "hotfix/*", "prerelease": true }
     ],
     "plugins": [
       [
