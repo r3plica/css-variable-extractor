@@ -41,3 +41,17 @@ When running scripts to help with git flow, you first need to give executable pe
 ```
 chmod +x ./scripts/*
 ```
+
+## Releases
+
+With all scripts you can just run them
+
+```
+npm run <feature|hotfix|release>-<start|finish>
+```
+
+But with releases, you may want to increment the Major/Minor and you can do this by adding an optional parameter
+
+```
+npm run release-start minor
+```

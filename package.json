@@ -22,6 +22,14 @@
             {
               "type": "*",
               "release": "patch"
+            },
+            {
+              "type": "*",
+              "release": "minor"
+            },
+            {
+              "type": "*",
+              "release": "major"
             }
           ]
         }
