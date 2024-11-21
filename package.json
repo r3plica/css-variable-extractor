@@ -1,6 +1,42 @@
 {
   "name": "css-variable-extractor",
-  "version": "1.6.8",
+  "version": "1.6.9",
+  "release": {
+    "branches": [
+      "master",
+      "develop",
+      {
+        "name": "release/*"
+      },
+      {
+        "name": "hotfix/*",
+        "prerelease": "hotfix"
+      }
+    ],
+    "plugins": [
+      [
+        "@semantic-release/commit-analyzer",
+        {
+          "preset": "conventionalcommits",
+          "releaseRules": [
+            {
+              "type": "*",
+              "release": "patch"
+            }
+          ]
+        }
+      ],
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/changelog",
+      "@semantic-release/git",
+      [
+        "@semantic-release/npm",
+        {
+          "npmPublish": false
+        }
+      ]
+    ]
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
