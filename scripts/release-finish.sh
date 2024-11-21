@@ -15,7 +15,7 @@ if [ -z "$latest_release" ]; then
 fi
 
 # Extract the release name from the branch
-release_name="${latest_release#origin/release/}"
+release_name=$(echo "$latest_release" | sed 's|origin/release/||' | xargs)
 
 # Check if on the correct branch
 check_out_branch "release/$release_name"
