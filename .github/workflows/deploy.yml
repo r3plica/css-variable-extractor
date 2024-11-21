@@ -40,7 +40,9 @@ jobs:
         run: npm run test
 
       - name: Build project
-        run: npm run vercel build
+        run: |
+          npx vercel pull
+          npx vercel build
 
       - name: Move build files to root
         run: |
