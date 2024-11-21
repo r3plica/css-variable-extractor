@@ -1,13 +1,12 @@
 {
   "name": "css-variable-extractor",
-  "version": "1.6.4-rc.1",
+  "version": "1.6.4-rc.2",
   "release": {
     "branches": [
       "master",
       "develop",
       {
-        "name": "release/*",
-        "prerelease": "rc"
+        "name": "release/*"
       },
       {
         "name": "hotfix/*",
