@@ -1,6 +1,6 @@
 {
   "name": "css-variable-extractor",
-  "version": "1.6.8",
+  "version": "1.6.4-rc.1",
   "release": {
     "branches": [
       "master",
@@ -30,7 +30,12 @@
       "@semantic-release/release-notes-generator",
       "@semantic-release/changelog",
       "@semantic-release/git",
-      "@semantic-release/npm"
+      [
+        "@semantic-release/npm",
+        {
+          "npmPublish": false
+        }
+      ]
     ]
   },
   "scripts": {
