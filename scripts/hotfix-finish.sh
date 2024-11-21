@@ -36,9 +36,10 @@ full_version="${full_version//[^a-zA-Z0-9._-]/}"
 
 # Finish the hotfix
 git diff-index --quiet HEAD -- || { echo "Uncommitted changes detected"; exit 1; }
-git flow hotfix finish "$hotfix_name" -m "$full_version" || { echo "Failed to finish hotfix"; exit 1; }
-git push origin master develop --follow-tags || { echo "Failed to push branch and tags to master"; exit 1; }
-git push origin develop || { echo "Failed to push to develop"; exit 1; }
+git tag -a "$full_version" -m "$hotfix_name" || { echo "Failed to create tag"; exit 1; }
+git flow hotfix finish "$hotfix_name" || { echo "Failed to finish hotfix"; exit 1; }
+git push origin master develop || { echo "Failed to push branch and tags to master and develop"; exit 1; }
+git push origin --tags
 
 # Delete the remote branch
 delete_branch "$latest_hotfix"
