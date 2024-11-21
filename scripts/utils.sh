@@ -40,11 +40,7 @@ delete_branch() {
   git push origin --delete "$branch_name" || { echo "Failed to delete remote branch '$branch_name'"; exit 1; }
 }
 
-update_version() {
-  local branch_name=${1:-master}
-  local bump_type=${2:-patch}  # Accept a bump type (patch, minor, major)
-  local old_version new_version
-
+get_version() {
   # Check if package.json exists
   if [ ! -f "package.json" ]; then
     echo "Error: package.json not found!"
@@ -52,7 +48,18 @@ update_version() {
   fi
 
   # Extract the current version from package.json
-  old_version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
+  version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
+
+  # Return the version
+  echo "$version"
+}
+
+update_version() {
+  local bump_type=${2:-patch}  # Accept a bump type (patch, minor, major)
+  local old_version new_version
+
+  # Get the current version
+  old_version=$(get_version)
 
   # Function to increment version (patch, minor, major)
   increment_version() {
