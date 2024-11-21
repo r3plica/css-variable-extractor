@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
 import { CssVariableStoreService } from '@store';
 
@@ -8,6 +8,7 @@ import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
 @Component({
   selector: 'app-stepper',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ProgressBarComponent],
   templateUrl: './stepper.component.html',
   styleUrl: './stepper.component.scss',

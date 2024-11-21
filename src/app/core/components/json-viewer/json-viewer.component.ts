@@ -1,5 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  Input,
+} from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 import { CssVariableStoreService } from '@store';
@@ -11,6 +16,7 @@ interface JsonObject {
 @Component({
   selector: 'app-json-viewer',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './json-viewer.component.html',
   styleUrls: ['./json-viewer.component.scss'],
