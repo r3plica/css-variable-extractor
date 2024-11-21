@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 @Component({
   selector: 'app-expansion-panel',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+
   imports: [CommonModule],
   templateUrl: './expansion-panel.component.html',
   styleUrl: './expansion-panel.component.scss',

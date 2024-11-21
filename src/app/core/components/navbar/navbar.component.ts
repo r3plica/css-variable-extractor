@@ -7,7 +7,7 @@ import { RouterModule } from '@angular/router';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+
   imports: [CommonModule, RouterModule],
 })
 export class NavbarComponent {

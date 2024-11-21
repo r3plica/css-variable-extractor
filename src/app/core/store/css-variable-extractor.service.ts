@@ -45,21 +45,29 @@ export class CssVariableExtractorService {
   }
 
   public handleCheckboxes(cssForm: FormGroup | undefined): void {
-    cssForm?.get('mergeDuplicates')?.valueChanges.subscribe((value) => {
+    const mergeDuplicatesControl = cssForm?.get('mergeDuplicates');
+    const overrideVariableNamesControl = cssForm?.get('overrideVariableNames');
+
+    if (!cssForm || !mergeDuplicatesControl || !overrideVariableNamesControl)
+      return;
+
+    mergeDuplicatesControl.valueChanges.subscribe((value) => {
       if (value) {
-        cssForm.get('advancedConfiguration')?.setValue(false);
-        cssForm.get('advancedConfiguration')?.disable();
+        // Set overrideVariableNames value to false without emitting an event
+        overrideVariableNamesControl.setValue(false, { emitEvent: false });
+        overrideVariableNamesControl.disable();
       } else {
-        cssForm.get('advancedConfiguration')?.enable();
+        overrideVariableNamesControl.enable();
       }
     });
 
-    cssForm?.get('advancedConfiguration')?.valueChanges.subscribe((value) => {
+    overrideVariableNamesControl.valueChanges.subscribe((value) => {
       if (value) {
-        cssForm.get('mergeDuplicates')?.setValue(false);
-        cssForm.get('mergeDuplicates')?.disable();
+        // Set mergeDuplicates value to false without emitting an event
+        mergeDuplicatesControl.setValue(false, { emitEvent: false });
+        mergeDuplicatesControl.disable();
       } else {
-        cssForm.get('mergeDuplicates')?.enable();
+        mergeDuplicatesControl.enable();
       }
     });
   }

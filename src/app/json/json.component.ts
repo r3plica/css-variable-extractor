@@ -1,16 +1,11 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-} from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { CssVariableStoreService } from '@store';
 import {
-  FormErrorComponent,
   JsonViewerComponent,
+  OverridesComponent,
   ResultsComponent,
   StepperComponent,
   VariablesComponent,
@@ -20,15 +15,15 @@ import {
   templateUrl: './json.component.html',
   styleUrls: ['./json.component.scss'],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    FormErrorComponent,
     VariablesComponent,
     ResultsComponent,
     StepperComponent,
     JsonViewerComponent,
+    OverridesComponent,
   ],
 })
 export class JsonComponent implements OnInit {

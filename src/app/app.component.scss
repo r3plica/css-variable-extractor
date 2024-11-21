@@ -2,3 +2,7 @@
   font-weight: bold;
   text-decoration: underline;
 }
+
+body.has-sticky-bar #main-content {
+  margin-bottom: 100px;
+}

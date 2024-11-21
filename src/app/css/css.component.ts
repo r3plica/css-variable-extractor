@@ -18,7 +18,7 @@ import {
   templateUrl: './css.component.html',
   styleUrls: ['./css.component.scss'],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+
   imports: [
     CommonModule,
     ReactiveFormsModule,

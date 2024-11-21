@@ -12,7 +12,6 @@ import {
   styleUrls: ['./form-error.component.scss'],
   imports: [CommonModule, ReactiveFormsModule],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FormErrorComponent {
   @Input({ required: true }) form!: FormGroup;

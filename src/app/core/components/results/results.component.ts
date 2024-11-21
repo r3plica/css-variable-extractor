@@ -9,7 +9,7 @@ import { ExpansionPanelComponent } from '../expansion-panel/expansion-panel.comp
 @Component({
   selector: 'app-results',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+
   imports: [CommonModule, ReactiveFormsModule, ExpansionPanelComponent],
   templateUrl: './results.component.html',
   styleUrl: './results.component.scss',

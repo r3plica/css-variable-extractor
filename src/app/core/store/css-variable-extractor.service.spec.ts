@@ -125,7 +125,7 @@ describe('CssVariableExtractorService', () => {
     const fb = new FormBuilder();
     const cssForm: FormGroup = fb.group({
       mergeDuplicates: [false],
-      advancedConfiguration: [{ value: false, disabled: true }],
+      overrideVariableNames: [{ value: false, disabled: true }],
     });
 
     // Act
@@ -133,17 +133,17 @@ describe('CssVariableExtractorService', () => {
 
     // Assert
     cssForm.get('mergeDuplicates')?.setValue(true);
-    expect(cssForm.get('advancedConfiguration')?.disabled).toBe(true);
-    expect(cssForm.get('advancedConfiguration')?.value).toBe(false);
+    expect(cssForm.get('overrideVariableNames')?.disabled).toBe(true);
+    expect(cssForm.get('overrideVariableNames')?.value).toBe(false);
 
     cssForm.get('mergeDuplicates')?.setValue(false);
-    expect(cssForm.get('advancedConfiguration')?.enabled).toBe(true);
+    expect(cssForm.get('overrideVariableNames')?.enabled).toBe(true);
 
-    cssForm.get('advancedConfiguration')?.setValue(true);
+    cssForm.get('overrideVariableNames')?.setValue(true);
     expect(cssForm.get('mergeDuplicates')?.disabled).toBe(true);
     expect(cssForm.get('mergeDuplicates')?.value).toBe(false);
 
-    cssForm.get('advancedConfiguration')?.setValue(false);
+    cssForm.get('overrideVariableNames')?.setValue(false);
     expect(cssForm.get('mergeDuplicates')?.enabled).toBe(true);
   });
 });

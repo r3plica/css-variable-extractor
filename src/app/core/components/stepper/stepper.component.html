@@ -27,18 +27,48 @@
           Step 2: Variables to Extract
         </a>
       </li>
-      <li class="-mb-px mr-2 last:mr-0 flex-auto text-center">
-        <a
-          id="step-3"
-          class="text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal step"
-          (click)="vm.activeStep === 2 ? setStep(2) : null"
-          [ngClass]="{
-            'text-white bg-red-600': vm.activeStep === 2,
-          }"
-        >
-          Step 3: Results
-        </a>
-      </li>
+
+      @if (vm.cssForm?.get("overrideVariableNames")?.value == true) {
+        <li class="-mb-px mr-2 last:mr-0 flex-auto text-center">
+          <a
+            id="step-2"
+            class="text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal step"
+            (click)="vm.activeStep > 2 ? setStep(2) : null"
+            [ngClass]="{
+              'text-red-600 bg-white cursor-pointer': vm.activeStep > 2,
+              'text-white bg-red-600': vm.activeStep === 2,
+            }"
+          >
+            Step 3: Advanced Configuration
+          </a>
+        </li>
+
+        <li class="-mb-px mr-2 last:mr-0 flex-auto text-center">
+          <a
+            id="step-3"
+            class="text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal step"
+            (click)="vm.activeStep === 3 ? setStep(3) : null"
+            [ngClass]="{
+              'text-white bg-red-600': vm.activeStep === 3,
+            }"
+          >
+            Step 4: Results
+          </a>
+        </li>
+      } @else {
+        <li class="-mb-px mr-2 last:mr-0 flex-auto text-center">
+          <a
+            id="step-3"
+            class="text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal step"
+            (click)="vm.activeStep === 2 ? setStep(2) : null"
+            [ngClass]="{
+              'text-white bg-red-600': vm.activeStep === 2,
+            }"
+          >
+            Step 3: Results
+          </a>
+        </li>
+      }
     </ul>
   </div>
 

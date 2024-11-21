@@ -16,7 +16,7 @@ interface JsonObject {
 @Component({
   selector: 'app-json-viewer',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './json-viewer.component.html',
   styleUrls: ['./json-viewer.component.scss'],

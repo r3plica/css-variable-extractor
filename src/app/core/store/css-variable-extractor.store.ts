@@ -48,9 +48,11 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
         {
           cssInput: [''],
           jsonInput: [''],
+          overrides: [''],
           mergeDuplicates: [false],
           existingStructure: [false],
-          advancedConfiguration: [false],
+          overrideVariableNames: [false],
+          addShades: [false],
           xpath: [''],
         },
         {
@@ -63,7 +65,7 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
       exportForm: this._fb.group({}),
     });
 
-    this._cssVariableExtractorService.handleCheckboxes(this.get().cssForm);
+    // this._cssVariableExtractorService.handleCheckboxes(this.get().cssForm);
   }
 
   readonly activeStep$ = this.select((state) => state.activeStep);
@@ -165,7 +167,6 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
 
     state.cssForm.reset();
     state.cssForm.markAsUntouched();
-    state.cssForm.get('mergeDuplicates')?.setValue(true);
 
     return {
       ...state,
@@ -194,6 +195,32 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
       ...state,
       customVariables: exportedResults,
       activeStep: 2,
+    };
+  });
+
+  readonly applyOverrides = this.updater((state) => {
+    const overridesControl = state.cssForm?.get('overrides');
+    if (!overridesControl) return state;
+
+    let overrides: Map<string, string>;
+    try {
+      overrides = new Map(JSON.parse(overridesControl.value));
+    } catch (error) {
+      console.error('Failed to parse overrides:', error);
+      return state;
+    }
+
+    const customVariables = state.customVariables
+      .filter((variable) => overrides.has(variable.name))
+      .map((variable) => ({
+        ...variable,
+        name: overrides.get(variable.name) || variable.name,
+      }));
+
+    return {
+      ...state,
+      customVariables,
+      activeStep: 3,
     };
   });
 

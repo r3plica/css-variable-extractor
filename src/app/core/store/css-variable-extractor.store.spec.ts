@@ -1,5 +1,5 @@
-/* eslint-disable jest/no-done-callback */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable jest/no-done-callback */
 import { TestBed } from '@angular/core/testing';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { of, take } from 'rxjs';
@@ -10,7 +10,6 @@ import { CssVariableStoreService } from './css-variable-extractor.store';
 describe('CssVariableStoreService', () => {
   let service: CssVariableStoreService;
 
-  // Assemble
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [ReactiveFormsModule],
@@ -34,7 +33,7 @@ describe('CssVariableStoreService', () => {
   });
 
   it('should be created', () => {
-    // Act
+    // Assemble
     const createdService = TestBed.inject(CssVariableStoreService);
 
     // Assert
@@ -43,19 +42,20 @@ describe('CssVariableStoreService', () => {
 
   it('should initialize forms', () => {
     // Act
-    // Assert
     service.state$.subscribe((state) => {
+      // Assert
       expect(state.cssForm).toBeTruthy();
       expect(state.exportForm).toBeTruthy();
     });
   });
 
   it('should set step', () => {
-    // Act
+    // Assemble
     service.setStep(1);
 
-    // Assert
+    // Act
     service.state$.subscribe((state) => {
+      // Assert
       expect(state.activeStep).toBe(1);
     });
   });
@@ -124,6 +124,30 @@ describe('CssVariableStoreService', () => {
         { name: '--example-color', value: 'red' },
       ]);
       expect(state.activeStep).toBe(2);
+    });
+  });
+
+  it('should apply overrides', () => {
+    // Assemble
+    service.patchState({
+      customVariables: [
+        { name: 'oldName', value: 'someValue' },
+        { name: 'unmatchedName', value: 'someValue' },
+      ],
+      cssForm: new FormBuilder().group({
+        overrides: ['{"oldName": "newName"}'],
+      }),
+    });
+
+    // Act
+    service.applyOverrides();
+
+    // Assert
+    service.state$.subscribe((state) => {
+      expect(state.customVariables).toEqual([
+        { name: 'newName', value: 'someValue' },
+      ]);
+      expect(state.activeStep).toBe(3);
     });
   });
 
@@ -201,9 +225,10 @@ describe('CssVariableStoreService', () => {
       currentItemIndex: 0,
     });
 
-    // Act & Assert
+    // Act
     service.parseCss();
 
+    // Assert
     service.state$.pipe(take(1)).subscribe((state) => {
       state.extractedVariables.forEach((variable) => {
         expect(variable.name).toBe('--body-color');
@@ -211,9 +236,11 @@ describe('CssVariableStoreService', () => {
       });
       expect(state.currentItemIndex).toBe(0);
 
+      // Act
       service.processNextItem();
       service.parseCss();
 
+      // Assert
       service.state$.pipe(take(1)).subscribe((state) => {
         state.extractedVariables.forEach((variable) => {
           expect(variable.name).toBe('--body-color');
@@ -243,10 +270,11 @@ describe('CssVariableStoreService', () => {
       currentItemIndex: 0,
     });
 
-    // Act & Assert
+    // Act
     service.parseCss();
     service.exportVariables();
 
+    // Assert
     service.state$.pipe(take(1)).subscribe((state) => {
       state.extractedVariables.forEach((variable) => {
         expect(variable.name).toBe('--body-color');
@@ -257,10 +285,12 @@ describe('CssVariableStoreService', () => {
       ]);
       expect(state.currentItemIndex).toBe(0);
 
+      // Act
       service.processNextItem();
       service.parseCss();
       service.exportVariables();
 
+      // Assert
       service.state$.pipe(take(1)).subscribe((state) => {
         state.extractedVariables.forEach((variable) => {
           expect(variable.name).toBe('--body-color');

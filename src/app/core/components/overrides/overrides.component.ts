@@ -5,19 +5,18 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CssVariableStoreService } from '@store';
 
 @Component({
-  selector: 'app-variables',
+  selector: 'app-overrides',
   standalone: true,
-
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './variables.component.html',
-  styleUrl: './variables.component.scss',
+  templateUrl: './overrides.component.html',
+  styleUrl: './overrides.component.scss',
 })
-export class VariablesComponent {
+export class OverridesComponent {
   private _store = inject(CssVariableStoreService);
 
   public viewModel$ = this._store.viewModel$;
 
-  public exportVariables(): void {
-    this._store.exportVariables();
+  public applyOverrides(): void {
+    this._store.applyOverrides();
   }
 }
