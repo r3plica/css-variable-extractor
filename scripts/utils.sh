@@ -41,6 +41,7 @@ delete_branch() {
 }
 
 update_version() {
+  local branch_name=${1:-master}
   local old_version new_version
 
   # Check if package.json exists
@@ -54,7 +55,7 @@ update_version() {
   echo "Current version: $old_version"
 
   # Run semantic-release to bump the version (without committing or tagging)
-  npx semantic-release --no-ci || {
+  npx semantic-release --branch $branch_name --no-ci || {
     echo "Failed to bump version"; exit 1;
   }
 

@@ -10,7 +10,7 @@ source "$SCRIPT_DIR/utils.sh"
 check_out_branch "develop"
 
 # update version
-new_version=$(update_version)
+new_version=$(update_version "develop")
 
 git stash || { echo "Failed to stash changes"; exit 1; }
 

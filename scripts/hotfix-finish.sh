@@ -19,7 +19,7 @@ hotfix_name=$(echo "$latest_hotfix" | sed 's|origin/hotfix/||' | xargs)
 check_out_branch "hotfix/$hotfix_name"
 
 # update version
-new_version=$(update_version)
+new_version=$(update_version hotfix/$hotfix_name)
 
 git add . || { echo "Failed to add changes"; exit 1; }
 git commit -m "Bump version to $new_version" || { echo "Failed to commit changes"; exit 1; }
