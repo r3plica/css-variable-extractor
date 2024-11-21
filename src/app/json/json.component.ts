@@ -4,8 +4,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { CssVariableStoreService } from '@store';
 import {
-  FormErrorComponent,
   JsonViewerComponent,
+  OverridesComponent,
   ResultsComponent,
   StepperComponent,
   VariablesComponent,
@@ -15,14 +15,15 @@ import {
   templateUrl: './json.component.html',
   styleUrls: ['./json.component.scss'],
   standalone: true,
+
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    FormErrorComponent,
     VariablesComponent,
     ResultsComponent,
     StepperComponent,
     JsonViewerComponent,
+    OverridesComponent,
   ],
 })
 export class JsonComponent implements OnInit {

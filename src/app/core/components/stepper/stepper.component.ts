@@ -8,6 +8,7 @@ import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
 @Component({
   selector: 'app-stepper',
   standalone: true,
+
   imports: [CommonModule, ProgressBarComponent],
   templateUrl: './stepper.component.html',
   styleUrl: './stepper.component.scss',

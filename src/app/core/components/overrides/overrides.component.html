@@ -1,0 +1,29 @@
+<ng-container *ngIf="viewModel$ | async as vm">
+  <p class="text-base font-light leading-relaxed mt-0 mb-4 text-red-800">
+    Your overrides should be an array of key/value pairs matching the generated
+    variable names with the names you want to override them to. If you don't
+    know them, you can skip this step
+  </p>
+
+  <form
+    [formGroup]="vm.cssForm"
+    (ngSubmit)="applyOverrides()"
+    class="mt-4"
+    *ngIf="vm.cssForm"
+  >
+    <textarea
+      formControlName="overrides"
+      class="px-3 py-3 h-64 placeholder-blueGray-300 text-blueGray-600 relative bg-white rounded text-sm shadow outline-none focus:outline-none focus:shadow-outline w-full"
+      placeholder="Paste your overrides here..."
+    ></textarea>
+
+    <div class="mt-6 flex justify-end gap-4 sticky-bar">
+      <button
+        type="submit"
+        class="bg-red-500 text-white active:bg-red-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150n"
+      >
+        Continue
+      </button>
+    </div>
+  </form>
+</ng-container>

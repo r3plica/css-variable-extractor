@@ -23,6 +23,7 @@
     "paths": {
       "@services": ["src/app/core/services"],
       "@store": ["src/app/core/store"],
+      "@directives": ["src/app/core/directives"],
       "@components": ["src/app/core/components"]
     }
   },

@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-expansion-panel',
   standalone: true,
+
   imports: [CommonModule],
   templateUrl: './expansion-panel.component.html',
   styleUrl: './expansion-panel.component.scss',

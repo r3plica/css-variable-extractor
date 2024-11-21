@@ -8,28 +8,6 @@
     <div class="px-4 py-5 flex-auto">
       <!-- Step 1: JSON Input -->
       <ng-container *ngIf="vm.activeStep === 0">
-        <!-- Error message for the form -->
-        <div
-          class="text-white px-6 py-4 border-0 rounded relative mb-4 bg-red-500"
-          *ngIf="
-            vm.errors[vm.activeStep] &&
-            vm.cssForm?.touched &&
-            !vm.cssForm?.valid
-          "
-        >
-          <span class="text-xl inline-block mr-5 align-middle">
-            <i class="fas fa-bell"></i>
-          </span>
-          <span class="inline-block align-middle mr-8">
-            <b class="capitalize">Error!</b> {{ vm.errors[vm.activeStep] }}
-          </span>
-          <button
-            class="absolute bg-transparent text-2xl font-semibold leading-none right-0 top-0 mt-4 mr-6 outline-none focus:outline-none"
-          >
-            <span>×</span>
-          </button>
-        </div>
-
         <form
           [formGroup]="vm.cssForm"
           (ngSubmit)="parseCss()"
@@ -43,12 +21,6 @@
             class="px-3 py-3 placeholder-blueGray-300 text-blueGray-600 relative bg-white rounded text-sm shadow outline-none focus:outline-none focus:shadow-outline w-full mt-4 border-blueGray-600 border"
           />
 
-          <app-form-error
-            [form]="vm.cssForm"
-            controlName="jsonInput"
-            errorMessage="You must select a JSON file."
-          />
-
           <app-json-viewer [form]="vm.cssForm" controlName="xpath" />
 
           <input
@@ -58,17 +30,54 @@
             placeholder="Enter XPath to extract CSS data..."
           />
 
-          <app-form-error [form]="vm.cssForm" controlName="xpath" />
+          <label
+            class="flex items-center mt-4"
+            [ngClass]="{
+              'opacity-50': vm.cssForm.get('mergeDuplicates')?.disabled,
+            }"
+          >
+            <input
+              type="checkbox"
+              formControlName="mergeDuplicates"
+              class="mr-2"
+            />
+            Merge Duplicates
+          </label>
 
-          <div class="mt-6 flex justify-end gap-4">
-            <label class="flex items-center">
-              <input
-                type="checkbox"
-                formControlName="mergeDuplicates"
-                class="mr-2"
-              />
-              Merge Duplicates
-            </label>
+          <label class="flex items-center mt-4">
+            <input
+              type="checkbox"
+              formControlName="existingStructure"
+              class="mr-2"
+            />
+            Keep existing structure
+          </label>
+
+          <label
+            class="flex items-center mt-4"
+            [ngClass]="{
+              'opacity-50': vm.cssForm.get('overrideVariableNames')?.disabled,
+            }"
+          >
+            <input
+              type="checkbox"
+              formControlName="overrideVariableNames"
+              class="mr-2"
+            />
+            Override variable names
+          </label>
+
+          <label
+            class="flex items-center mt-4"
+            [ngClass]="{
+              'opacity-50': vm.cssForm.get('overrideVariableNames')?.disabled,
+            }"
+          >
+            <input type="checkbox" formControlName="addShades" class="mr-2" />
+            Add color shades
+          </label>
+
+          <div class="mt-6 flex justify-end gap-4 sticky-bar">
             <button
               type="button"
               (click)="clearInput()"
@@ -87,7 +96,13 @@
       </ng-container>
 
       <app-variables *ngIf="vm.activeStep === 1" />
-      <app-results *ngIf="vm.activeStep === 2" />
+
+      @if (vm.cssForm?.get("overrideVariableNames")?.value == true) {
+        <app-overrides *ngIf="vm.activeStep === 2" />
+        <app-results *ngIf="vm.activeStep === 3" />
+      } @else {
+        <app-results *ngIf="vm.activeStep === 2" />
+      }
     </div>
   </main>
 </div>

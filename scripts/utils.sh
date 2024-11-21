@@ -42,6 +42,7 @@ delete_branch() {
 
 update_version() {
   local branch_name=${1:-master}
+  local bump_type=${2:-patch}  # Accept a bump type (patch, minor, major)
   local old_version new_version
 
   # Check if package.json exists
@@ -52,24 +53,38 @@ update_version() {
 
   # Extract the current version from package.json
   old_version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
-  echo "Current version: $old_version"
 
-  # Run semantic-release to bump the version (without committing or tagging)
-  npx semantic-release --branch $branch_name --no-ci || {
-    echo "Failed to bump version"; exit 1;
+  # Function to increment version (patch, minor, major)
+  increment_version() {
+    local version=$1
+    local type=$2
+    IFS='.' read -r major minor patch <<< "$version"
+
+    case "$type" in
+      major) echo "$((major+1)).0.0" ;;
+      minor) echo "$major.$((minor+1)).0" ;;
+      patch) echo "$major.$minor.$((patch+1))" ;;
+      *) echo "$version" ;;
+    esac
   }
 
-  # Extract the new version from package.json
-  new_version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
-  echo "New version: $new_version"
+  # Increment the version based on the bump type (patch, minor, major)
+  new_version=$(increment_version "$old_version" "$bump_type")
+
+  # Update the version in package.json using sed
+  sed -i "s/\"version\": \"$old_version\"/\"version\": \"$new_version\"/" package.json
 
   # Verify the version was updated
-  if [ "$old_version" == "$new_version" ]; then
-    echo "Error: semantic-release did not update package.json version!"
+  new_version_check=$(grep -oP '"version": "\K[0-9\.]+' package.json)
+
+  if [ "$old_version" == "$new_version_check" ]; then
+    echo "Error: Version update failed!"
     exit 1
   fi
 
   # Return the new version
   echo "$new_version"
 }
+
+
 

@@ -1,5 +1,5 @@
 {
-  "github.copilot.chat.experimental.codeGeneration.useInstructionFiles": true,
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
   "eslint.options": {},
   "eslint.run": "onType",
   "editor.formatOnSave": true,

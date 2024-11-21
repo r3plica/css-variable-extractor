@@ -6,11 +6,20 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Source utils.sh from the script's directory
 source "$SCRIPT_DIR/utils.sh"
 
+# Get the version type from the command line argument (default to 'patch' if not provided)
+version_type=${1:-patch}
+
+# Check if the version type is valid (major, minor, or patch)
+if [[ ! "$version_type" =~ ^(major|minor|patch)$ ]]; then
+  echo "Invalid version type '$version_type'. Valid options are 'major', 'minor', or 'patch'."
+  exit 1
+fi
+
 # Check if on the correct branch
 check_out_branch "develop"
 
-# update version
-new_version=$(update_version "develop")
+# Update version (pass the version type to the update_version function)
+new_version=$(update_version "$version_type")
 
 git stash || { echo "Failed to stash changes"; exit 1; }
 
