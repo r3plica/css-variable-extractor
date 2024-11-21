@@ -7,11 +7,11 @@
       "develop",
       {
         "name": "release/*",
-        "prerelease": true
+        "prerelease": "rc"
       },
       {
         "name": "hotfix/*",
-        "prerelease": true
+        "prerelease": "hotfix"
       }
     ],
     "plugins": [
