@@ -16,12 +16,6 @@ if [ -z "$name" ]; then
   exit 1
 fi
 
-# Check if git flow is initialized
-if ! git flow 2>&1 | grep -q 'No current branch'; then
-  echo "Git flow is not initialized. Please initialize it before running the script."
-  exit 1
-fi
-
 # Start the feature branch using git flow
 git flow feature start "$name" || { echo "Failed to start feature '$name'"; exit 1; }
 

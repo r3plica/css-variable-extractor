@@ -21,10 +21,11 @@
     "useDefineForClassFields": false,
     "lib": ["ES2022", "dom"],
     "paths": {
-      "@services": ["src/app/core/services"],
-      "@store": ["src/app/core/store"],
-      "@directives": ["src/app/core/directives"],
-      "@components": ["src/app/core/components"]
+      "@services": ["src/app/_core/services"],
+      "@models": ["src/app/_core/models"],
+      "@store": ["src/app/_core/store"],
+      "@directives": ["src/app/_core/directives"],
+      "@components": ["src/app/_core/components"]
     }
   },
   "angularCompilerOptions": {
