@@ -6,8 +6,9 @@ import { ComponentStore } from '@ngrx/component-store';
 import { withLatestFrom, tap, from } from 'rxjs';
 import { JSONPath } from 'jsonpath-plus';
 
+import { CssVariable } from '@models';
+
 import {
-  CssVariable,
   CssVariableExtractorService,
 } from './css-variable-extractor.service';
 

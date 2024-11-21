@@ -13,9 +13,10 @@ module.exports = {
   },
   moduleFileExtensions: ["ts", "html", "js", "json", "mjs"],
   moduleNameMapper: {
-    "^@services(.*)$": "<rootDir>/src/app/core/services$1",
-    "^@store(.*)$": "<rootDir>/src/app/core/store$1",
-    "^@directives(.*)$": "<rootDir>/src/app/core/directives$1",
-    "^@components(.*)$": "<rootDir>/src/app/core/components$1",
+    "^@services(.*)$": "<rootDir>/src/app/_core/services$1",
+    "^@models(.*)$": "<rootDir>/src/app/_core/models$1",
+    "^@store(.*)$": "<rootDir>/src/app/_core/store$1",
+    "^@directives(.*)$": "<rootDir>/src/app/_core/directives$1",
+    "^@components(.*)$": "<rootDir>/src/app/_core/components$1",
   },
 };
