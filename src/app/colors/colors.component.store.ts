@@ -54,7 +54,7 @@ export class ColorsComponentStore extends ComponentStore<ColorsState> {
         const variables = JSON.parse(inputControl.value);
         if (Array.isArray(variables)) {
           const colorScale = this._colorService.generateColorScale(variables);
-          const jsonString = JSON.stringify(variables, null, 2);
+          const jsonString = JSON.stringify(colorScale, null, 2);
           outputControl.setValue(jsonString);
           return {
             ...state,
