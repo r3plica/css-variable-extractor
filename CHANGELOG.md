@@ -1,3 +1,10 @@
+## [1.6.4-rc.2](https://github.com/r3plica/css-variable-extractor/compare/v1.6.4-rc.1...v1.6.4-rc.2) (2024-11-21)
+
+
+### Bug Fixes
+
+* dont publish to npm ([da8656f](https://github.com/r3plica/css-variable-extractor/commit/da8656fdbbb23e5d3222489cbc21d0a2aa0004fd))
+
 ## [1.6.4-rc.1](https://github.com/r3plica/css-variable-extractor/compare/v1.6.3...v1.6.4-rc.1) (2024-11-21)
 
 
