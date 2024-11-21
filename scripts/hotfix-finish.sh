@@ -18,13 +18,13 @@ if [ -z "$hotfix_name" ]; then
   echo "Error: Hotfix name is empty!"
   exit 1
 fi
-echo "We have our hotfix name: $hotfix_name"
 
 # Check if on the correct branch
 check_out_branch "hotfix/$hotfix_name"
 
 # update version
 new_version=$(update_version hotfix/$hotfix_name)
+echo "Bumping version to $new_version"
 
 git add . || { echo "Failed to add changes"; exit 1; }
 git commit -m "Bump version to $new_version" || { echo "Failed to commit changes"; exit 1; }
