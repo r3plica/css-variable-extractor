@@ -53,7 +53,6 @@ update_version() {
 
   # Extract the current version from package.json
   old_version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
-  echo "Current version: $old_version"
 
   # Function to increment version (patch, minor, major)
   increment_version() {
@@ -72,8 +71,6 @@ update_version() {
   # Increment the version based on the bump type (patch, minor, major)
   new_version=$(increment_version "$old_version" "$bump_type")
 
-  echo "New version: $new_version"
-
   # Update the version in package.json using sed
   sed -i "s/\"version\": \"$old_version\"/\"version\": \"$new_version\"/" package.json
 
@@ -88,5 +85,6 @@ update_version() {
   # Return the new version
   echo "$new_version"
 }
+
 
 
