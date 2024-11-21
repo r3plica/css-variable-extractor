@@ -1,12 +1,16 @@
 #!/bin/bash
 
-source ./utils.sh
+# Get the directory of the current script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source utils.sh from the script's directory
+source "$SCRIPT_DIR/utils.sh"
 
 # Check if on the correct branch
 check_out_branch "develop"
 
 # update version
-new_version=$(update_version)
+new_version=$(update_version "develop")
 
 git stash || { echo "Failed to stash changes"; exit 1; }
 

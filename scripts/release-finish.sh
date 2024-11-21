@@ -1,6 +1,10 @@
 #!/bin/bash
 
-source ./utils.sh
+# Get the directory of the current script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source utils.sh from the script's directory
+source "$SCRIPT_DIR/utils.sh"
 
 # Find the latest release branch
 latest_release=$(git branch -r | grep 'origin/release/' | sort -V | tail -n 1)
@@ -10,8 +14,11 @@ if [ -z "$latest_release" ]; then
   exit 1
 fi
 
+# Extract the release name from the branch
+release_name="${latest_release#origin/release/}"
+
 # Check if on the correct branch
-check_out_branch "$latest_release"
+check_out_branch "release/$release_name"
 
 # Get the version from package.json
 version=$(grep -oP '"version": "\K[0-9\.]+' package.json)
@@ -20,9 +27,6 @@ if [ -z "$version" ]; then
   echo "Error: Version not found in package.json!"
   exit 1
 fi
-
-# Extract the release name from the branch
-release_name="${latest_release#origin/release/}"
 
 echo "Finishing release branch: $release_name"
 # Finish the release with git flow
