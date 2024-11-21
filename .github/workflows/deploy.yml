@@ -41,7 +41,7 @@ jobs:
 
       - name: Build project
         run: |
-          npx vercel pull --token ${{ secrets.VERCEL_TOKEN }}
+          npx vercel pull --token ${{ secrets.VERCEL_TOKEN }} --yes
           npx vercel build
 
       - name: Move build files to root
