@@ -12,4 +12,9 @@ export const routes: Routes = [
     path: 'json',
     loadChildren: () => import('./json/json.module').then((m) => m.JsonModule),
   },
+  {
+    path: 'colors',
+    loadChildren: () =>
+      import('./colors/colors.module').then((m) => m.ColorsModule),
+  },
 ];

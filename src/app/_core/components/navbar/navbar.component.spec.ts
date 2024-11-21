@@ -71,6 +71,6 @@ describe('NavbarComponent', () => {
     );
     expect(links[1].nativeElement.textContent).toContain('CSS');
     expect(links[2].nativeElement.textContent).toContain('Json');
-    expect(links[3].nativeElement.textContent).toContain('Shading');
+    expect(links[3].nativeElement.textContent).toContain('Colors');
   });
 });

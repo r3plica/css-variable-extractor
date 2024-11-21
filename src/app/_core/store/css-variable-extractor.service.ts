@@ -2,10 +2,7 @@ import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import * as postcss from 'postcss';
 
-export interface CssVariable {
-  name: string;
-  value: string;
-}
+import { CssVariable } from '@models';
 
 @Injectable({
   providedIn: 'root',

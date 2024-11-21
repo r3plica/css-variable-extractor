@@ -1,0 +1,106 @@
+<ng-container *ngIf="viewModel$ | async as vm">
+  <div class="w-full">
+    <ul class="flex mb-0 list-none flex-wrap pt-3 pb-4 flex-row">
+      <li class="-mb-px mr-2 last:mr-0 flex-auto text-center">
+        <a
+          id="step-1"
+          class="text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal step"
+          (click)="vm.activeStep > 0 ? setStep(0) : null"
+          [ngClass]="{
+            'text-red-600 bg-white cursor-pointer': vm.activeStep > 0,
+            'text-white bg-red-600': vm.activeStep === 0,
+          }"
+        >
+          Step 1: Variables input
+        </a>
+      </li>
+      <li class="-mb-px mr-2 last:mr-0 flex-auto text-center">
+        <a
+          id="step-2"
+          class="text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal step"
+          (click)="vm.activeStep > 1 ? setStep(1) : null"
+          [ngClass]="{
+            'text-red-600 bg-white cursor-pointer': vm.activeStep > 1,
+            'text-white bg-red-600': vm.activeStep === 1,
+          }"
+        >
+          Step 2: Colors export
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <section
+    class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded"
+  >
+    <div class="px-4 py-5 flex-auto">
+      <div *ngIf="vm.activeStep === 0">
+        <p class="text-base font-light leading-relaxed mt-0 mb-4 text-red-800">
+          Paste your CSS variables in the box below and click the Parse button
+          to generate a list of colors ranging from 50 to 950.
+        </p>
+
+        <form
+          [formGroup]="vm.form"
+          (ngSubmit)="parseVariables()"
+          class="mt-4"
+          *ngIf="vm.form"
+        >
+          <textarea
+            formControlName="input"
+            class="px-3 py-3 h-64 placeholder-blueGray-300 text-blueGray-600 relative bg-white rounded text-sm shadow outline-none focus:outline-none focus:shadow-outline w-full"
+            placeholder="Paste your variables here..."
+          ></textarea>
+
+          <div class="mt-4 flex justify-end gap-4">
+            <button
+              type="button"
+              (click)="clearInput()"
+              class="bg-blueGray-500 text-white active:bg-blueGray-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+            >
+              Clear
+            </button>
+            <button
+              type="submit"
+              class="bg-red-500 text-white active:bg-red-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+            >
+              Parse
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <form
+        [formGroup]="vm.form"
+        (ngSubmit)="exportToFile()"
+        class="mt-4"
+        *ngIf="vm.form && vm.activeStep === 1"
+      >
+        <textarea
+          formControlName="output"
+          class="px-3 py-3 h-64 placeholder-blueGray-300 text-blueGray-600 relative bg-white rounded text-sm shadow outline-none focus:outline-none focus:shadow-outline w-full"
+          placeholder="Paste your variables here..."
+        ></textarea>
+
+        <div class="mt-6 flex justify-end gap-4 sticky-bar">
+          <button
+            id="copyToClipboard"
+            type="button"
+            (click)="copyToClipboard()"
+            class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition"
+          >
+            Copy to Clipboard
+          </button>
+
+          <button
+            id="exportToFile"
+            type="submit"
+            class="bg-red-500 text-white active:bg-red-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+          >
+            Export to File
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+</ng-container>

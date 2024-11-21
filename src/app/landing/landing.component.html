@@ -1,1 +1,87 @@
-<p>landing works!</p>
+<section class="pb-20 relative block -mb-[200px] bg-blueGray-800">
+  <div
+    class="bottom-auto top-0 left-0 right-0 w-full absolute pointer-events-none overflow-hidden -mt-20 h-20"
+    style="transform: translateZ(0)"
+  >
+    <svg
+      class="absolute bottom-0 overflow-hidden"
+      xmlns="http://www.w3.org/2000/svg"
+      preserveAspectRatio="none"
+      version="1.1"
+      viewBox="0 0 2560 100"
+      x="0"
+      y="0"
+    >
+      <polygon
+        class="text-blueGray-800 fill-current"
+        points="2560 0 2560 100 0 100"
+      ></polygon>
+    </svg>
+  </div>
+
+  <div class="container mx-auto px-4 lg:pt-24 lg:pb-64">
+    <div class="flex flex-wrap text-center justify-center">
+      <div class="w-full lg:w-6/12 px-4">
+        <h2 class="text-4xl font-semibold text-white">What do we do?</h2>
+        <p class="text-lg leading-relaxed mt-4 mb-4 text-blueGray-400">
+          Effortlessly extract, modify, and manage your CSS variables with our
+          powerful CSS Variable Extractor. This tool allows you to quickly pull
+          variable names from your stylesheets, modify them, and save the
+          results in a structured JSON format. With support for processing
+          multiple CSS files at once, you can either process them individually
+          or combine them into one final output.
+        </p>
+
+        <p class="text-lg leading-relaxed mt-4 mb-4 text-blueGray-400">
+          Our uploader lets you import your CSS files with ease, preserving the
+          original file structure or allowing you to customize the process as
+          needed. Plus, the built-in colors feature analyzes your color
+          variables and generates color variations in increments of 50, from 50
+          to 950, giving you a full palette to enhance your designs.
+        </p>
+
+        <p class="text-lg leading-relaxed mt-4 mb-4 text-blueGray-400">
+          Whether you're organizing a large CSS project or just need to tweak a
+          few variables, this tool streamlines the process, saving you time and
+          effort while providing flexibility and control over your CSS variable
+          management.
+        </p>
+      </div>
+    </div>
+    <div class="flex flex-wrap mt-12 justify-center">
+      <div class="w-full lg:w-3/12 px-4 text-center">
+        <a
+          class="text-blueGray-800 p-3 w-12 h-12 shadow-lg rounded-full bg-white inline-flex items-center justify-center"
+          [routerLink]="['/css']"
+        >
+          <div class="css-icon"></div>
+        </a>
+        <a [routerLink]="['/css']">
+          <h6 class="text-xl mt-5 font-semibold text-white">CSS</h6>
+        </a>
+      </div>
+      <div class="w-full lg:w-3/12 px-4 text-center">
+        <a
+          class="text-blueGray-800 p-3 w-12 h-12 shadow-lg rounded-full bg-white inline-flex items-center justify-center"
+          [routerLink]="['/json']"
+        >
+          <div class="json-icon"></div>
+        </a>
+        <a [routerLink]="['/json']">
+          <h5 class="text-xl mt-5 font-semibold text-white">JSON</h5>
+        </a>
+      </div>
+      <div class="w-full lg:w-3/12 px-4 text-center">
+        <a
+          class="text-blueGray-800 p-3 w-12 h-12 shadow-lg rounded-full bg-white inline-flex items-center justify-center"
+          [routerLink]="['/colors']"
+        >
+          <div class="color-colors-icon"></div>
+        </a>
+        <a [routerLink]="['/colors']">
+          <h5 class="text-xl mt-5 font-semibold text-white">Colors</h5>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
