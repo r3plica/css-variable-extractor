@@ -59,10 +59,6 @@ jobs:
 
       - name: Promote to production (if build is successful)
         run: |
-          # Get the latest deployment URL
-          DEPLOYMENT_URL=$(npx vercel --token ${{ secrets.VERCEL_TOKEN }} --org ${{ secrets.VERCEL_ORG_ID }} --project ${{ secrets.VERCEL_PROJECT_ID }} ls --prod --json | jq -r '.[0].url')
-
-          # Promote the build to production
-          curl -X POST https://api.vercel.com/v1/now/deployments/${{ secrets.VERCEL_DEPLOYMENT_ID }}/promote \
-            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
-            -d '{"target": "production"}'
+          DEPLOYMENT_URL="${{ steps.get_deployment.outputs.deployment_url }}"
+          echo "Promoting deployment to production: $DEPLOYMENT_URL"
+          npx vercel promote $DEPLOYMENT_URL --token ${{ secrets.VERCEL_TOKEN }}
