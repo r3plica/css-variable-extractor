@@ -40,7 +40,7 @@ jobs:
         run: npm run test
 
       - name: Build project
-        run: npm run build --omit=dev
+        run: npm run vercel build
 
       - name: Move build files to root
         run: |

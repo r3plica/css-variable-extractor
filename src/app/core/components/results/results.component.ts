@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { CssVariableStoreService } from '@store';
@@ -9,6 +9,7 @@ import { ExpansionPanelComponent } from '../expansion-panel/expansion-panel.comp
 @Component({
   selector: 'app-results',
   standalone: true,
+
   imports: [CommonModule, ReactiveFormsModule, ExpansionPanelComponent],
   templateUrl: './results.component.html',
   styleUrl: './results.component.scss',

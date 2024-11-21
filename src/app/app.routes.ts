@@ -1,10 +1,15 @@
 import { Routes } from '@angular/router';
 
-import { CssComponent } from './css/css.component';
-import { JsonComponent } from './json/json.component';
+import { LandingComponent } from './landing/landing.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'css', pathMatch: 'full' },
-  { path: 'css', component: CssComponent },
-  { path: 'json', component: JsonComponent },
+  { path: '', component: LandingComponent },
+  {
+    path: 'css',
+    loadChildren: () => import('./css/css.module').then((m) => m.CssModule),
+  },
+  {
+    path: 'json',
+    loadChildren: () => import('./json/json.module').then((m) => m.JsonModule),
+  },
 ];

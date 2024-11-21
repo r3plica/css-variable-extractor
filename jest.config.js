@@ -15,6 +15,7 @@ module.exports = {
   moduleNameMapper: {
     "^@services(.*)$": "<rootDir>/src/app/core/services$1",
     "^@store(.*)$": "<rootDir>/src/app/core/store$1",
+    "^@directives(.*)$": "<rootDir>/src/app/core/directives$1",
     "^@components(.*)$": "<rootDir>/src/app/core/components$1",
   },
 };
