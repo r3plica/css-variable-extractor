@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import * as postcss from 'postcss';
 
 export interface CssVariable {
@@ -41,6 +42,26 @@ export class CssVariableExtractorService {
     );
 
     return mergeDuplicates ? this._removeDuplicateValues(variables) : variables;
+  }
+
+  public handleCheckboxes(cssForm: FormGroup | undefined): void {
+    cssForm?.get('mergeDuplicates')?.valueChanges.subscribe((value) => {
+      if (value) {
+        cssForm.get('advancedConfiguration')?.setValue(false);
+        cssForm.get('advancedConfiguration')?.disable();
+      } else {
+        cssForm.get('advancedConfiguration')?.enable();
+      }
+    });
+
+    cssForm?.get('advancedConfiguration')?.valueChanges.subscribe((value) => {
+      if (value) {
+        cssForm.get('mergeDuplicates')?.setValue(false);
+        cssForm.get('mergeDuplicates')?.disable();
+      } else {
+        cssForm.get('mergeDuplicates')?.enable();
+      }
+    });
   }
 
   private _isValidCssValue(value: string): boolean {

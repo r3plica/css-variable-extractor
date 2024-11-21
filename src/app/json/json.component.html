@@ -60,15 +60,34 @@
 
           <app-form-error [form]="vm.cssForm" controlName="xpath" />
 
+          <label class="flex items-center mt-4">
+            <input
+              type="checkbox"
+              formControlName="mergeDuplicates"
+              class="mr-2"
+            />
+            Merge Duplicates
+          </label>
+
+          <label class="flex items-center mt-4">
+            <input
+              type="checkbox"
+              formControlName="existingStructure"
+              class="mr-2"
+            />
+            Keep existing structure
+          </label>
+
+          <label class="flex items-center mt-4">
+            <input
+              type="checkbox"
+              formControlName="advancedConfiguration"
+              class="mr-2"
+            />
+            Advanced configuration
+          </label>
+
           <div class="mt-6 flex justify-end gap-4">
-            <label class="flex items-center">
-              <input
-                type="checkbox"
-                formControlName="mergeDuplicates"
-                class="mr-2"
-              />
-              Merge Duplicates
-            </label>
             <button
               type="button"
               (click)="clearInput()"

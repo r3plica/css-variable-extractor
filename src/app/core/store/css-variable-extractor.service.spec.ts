@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 import { CssVariableExtractorService } from './css-variable-extractor.service';
 
@@ -117,5 +118,32 @@ describe('CssVariableExtractorService', () => {
 
     // Assert
     expect(result).toBe(16711680);
+  });
+
+  it('should handle checkboxes correctly', () => {
+    // Assemble
+    const fb = new FormBuilder();
+    const cssForm: FormGroup = fb.group({
+      mergeDuplicates: [false],
+      advancedConfiguration: [{ value: false, disabled: true }],
+    });
+
+    // Act
+    service.handleCheckboxes(cssForm);
+
+    // Assert
+    cssForm.get('mergeDuplicates')?.setValue(true);
+    expect(cssForm.get('advancedConfiguration')?.disabled).toBe(true);
+    expect(cssForm.get('advancedConfiguration')?.value).toBe(false);
+
+    cssForm.get('mergeDuplicates')?.setValue(false);
+    expect(cssForm.get('advancedConfiguration')?.enabled).toBe(true);
+
+    cssForm.get('advancedConfiguration')?.setValue(true);
+    expect(cssForm.get('mergeDuplicates')?.disabled).toBe(true);
+    expect(cssForm.get('mergeDuplicates')?.value).toBe(false);
+
+    cssForm.get('advancedConfiguration')?.setValue(false);
+    expect(cssForm.get('mergeDuplicates')?.enabled).toBe(true);
   });
 });

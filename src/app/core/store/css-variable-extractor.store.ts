@@ -48,7 +48,9 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
         {
           cssInput: [''],
           jsonInput: [''],
-          mergeDuplicates: [true],
+          mergeDuplicates: [false],
+          existingStructure: [false],
+          advancedConfiguration: [false],
           xpath: [''],
         },
         {
@@ -60,6 +62,8 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
       ),
       exportForm: this._fb.group({}),
     });
+
+    this._cssVariableExtractorService.handleCheckboxes(this.get().cssForm);
   }
 
   readonly activeStep$ = this.select((state) => state.activeStep);
