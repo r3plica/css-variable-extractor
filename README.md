@@ -25,3 +25,19 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+
+# Git Flow
+
+If you have just cloned the repo, you will need to init git flow
+
+```
+git flow init
+```
+
+## Scripts
+
+When running scripts to help with git flow, you first need to give executable permissions:
+
+```
+chmod +x ./scripts/*
+```
