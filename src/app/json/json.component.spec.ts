@@ -1,12 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 
 import { CssVariableExtractorStore } from '@store';
 import {
   FormErrorComponent,
   JsonViewerComponent,
+  OverridesComponent,
   ResultsComponent,
   StepperComponent,
   VariablesComponent,
@@ -18,6 +19,7 @@ describe('JsonComponent', () => {
   let component: JsonComponent;
   let fixture: ComponentFixture<JsonComponent>;
   let store: CssVariableExtractorStore;
+  let formBuilder: FormBuilder;
 
   // Assemble
   beforeEach(async () => {
@@ -38,6 +40,7 @@ describe('JsonComponent', () => {
     fixture = TestBed.createComponent(JsonComponent);
     component = fixture.componentInstance;
     store = component['_store'];
+    formBuilder = TestBed.inject(FormBuilder);
     fixture.detectChanges();
   });
 
@@ -105,17 +108,32 @@ describe('JsonComponent', () => {
   });
 
   it('should display the variables component', () => {
-    // Assemble
-    store.setState((state) => ({ ...state, activeStep: 1 }));
-
-    // Act
+    store.setState((state) => ({
+      ...state,
+      activeStep: 1,
+      cssForm: formBuilder.group({ overrideVariableNames: [false] }),
+    }));
     fixture.detectChanges();
     const variables = fixture.debugElement.query(
       By.directive(VariablesComponent),
     );
-
-    // Assert
     expect(variables).not.toBeNull();
+  });
+
+  it('should display the overrides component', () => {
+    store.setState((state) => ({
+      ...state,
+      activeStep: 1,
+      cssForm: formBuilder.group({
+        overrideVariableNames: [true],
+        overrides: [''],
+      }),
+    }));
+    fixture.detectChanges();
+    const overrides = fixture.debugElement.query(
+      By.directive(OverridesComponent),
+    );
+    expect(overrides).not.toBeNull();
   });
 
   it('should display the results component', () => {

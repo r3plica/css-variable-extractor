@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { CssVariableExtractorStore } from '@store';
 import {
+  OverridesComponent,
   ResultsComponent,
   StepperComponent,
   VariablesComponent,
@@ -19,6 +20,7 @@ import {
     ReactiveFormsModule,
     VariablesComponent,
     ResultsComponent,
+    OverridesComponent,
     StepperComponent,
   ],
   providers: [CssVariableExtractorStore],

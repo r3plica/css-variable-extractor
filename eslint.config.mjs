@@ -22,6 +22,7 @@ export default [
       ".angular/",
       ".github/",
       ".vscode/",
+      ".vercel/",
       "dist/",
       "node_modules/",
       "**/dist/",

@@ -5,7 +5,6 @@ import { By } from '@angular/platform-browser';
 import { CssVariableExtractorStore } from '@store';
 
 import { StepperComponent } from './stepper.component';
-import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
 
 describe('StepperComponent', () => {
   let component: StepperComponent;
@@ -15,7 +14,7 @@ describe('StepperComponent', () => {
   // Assemble
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [StepperComponent, ProgressBarComponent],
+      imports: [StepperComponent],
       providers: [
         {
           provide: CssVariableExtractorStore,
@@ -57,7 +56,7 @@ describe('StepperComponent', () => {
       'Step 1: CSS input',
     );
     expect(stepTitles[1].nativeElement.textContent).toContain(
-      'Step 2: Variables to Extract',
+      'Step 2: Variables to extract',
     );
     expect(stepTitles[2].nativeElement.textContent).toContain(
       'Step 3: Results',
@@ -73,28 +72,5 @@ describe('StepperComponent', () => {
 
     // Assert
     expect(store.setStep).toHaveBeenCalledWith(0);
-  });
-
-  it('should display the progress bar', () => {
-    // Act
-    fixture.detectChanges();
-    const progressBar = fixture.debugElement.query(
-      By.css('app-progress-bar'),
-    ).nativeElement;
-
-    // Assert
-    expect(progressBar).toBeTruthy();
-  });
-
-  it('should update the progress bar values', () => {
-    // Act
-    fixture.detectChanges();
-    const progressBar = fixture.debugElement.query(
-      By.css('app-progress-bar'),
-    ).componentInstance;
-
-    // Assert
-    expect(progressBar.currentValue).toBe(1);
-    expect(progressBar.maxValue).toBe(3);
   });
 });
