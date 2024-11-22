@@ -147,7 +147,31 @@ describe('CssVariableStoreService', () => {
     });
   });
 
-  it('should apply overrides', () => {
+  it('should apply overrides with array format', () => {
+    // Assemble
+    service.patchState({
+      customVariables: [
+        { name: 'oldName', value: 'someValue' },
+        { name: 'unmatchedName', value: 'someValue' },
+      ],
+      cssForm: new FormBuilder().group({
+        overrides: ['[["oldName", "newName"]]'],
+      }),
+    });
+
+    // Act
+    service.applyOverrides();
+
+    // Assert
+    service.state$.subscribe((state) => {
+      expect(state.customVariables).toEqual([
+        { name: 'newName', value: 'someValue' },
+      ]);
+      expect(state.activeStep).toBe(3);
+    });
+  });
+
+  it('should apply overrides with object format', () => {
     // Assemble
     service.patchState({
       customVariables: [
@@ -171,7 +195,32 @@ describe('CssVariableStoreService', () => {
     });
   });
 
-  it('should skip apply overrides when no overrides', () => {
+  it('should handle invalid overrides format', () => {
+    // Assemble
+    service.patchState({
+      customVariables: [
+        { name: 'oldName', value: 'someValue' },
+        { name: 'unmatchedName', value: 'someValue' },
+      ],
+      cssForm: new FormBuilder().group({
+        overrides: ['invalid-format'],
+      }),
+    });
+
+    // Act
+    service.applyOverrides();
+
+    // Assert
+    service.state$.subscribe((state) => {
+      expect(state.customVariables).toEqual([
+        { name: 'oldName', value: 'someValue' },
+        { name: 'unmatchedName', value: 'someValue' },
+      ]);
+      expect(state.activeStep).toBe(3);
+    });
+  });
+
+  it('should handle empty overrides', () => {
     // Assemble
     service.patchState({
       customVariables: [
