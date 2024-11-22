@@ -5,22 +5,22 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { of, take } from 'rxjs';
 
 import { CssVariableExtractorService } from './css-variable-extractor.service';
-import { CssVariableStoreService } from './css-variable-extractor.store';
+import { CssVariableExtractorStoreService } from './css-variable-extractor.store';
 
-describe('CssVariableStoreService', () => {
-  let service: CssVariableStoreService;
+describe('CssVariableExtractorStoreService', () => {
+  let service: CssVariableExtractorStoreService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [ReactiveFormsModule],
       providers: [
-        CssVariableStoreService,
+        CssVariableExtractorStoreService,
         FormBuilder,
         CssVariableExtractorService,
       ],
     });
 
-    service = TestBed.inject(CssVariableStoreService);
+    service = TestBed.inject(CssVariableExtractorStoreService);
   });
 
   beforeAll(() => {
@@ -34,7 +34,7 @@ describe('CssVariableStoreService', () => {
 
   it('should be created', () => {
     // Assemble
-    const createdService = TestBed.inject(CssVariableStoreService);
+    const createdService = TestBed.inject(CssVariableExtractorStoreService);
 
     // Assert
     expect(createdService).toBeTruthy();

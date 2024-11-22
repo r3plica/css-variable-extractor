@@ -62,15 +62,12 @@ export class ColorsComponentStore extends ComponentStore<ColorsState> {
             activeStep: 1,
           };
         } else {
-          console.error('Variables should be an array');
           return state;
         }
       } catch (error) {
-        console.error('Invalid JSON format', error);
         return state;
       }
     } else {
-      console.error('Form is invalid');
       return state;
     }
   });

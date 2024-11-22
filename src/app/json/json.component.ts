@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 
-import { CssVariableStoreService } from '@store';
+import { CssVariableExtractorStoreService } from '@store';
 import {
   JsonViewerComponent,
   OverridesComponent,
@@ -25,9 +25,10 @@ import {
     JsonViewerComponent,
     OverridesComponent,
   ],
+  providers: [CssVariableExtractorStoreService],
 })
 export class JsonComponent implements OnInit {
-  private _store = inject(CssVariableStoreService);
+  private _store = inject(CssVariableExtractorStoreService);
 
   public viewModel$ = this._store.viewModel$;
 

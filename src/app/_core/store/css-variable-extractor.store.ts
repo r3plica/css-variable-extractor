@@ -23,7 +23,7 @@ interface LayoutState {
 }
 
 @Injectable()
-export class CssVariableStoreService extends ComponentStore<LayoutState> {
+export class CssVariableExtractorStoreService extends ComponentStore<LayoutState> {
   private _fb = inject(FormBuilder);
   private _cssVariableExtractorService = inject(CssVariableExtractorService);
 
@@ -195,7 +195,6 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
       overrides = new Map(JSON.parse(overridesControl.value));
       if (!overrides.size) return { ...state, activeStep: 3 };
     } catch (error) {
-      console.error('Failed to parse overrides:', error);
       return state;
     }
 

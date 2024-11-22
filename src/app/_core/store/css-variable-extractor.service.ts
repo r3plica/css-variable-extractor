@@ -4,7 +4,7 @@ import * as postcss from 'postcss';
 
 import { CssVariable } from '@models';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class CssVariableExtractorService {
   public convertToCssVariables(
     css: string,
