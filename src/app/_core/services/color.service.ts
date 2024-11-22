@@ -7,17 +7,15 @@ import { CssVariable } from '@models';
   providedIn: 'root',
 })
 export class ColorService {
-  constructor() {}
-
   public generateColorScale(variables: CssVariable[]): CssVariable[] {
     const colorScale: CssVariable[] = [];
 
     variables.forEach((variable) => {
       const { name, value } = variable;
-      if (this.isValidHex(value)) {
-        const readableName = name.replace(/^--/, '');
-        this.generateColorIncrements(value, readableName, colorScale);
-      }
+      if (!this.isValidHex(value)) return;
+
+      const readableName = name.replace(/^--/, '');
+      this.generateColorIncrements(value, readableName, colorScale);
     });
 
     return colorScale;
@@ -42,8 +40,12 @@ export class ColorService {
 
     scaleColors.forEach((color, index) => {
       const incrementValue = 50 + index * 50;
+      const incrementName = `--${readableName}-${incrementValue.toString()}`;
+      if (colorScale.find((variable) => variable.name === incrementName))
+        return;
+
       colorScale.push({
-        name: `--${readableName}-${incrementValue.toString()}`,
+        name: incrementName,
         value: color,
       });
     });

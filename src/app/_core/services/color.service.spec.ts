@@ -102,4 +102,22 @@ describe('ColorService', () => {
     expect(colorScale.find((v) => v.name === '--primary-50')).toBeDefined();
     expect(colorScale.find((v) => v.name === '--invalid-50')).toBeUndefined();
   });
+
+  it('should skip creating increments if name already exists', () => {
+    // Assemble
+    const variables: CssVariable[] = [
+      { name: '--tru-on-warn-300', value: '#7f1d1d' },
+      { name: '--tru-on-warn', value: '#7f1d1d' },
+    ];
+
+    // Act
+    const colorScale = service.generateColorScale(variables);
+
+    // Assert
+    expect(colorScale.length).toBe(19); // Only 1 valid color * 19 increments
+    expect(colorScale.find((v) => v.name === '--tru-on-warn-50')).toBeDefined();
+    expect(
+      colorScale.find((v) => v.name === '--tru-on-warn-300'),
+    ).toBeDefined();
+  });
 });

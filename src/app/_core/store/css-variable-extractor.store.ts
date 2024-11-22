@@ -22,9 +22,7 @@ interface LayoutState {
   errors: { [key: number]: string };
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class CssVariableStoreService extends ComponentStore<LayoutState> {
   private _fb = inject(FormBuilder);
   private _cssVariableExtractorService = inject(CssVariableExtractorService);
@@ -114,38 +112,34 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
   }));
 
   readonly parseCss = this.updater((state) => {
-    if (!state.cssForm) return state;
+    const { cssForm, activeStep, currentItemIndex } = state;
+    if (!cssForm) return state;
 
-    const xpath = state.cssForm.get('xpath')?.value;
-    const cssInput = state.cssForm.get('cssInput')?.value;
-    const jsonInput = state.cssForm.get('jsonInput')?.value;
-    const mergeDuplicates = state.cssForm.get('mergeDuplicates')?.value;
-
-    const cssForm = state.cssForm;
-    const errors: { [key: number]: string } = {};
+    const xpath = cssForm.get('xpath')?.value;
+    const cssInput = cssForm.get('cssInput')?.value;
+    const jsonInput = cssForm.get('jsonInput')?.value;
+    const mergeDuplicates = cssForm.get('mergeDuplicates')?.value;
 
     cssForm.markAllAsTouched();
 
     if (!cssForm.valid) {
-      errors[state.activeStep] = 'Please fix the errors before continuing';
-    }
-
-    if (errors[state.activeStep])
       return {
         ...state,
-        errors,
+        errors: {
+          ...state.errors,
+          [activeStep]: 'Please fix the errors before continuing',
+        },
         cssForm,
       };
+    }
 
-    const extractedVariables: CssVariable[] =
+    const extractedVariables =
       this._cssVariableExtractorService.convertToCssVariables(
-        cssInput ||
-          this._extractJsonItems(jsonInput, xpath, state.currentItemIndex),
+        cssInput || this._extractJsonItems(jsonInput, xpath, currentItemIndex),
         mergeDuplicates,
       );
 
-    const exportForm = (state.exportForm = new FormGroup({}));
-
+    const exportForm = new FormGroup({});
     extractedVariables.forEach((variable, index) => {
       exportForm.addControl(`export-${index}`, new FormControl(true));
       exportForm.addControl(`name-${index}`, new FormControl(variable.name));
@@ -154,7 +148,7 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
 
     return {
       ...state,
-      errors,
+      errors: {},
       exportForm,
       activeStep: 1,
       extractedVariables,
@@ -162,10 +156,11 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
   });
 
   readonly clearInput = this.updater((state) => {
-    if (!state.cssForm) return state;
+    const { cssForm } = state;
+    if (!cssForm) return state;
 
-    state.cssForm.reset();
-    state.cssForm.markAsUntouched();
+    cssForm.reset();
+    cssForm.markAsUntouched();
 
     return {
       ...state,
@@ -176,19 +171,12 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
   });
 
   readonly exportVariables = this.updater((state) => {
-    const exportedResults: CssVariable[] = [];
-
-    state.extractedVariables.forEach((_, index) => {
-      if (!state.exportForm) return;
-
-      const shouldExport = state.exportForm.get(`export-${index}`)?.value;
-      if (!shouldExport) return;
-
-      exportedResults.push({
-        name: state.exportForm.get(`name-${index}`)?.value,
-        value: state.exportForm.get(`value-${index}`)?.value,
-      });
-    });
+    const exportedResults = state.extractedVariables
+      .filter((_, index) => state.exportForm?.get(`export-${index}`)?.value)
+      .map((_, index) => ({
+        name: state.exportForm?.get(`name-${index}`)?.value,
+        value: state.exportForm?.get(`value-${index}`)?.value,
+      }));
 
     return {
       ...state,
@@ -199,17 +187,17 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
 
   readonly applyOverrides = this.updater((state) => {
     const overridesControl = state.cssForm?.get('overrides');
-    if (!overridesControl) return state;
+    if (!overridesControl || !overridesControl.value)
+      return { ...state, activeStep: 3 };
 
     let overrides: Map<string, string>;
     try {
       overrides = new Map(JSON.parse(overridesControl.value));
+      if (!overrides.size) return { ...state, activeStep: 3 };
     } catch (error) {
       console.error('Failed to parse overrides:', error);
       return state;
     }
-
-    if (!overrides.size) return { ...state, activeStep: 3 };
 
     const customVariables = state.customVariables
       .filter((variable) => overrides.has(variable.name))
@@ -258,11 +246,14 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
         const jsonContent = cssForm.get('jsonInput')?.value;
         const keepStructure = cssForm.get('existingStructure')?.value;
 
-        let jsonString = '';
+        let jsonString = JSON.stringify(customVariables, null, 2);
 
         if (keepStructure) {
-        } else {
-          jsonString = JSON.stringify(customVariables, null, 2);
+          const existing = jsonContent[currentItemIndex] || {};
+          existing['custom-variables'] = customVariables;
+          if (existing[cssForm.get('xpath')?.value])
+            delete existing[cssForm.get('xpath')?.value];
+          jsonString = JSON.stringify(existing, null, 2);
         }
 
         const fileName =
@@ -301,13 +292,13 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
           .pipe(
             tap((fileContent) => {
               try {
-                const jsonContent = JSON.parse(fileContent);
+                let jsonContent = JSON.parse(fileContent);
+                if (!Array.isArray(jsonContent)) {
+                  jsonContent = [jsonContent];
+                }
                 this.patchState((state) => {
-                  const isArray = Array.isArray(jsonContent);
-                  const jsonItemCount = isArray ? jsonContent.length : 0;
-                  state.cssForm
-                    ?.get('jsonInput')
-                    ?.setValue(isArray ? jsonContent : [jsonContent]);
+                  state.cssForm?.get('jsonInput')?.setValue(jsonContent);
+                  const jsonItemCount = jsonContent.length;
                   return { ...state, jsonItemCount, currentItemIndex: 0 };
                 });
               } catch (error) {

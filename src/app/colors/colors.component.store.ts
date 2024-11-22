@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ComponentStore } from '@ngrx/component-store';
-import { inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { withLatestFrom, tap } from 'rxjs/operators';
 
 import { ColorService } from '@services';
@@ -11,6 +11,7 @@ interface ColorsState {
   activeStep: number;
 }
 
+@Injectable()
 export class ColorsComponentStore extends ComponentStore<ColorsState> {
   private _fb = inject(FormBuilder);
   private _colorService = inject(ColorService);
