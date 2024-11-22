@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 
-import { CssVariableExtractorStoreService } from '@store';
+import { CssVariableExtractorStore } from '@store';
 
 import { ExpansionPanelComponent } from '../expansion-panel/expansion-panel.component';
 
@@ -15,7 +15,7 @@ import { ExpansionPanelComponent } from '../expansion-panel/expansion-panel.comp
   styleUrl: './results.component.scss',
 })
 export class ResultsComponent {
-  private _store = inject(CssVariableExtractorStoreService);
+  private _store = inject(CssVariableExtractorStore);
 
   public viewModel$ = this._store.viewModel$;
 

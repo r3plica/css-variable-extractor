@@ -7,8 +7,9 @@ import { withLatestFrom, tap, from } from 'rxjs';
 import { JSONPath } from 'jsonpath-plus';
 
 import { CssVariable } from '@models';
+import { ColorService } from '@services';
 
-import { CssVariableExtractorService } from './css-variable-extractor.service';
+import { CssVariableExtractorStoreService } from './css-variable-extractor.store.service';
 
 interface LayoutState {
   activeStep: number;
@@ -23,9 +24,12 @@ interface LayoutState {
 }
 
 @Injectable()
-export class CssVariableExtractorStoreService extends ComponentStore<LayoutState> {
+export class CssVariableExtractorStore extends ComponentStore<LayoutState> {
   private _fb = inject(FormBuilder);
-  private _cssVariableExtractorService = inject(CssVariableExtractorService);
+  private _colorService = inject(ColorService);
+  private _cssVariableExtractorService = inject(
+    CssVariableExtractorStoreService,
+  );
 
   constructor() {
     super({
@@ -61,8 +65,6 @@ export class CssVariableExtractorStoreService extends ComponentStore<LayoutState
       ),
       exportForm: this._fb.group({}),
     });
-
-    // this._cssVariableExtractorService.handleCheckboxes(this.get().cssForm);
   }
 
   readonly activeStep$ = this.select((state) => state.activeStep);
@@ -155,32 +157,26 @@ export class CssVariableExtractorStoreService extends ComponentStore<LayoutState
     };
   });
 
-  readonly clearInput = this.updater((state) => {
-    const { cssForm } = state;
-    if (!cssForm) return state;
-
-    cssForm.reset();
-    cssForm.markAsUntouched();
-
-    return {
-      ...state,
-      activeStep: 0,
-      extractedVariables: [],
-      customVariables: [],
-    };
-  });
-
   readonly exportVariables = this.updater((state) => {
-    const exportedResults = state.extractedVariables
+    let customVariables = state.extractedVariables
       .filter((_, index) => state.exportForm?.get(`export-${index}`)?.value)
       .map((_, index) => ({
         name: state.exportForm?.get(`name-${index}`)?.value,
         value: state.exportForm?.get(`value-${index}`)?.value,
       }));
 
+    const overrideVariableNames = state.cssForm?.get(
+      'overrideVariableNames',
+    )?.value;
+    const addShades = state.cssForm?.get('addShades')?.value;
+
+    if (!overrideVariableNames && addShades) {
+      customVariables = this._colorService.generateColorScale(customVariables);
+    }
+
     return {
       ...state,
-      customVariables: exportedResults,
+      customVariables,
       activeStep: 2,
     };
   });
@@ -198,12 +194,18 @@ export class CssVariableExtractorStoreService extends ComponentStore<LayoutState
       return state;
     }
 
-    const customVariables = state.customVariables
+    let customVariables = state.customVariables
       .filter((variable) => overrides.has(variable.name))
       .map((variable) => ({
         ...variable,
         name: overrides.get(variable.name) || variable.name,
       }));
+
+    const addShades = state.cssForm?.get('addShades')?.value;
+
+    if (addShades) {
+      customVariables = this._colorService.generateColorScale(customVariables);
+    }
 
     return {
       ...state,
@@ -309,6 +311,21 @@ export class CssVariableExtractorStoreService extends ComponentStore<LayoutState
       }),
     ),
   );
+
+  readonly clearInput = this.updater((state) => {
+    const { cssForm } = state;
+    if (!cssForm) return state;
+
+    cssForm.reset();
+    cssForm.markAsUntouched();
+
+    return {
+      ...state,
+      activeStep: 0,
+      extractedVariables: [],
+      customVariables: [],
+    };
+  });
 
   private _extractJsonItems(
     jsonContent: string,

@@ -2,25 +2,25 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 
-import { CssVariableExtractorStoreService } from '@store';
+import { CssVariableExtractorStore } from '@store';
 
 import { VariablesComponent } from './variables.component';
 
 describe('VariablesComponent', () => {
   let component: VariablesComponent;
   let fixture: ComponentFixture<VariablesComponent>;
-  let store: CssVariableExtractorStoreService;
+  let store: CssVariableExtractorStore;
 
   // Assemble
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, VariablesComponent],
-      providers: [CssVariableExtractorStoreService],
+      providers: [CssVariableExtractorStore],
     }).compileComponents();
 
     fixture = TestBed.createComponent(VariablesComponent);
     component = fixture.componentInstance;
-    store = TestBed.inject(CssVariableExtractorStoreService);
+    store = TestBed.inject(CssVariableExtractorStore);
     fixture.detectChanges();
   });
 

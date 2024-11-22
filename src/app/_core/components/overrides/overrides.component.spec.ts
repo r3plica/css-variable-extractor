@@ -2,24 +2,24 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 
-import { CssVariableExtractorStoreService } from '@store';
+import { CssVariableExtractorStore } from '@store';
 
 import { OverridesComponent } from './overrides.component';
 
 describe('OverridesComponent', () => {
   let component: OverridesComponent;
   let fixture: ComponentFixture<OverridesComponent>;
-  let store: CssVariableExtractorStoreService;
+  let store: CssVariableExtractorStore;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule],
-      providers: [CssVariableExtractorStoreService],
+      providers: [CssVariableExtractorStore],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OverridesComponent);
     component = fixture.componentInstance;
-    store = TestBed.inject(CssVariableExtractorStoreService);
+    store = TestBed.inject(CssVariableExtractorStore);
     fixture.detectChanges();
   });
 

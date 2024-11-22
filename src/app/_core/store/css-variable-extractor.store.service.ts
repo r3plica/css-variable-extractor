@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
-import { FormGroup } from '@angular/forms';
 import * as postcss from 'postcss';
 
 import { CssVariable } from '@models';
 
 @Injectable({ providedIn: 'root' })
-export class CssVariableExtractorService {
+export class CssVariableExtractorStoreService {
   public convertToCssVariables(
     css: string,
     mergeDuplicates: boolean,
@@ -37,34 +36,6 @@ export class CssVariableExtractorService {
     );
 
     return mergeDuplicates ? this._removeDuplicateValues(variables) : variables;
-  }
-
-  public handleCheckboxes(cssForm: FormGroup | undefined): void {
-    const mergeDuplicatesControl = cssForm?.get('mergeDuplicates');
-    const overrideVariableNamesControl = cssForm?.get('overrideVariableNames');
-
-    if (!cssForm || !mergeDuplicatesControl || !overrideVariableNamesControl)
-      return;
-
-    mergeDuplicatesControl.valueChanges.subscribe((value) => {
-      if (value) {
-        // Set overrideVariableNames value to false without emitting an event
-        overrideVariableNamesControl.setValue(false, { emitEvent: false });
-        overrideVariableNamesControl.disable();
-      } else {
-        overrideVariableNamesControl.enable();
-      }
-    });
-
-    overrideVariableNamesControl.valueChanges.subscribe((value) => {
-      if (value) {
-        // Set mergeDuplicates value to false without emitting an event
-        mergeDuplicatesControl.setValue(false, { emitEvent: false });
-        mergeDuplicatesControl.disable();
-      } else {
-        mergeDuplicatesControl.enable();
-      }
-    });
   }
 
   private _isValidCssValue(value: string): boolean {

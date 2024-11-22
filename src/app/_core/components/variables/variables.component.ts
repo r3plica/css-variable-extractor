@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 
-import { CssVariableExtractorStoreService } from '@store';
+import { CssVariableExtractorStore } from '@store';
 
 @Component({
   selector: 'app-variables',
@@ -13,7 +13,7 @@ import { CssVariableExtractorStoreService } from '@store';
   styleUrl: './variables.component.scss',
 })
 export class VariablesComponent {
-  private _store = inject(CssVariableExtractorStoreService);
+  private _store = inject(CssVariableExtractorStore);
 
   public viewModel$ = this._store.viewModel$;
 

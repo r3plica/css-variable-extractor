@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 
-import { CssVariableExtractorStoreService } from '@store';
+import { CssVariableExtractorStore } from '@store';
 import {
   FormErrorComponent,
   JsonViewerComponent,
@@ -17,7 +17,7 @@ import { JsonComponent } from './json.component';
 describe('JsonComponent', () => {
   let component: JsonComponent;
   let fixture: ComponentFixture<JsonComponent>;
-  let store: CssVariableExtractorStoreService;
+  let store: CssVariableExtractorStore;
 
   // Assemble
   beforeEach(async () => {
@@ -32,7 +32,7 @@ describe('JsonComponent', () => {
         JsonViewerComponent,
         JsonComponent,
       ],
-      providers: [CssVariableExtractorStoreService],
+      providers: [CssVariableExtractorStore],
     }).compileComponents();
 
     fixture = TestBed.createComponent(JsonComponent);

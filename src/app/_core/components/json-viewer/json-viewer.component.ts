@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, Input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 
-import { CssVariableExtractorStoreService } from '@store';
+import { CssVariableExtractorStore } from '@store';
 
 interface JsonObject {
   [key: string]: string | number | boolean | JsonObject | JsonObject[];
@@ -17,7 +17,7 @@ interface JsonObject {
   styleUrls: ['./json-viewer.component.scss'],
 })
 export class JsonViewerComponent {
-  private readonly _store = inject(CssVariableExtractorStoreService);
+  private readonly _store = inject(CssVariableExtractorStore);
   public readonly viewModel$ = this._store.viewModel$;
 
   @Input() public form!: FormGroup;

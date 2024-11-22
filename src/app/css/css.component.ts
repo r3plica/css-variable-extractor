@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 
-import { CssVariableExtractorStoreService } from '@store';
+import { CssVariableExtractorStore } from '@store';
 import {
   ResultsComponent,
   StepperComponent,
@@ -21,10 +21,10 @@ import {
     ResultsComponent,
     StepperComponent,
   ],
-  providers: [CssVariableExtractorStoreService],
+  providers: [CssVariableExtractorStore],
 })
 export class CssComponent implements OnInit {
-  private _store = inject(CssVariableExtractorStoreService);
+  private _store = inject(CssVariableExtractorStore);
 
   public viewModel$ = this._store.viewModel$;
 

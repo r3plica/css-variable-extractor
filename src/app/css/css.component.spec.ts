@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 
-import { CssVariableExtractorStoreService } from '@store';
+import { CssVariableExtractorStore } from '@store';
 import {
   ResultsComponent,
   StepperComponent,
@@ -15,7 +15,7 @@ import { CssComponent } from './css.component';
 describe('CssComponent', () => {
   let component: CssComponent;
   let fixture: ComponentFixture<CssComponent>;
-  let store: CssVariableExtractorStoreService;
+  let store: CssVariableExtractorStore;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -27,7 +27,7 @@ describe('CssComponent', () => {
         StepperComponent,
         CssComponent,
       ],
-      providers: [CssVariableExtractorStoreService],
+      providers: [CssVariableExtractorStore],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CssComponent);
