@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { By } from '@angular/platform-browser';
 
-import { CssVariableStoreService } from '@store';
+import { CssVariableExtractorStore } from '@store';
 
 import { StepperComponent } from './stepper.component';
 import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
@@ -10,7 +10,7 @@ import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
 describe('StepperComponent', () => {
   let component: StepperComponent;
   let fixture: ComponentFixture<StepperComponent>;
-  let store: CssVariableStoreService;
+  let store: CssVariableExtractorStore;
 
   // Assemble
   beforeEach(async () => {
@@ -18,7 +18,7 @@ describe('StepperComponent', () => {
       imports: [StepperComponent, ProgressBarComponent],
       providers: [
         {
-          provide: CssVariableStoreService,
+          provide: CssVariableExtractorStore,
           useValue: {
             viewModel$: of({
               activeStep: 1,
@@ -33,7 +33,7 @@ describe('StepperComponent', () => {
 
     fixture = TestBed.createComponent(StepperComponent);
     component = fixture.componentInstance;
-    store = TestBed.inject(CssVariableStoreService);
+    store = TestBed.inject(CssVariableExtractorStore);
     fixture.detectChanges();
   });
 

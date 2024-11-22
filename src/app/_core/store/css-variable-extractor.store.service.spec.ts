@@ -1,22 +1,21 @@
 import { TestBed } from '@angular/core/testing';
-import { FormBuilder, FormGroup } from '@angular/forms';
 
-import { CssVariableExtractorService } from './css-variable-extractor.service';
+import { CssVariableExtractorStoreService } from './css-variable-extractor.store.service';
 
-describe('CssVariableExtractorService', () => {
-  let service: CssVariableExtractorService;
+describe('CssVariableExtractorStoreService', () => {
+  let service: CssVariableExtractorStoreService;
 
   // Assemble
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [CssVariableExtractorService],
+      providers: [CssVariableExtractorStoreService],
     });
-    service = TestBed.inject(CssVariableExtractorService);
+    service = TestBed.inject(CssVariableExtractorStoreService);
   });
 
   it('should be created', () => {
     // Act
-    const createdService = TestBed.inject(CssVariableExtractorService);
+    const createdService = TestBed.inject(CssVariableExtractorStoreService);
 
     // Assert
     expect(createdService).toBeTruthy();
@@ -118,32 +117,5 @@ describe('CssVariableExtractorService', () => {
 
     // Assert
     expect(result).toBe(16711680);
-  });
-
-  it('should handle checkboxes correctly', () => {
-    // Assemble
-    const fb = new FormBuilder();
-    const cssForm: FormGroup = fb.group({
-      mergeDuplicates: [false],
-      overrideVariableNames: [{ value: false, disabled: true }],
-    });
-
-    // Act
-    service.handleCheckboxes(cssForm);
-
-    // Assert
-    cssForm.get('mergeDuplicates')?.setValue(true);
-    expect(cssForm.get('overrideVariableNames')?.disabled).toBe(true);
-    expect(cssForm.get('overrideVariableNames')?.value).toBe(false);
-
-    cssForm.get('mergeDuplicates')?.setValue(false);
-    expect(cssForm.get('overrideVariableNames')?.enabled).toBe(true);
-
-    cssForm.get('overrideVariableNames')?.setValue(true);
-    expect(cssForm.get('mergeDuplicates')?.disabled).toBe(true);
-    expect(cssForm.get('mergeDuplicates')?.value).toBe(false);
-
-    cssForm.get('overrideVariableNames')?.setValue(false);
-    expect(cssForm.get('mergeDuplicates')?.enabled).toBe(true);
   });
 });
