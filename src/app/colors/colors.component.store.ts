@@ -91,8 +91,7 @@ export class ColorsComponentStore extends ComponentStore<ColorsState> {
       withLatestFrom(this.form$),
       tap(([_, form]) => {
         const variables = form?.get('output')?.value;
-        const jsonString = JSON.stringify(variables, null, 2);
-        const blob = new Blob([jsonString], { type: 'application/json' });
+        const blob = new Blob([variables], { type: 'application/json' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
