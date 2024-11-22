@@ -77,9 +77,29 @@ describe('CssVariableStoreService', () => {
     // Assert
     service.state$.subscribe((state) => {
       expect(state.extractedVariables).toEqual([
-        { name: '--example-color', value: 'red' },
+        { name: '--body-color', value: 'red' },
       ]);
       expect(state.activeStep).toBe(1);
+    });
+  });
+
+  it('should handle invalid form in parseCss', () => {
+    // Assemble
+    service.patchState({
+      cssForm: new FormBuilder().group({
+        cssInput: [''],
+        jsonInput: [''],
+        mergeDuplicates: [true],
+        xpath: [''],
+      }),
+    });
+
+    // Act
+    service.parseCss();
+
+    // Assert
+    service.state$.subscribe((state) => {
+      expect(state.errors[0]).toBe('Please fix the errors before continuing');
     });
   });
 
@@ -388,6 +408,123 @@ describe('CssVariableStoreService', () => {
         { id: 1, name: 'Example 1' },
       ]);
       expect(state.jsonItemCount).toBe(1);
+      done();
+    });
+  });
+
+  it('should handle non-array JSON in handleFileInput', (done) => {
+    // Assemble
+    const file = new Blob([JSON.stringify({ id: 1, name: 'Example 1' })], {
+      type: 'application/json',
+    });
+    const event = {
+      target: { files: [file] },
+    } as unknown as Event;
+    const mockReader = {
+      readAsText: jest.fn(),
+      result: JSON.stringify({ id: 1, name: 'Example 1' }),
+    };
+    Object.defineProperty(mockReader, 'onload', {
+      set(callback) {
+        callback();
+      },
+    });
+    jest
+      .spyOn(window, 'FileReader')
+      .mockImplementation(() => mockReader as unknown as FileReader);
+
+    // Act
+    service.handleFileInput(of(event));
+
+    // Assert
+    service.state$.subscribe((state) => {
+      expect(state.cssForm?.get('jsonInput')?.value).toEqual([
+        { id: 1, name: 'Example 1' },
+      ]);
+      expect(state.jsonItemCount).toBe(1);
+      done();
+    });
+  });
+
+  it('should handle invalid JSON in handleFileInput', (done) => {
+    // Assemble
+    const file = new Blob(['invalid-json'], { type: 'application/json' });
+    const event = {
+      target: { files: [file] },
+    } as unknown as Event;
+    const mockReader = {
+      readAsText: jest.fn(),
+      result: 'invalid-json',
+    };
+    Object.defineProperty(mockReader, 'onload', {
+      set(callback) {
+        callback();
+      },
+    });
+    jest
+      .spyOn(window, 'FileReader')
+      .mockImplementation(() => mockReader as unknown as FileReader);
+
+    // Act
+    service.handleFileInput(of(event));
+
+    // Assert
+    service.state$.subscribe((state) => {
+      expect(state.cssForm?.get('jsonInput')?.value).toEqual('');
+      expect(state.jsonItemCount).toBe(0);
+      done();
+    });
+  });
+
+  it('should handle empty file input', () => {
+    // Assemble
+    const event = {
+      target: { files: [] },
+    } as unknown as Event;
+
+    // Act
+    service.handleFileInput(of(event));
+
+    // Assert
+    service.state$.subscribe((state) => {
+      expect(state.jsonItemCount).toBe(0);
+    });
+  });
+
+  it('should handle file read error', (done) => {
+    // Assemble
+    const file = new Blob([JSON.stringify([{ id: 1, name: 'Example 1' }])], {
+      type: 'application/json',
+    });
+    const event = {
+      target: { files: [file] },
+    } as unknown as Event;
+    const mockReader = {
+      readAsText: jest.fn(),
+      result: JSON.stringify([{ id: 1, name: 'Example 1' }]),
+      error: 'File read error',
+    };
+    Object.defineProperty(mockReader, 'onload', {
+      set(callback) {
+        callback();
+      },
+    });
+    Object.defineProperty(mockReader, 'onerror', {
+      set(callback) {
+        callback();
+      },
+    });
+    jest
+      .spyOn(window, 'FileReader')
+      .mockImplementation(() => mockReader as unknown as FileReader);
+
+    // Act
+    service.handleFileInput(of(event));
+
+    // Assert
+    service.state$.subscribe((state) => {
+      expect(state.cssForm?.get('jsonInput')?.value).toEqual('');
+      expect(state.jsonItemCount).toBe(0);
       done();
     });
   });
