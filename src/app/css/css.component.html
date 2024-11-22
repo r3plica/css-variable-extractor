@@ -71,7 +71,7 @@
             Add color variants
           </label>
 
-          <div class="mt-4 flex justify-end gap-4">
+          <div class="mt-6 flex justify-end gap-4 sticky-bar">
             <button
               type="button"
               (click)="clearInput()"
@@ -89,7 +89,18 @@
         </form>
       </div>
 
-      <app-variables *ngIf="vm.activeStep === 1" />
+      <app-variables
+        *ngIf="
+          vm.activeStep === 1 &&
+          vm.cssForm?.get('overrideVariableNames')?.value == false
+        "
+      />
+      <app-overrides
+        *ngIf="
+          vm.activeStep === 1 &&
+          vm.cssForm?.get('overrideVariableNames')?.value == true
+        "
+      />
       <app-results *ngIf="vm.activeStep === 2" />
     </div>
   </section>

@@ -5,11 +5,16 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ComponentStore } from '@ngrx/component-store';
 import { withLatestFrom, tap, from } from 'rxjs';
 import { JSONPath } from 'jsonpath-plus';
+import { cloneDeep } from 'lodash';
 
 import { CssVariable } from '@models';
 import { ColorService } from '@services';
 
 import { CssVariableExtractorStoreService } from './css-variable-extractor.store.service';
+import {
+  requireOne,
+  requireXpathIfJsonInput,
+} from './css-variable-validators.const';
 
 interface LayoutState {
   activeStep: number;
@@ -44,27 +49,30 @@ export class CssVariableExtractorStore extends ComponentStore<LayoutState> {
       errors: {},
     });
 
-    this.patchState({
-      cssForm: this._fb.group(
-        {
-          cssInput: [''],
-          jsonInput: [''],
-          overrides: [''],
-          mergeDuplicates: [false],
-          existingStructure: [false],
-          overrideVariableNames: [false],
-          addShades: [false],
-          xpath: [''],
-        },
-        {
-          validators: [
-            this._requireOne('cssInput', 'jsonInput'),
-            this._requireXpathIfJsonInput(),
-          ],
-        },
-      ),
-      exportForm: this._fb.group({}),
+    const cssForm = this._fb.group(
+      {
+        cssInput: [''],
+        jsonInput: [''],
+        overrides: [''],
+        mergeDuplicates: [false],
+        existingStructure: [false],
+        overrideVariableNames: [false],
+        addShades: [false],
+        xpath: [''],
+      },
+      {
+        validators: [
+          requireOne('cssInput', 'jsonInput'),
+          requireXpathIfJsonInput,
+        ],
+      },
+    );
+
+    cssForm.statusChanges.subscribe(() => {
+      this.handleValidationErrors(cssForm);
     });
+
+    this.patchState({ cssForm });
   }
 
   readonly activeStep$ = this.select((state) => state.activeStep);
@@ -183,23 +191,25 @@ export class CssVariableExtractorStore extends ComponentStore<LayoutState> {
 
   readonly applyOverrides = this.updater((state) => {
     const overridesControl = state.cssForm?.get('overrides');
-    if (!overridesControl || !overridesControl.value)
-      return { ...state, activeStep: 3 };
+    if (!overridesControl) return { ...state, activeStep: 2 };
 
-    let overrides: Map<string, string>;
-    try {
-      overrides = new Map(JSON.parse(overridesControl.value));
-      if (!overrides.size) return { ...state, activeStep: 3 };
-    } catch (error) {
-      return state;
+    let customVariables = state.extractedVariables;
+
+    if (overridesControl.value) {
+      let overrides: Map<string, string>;
+      try {
+        overrides = new Map(JSON.parse(overridesControl.value));
+
+        customVariables = state.customVariables
+          .filter((variable) => overrides.has(variable.name))
+          .map((variable) => ({
+            ...variable,
+            name: overrides.get(variable.name) || variable.name,
+          }));
+      } catch (error) {
+        return state;
+      }
     }
-
-    let customVariables = state.customVariables
-      .filter((variable) => overrides.has(variable.name))
-      .map((variable) => ({
-        ...variable,
-        name: overrides.get(variable.name) || variable.name,
-      }));
 
     const addShades = state.cssForm?.get('addShades')?.value;
 
@@ -210,9 +220,104 @@ export class CssVariableExtractorStore extends ComponentStore<LayoutState> {
     return {
       ...state,
       customVariables,
-      activeStep: 3,
+      activeStep: 2,
     };
   });
+
+  readonly export = this.effect((trigger$) =>
+    trigger$.pipe(
+      withLatestFrom(
+        this.customVariables$,
+        this.cssForm$,
+        this.currentItemIndex$,
+        this.jsonItemCount$,
+      ),
+      tap(([_, customVariables, cssForm, currentItemIndex, jsonItemCount]) => {
+        if (!cssForm) return;
+
+        const jsonInput = cloneDeep(cssForm.get('jsonInput')?.value);
+        const xpath = cssForm.get('xpath')?.value;
+        const keepStructure = cssForm.get('existingStructure')?.value;
+
+        if (jsonItemCount <= 1) {
+          const jsonString = this.prepareExportJson(
+            customVariables,
+            jsonInput,
+            currentItemIndex,
+            keepStructure,
+            xpath,
+          );
+
+          const fileName =
+            this._extractJsonItems(jsonInput, 'NAME', currentItemIndex) ||
+            'custom-variables';
+
+          this._cssVariableExtractorService.saveJsonToFile(
+            jsonString,
+            fileName,
+          );
+          return;
+        }
+
+        const mergeDuplicates = cssForm.get('mergeDuplicates')?.value;
+        const overrideVariableNames = cssForm.get(
+          'overrideVariableNames',
+        )?.value;
+        const addShades = cssForm.get('addShades')?.value;
+
+        const allData = [];
+
+        for (let i = currentItemIndex; i < jsonItemCount; i++) {
+          // Step 1: Extract variables
+          let customVars =
+            this._cssVariableExtractorService.convertToCssVariables(
+              this._extractJsonItems(jsonInput, xpath, i),
+              mergeDuplicates,
+            );
+
+          // Step 2: Apply overrides
+          const overridesControl = cssForm.get('overrides');
+          if (overridesControl && overrideVariableNames) {
+            try {
+              const overrides = new Map<string, string>(
+                JSON.parse(overridesControl.value),
+              );
+              customVars = customVars.map((variable) => ({
+                ...variable,
+                name: overrides.get(variable.name) || variable.name,
+              }));
+            } catch {
+              // Ignore parse errors
+            }
+          }
+
+          // Step 3: Add color scales
+          if (addShades) {
+            customVars = this._colorService.generateColorScale(customVars);
+          }
+
+          // Step 4: Prepare JSON
+          const jsonString = this.prepareExportJson(
+            customVars,
+            jsonInput,
+            i,
+            keepStructure,
+            xpath,
+          );
+
+          // Collect data
+          allData.push(JSON.parse(jsonString));
+        }
+
+        // Step 5: Save aggregated data
+        const aggregatedData = JSON.stringify(allData, null, 2);
+        this._cssVariableExtractorService.saveJsonToFile(
+          aggregatedData,
+          'all-custom-variables.json',
+        );
+      }),
+    ),
+  );
 
   readonly copyToClipboard = this.effect((trigger$) =>
     trigger$.pipe(
@@ -223,51 +328,6 @@ export class CssVariableExtractorStore extends ComponentStore<LayoutState> {
           () => alert('Copied to clipboard!'),
           (err) => alert('Failed to copy: ' + err),
         );
-      }),
-    ),
-  );
-
-  readonly processNextItem = this.effect((trigger$) =>
-    trigger$.pipe(
-      tap(() => {
-        this._processNextItem();
-      }),
-    ),
-  );
-
-  readonly exportToFile = this.effect((trigger$) =>
-    trigger$.pipe(
-      withLatestFrom(
-        this.customVariables$,
-        this.cssForm$,
-        this.currentItemIndex$,
-      ),
-      tap(([_, customVariables, cssForm, currentItemIndex]) => {
-        if (!cssForm) return;
-        const jsonContent = cssForm.get('jsonInput')?.value;
-        const keepStructure = cssForm.get('existingStructure')?.value;
-
-        let jsonString = JSON.stringify(customVariables, null, 2);
-
-        if (keepStructure) {
-          const existing = jsonContent[currentItemIndex] || {};
-          existing['custom-variables'] = customVariables;
-          if (existing[cssForm.get('xpath')?.value])
-            delete existing[cssForm.get('xpath')?.value];
-          jsonString = JSON.stringify(existing, null, 2);
-        }
-
-        const fileName =
-          this._extractJsonItems(jsonContent, 'NAME', currentItemIndex) ||
-          'custom-variables';
-        const blob = new Blob([jsonString], { type: 'application/json' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${fileName}.json`;
-        a.click();
-        window.URL.revokeObjectURL(url);
-        this.processNextItem();
       }),
     ),
   );
@@ -337,61 +397,40 @@ export class CssVariableExtractorStore extends ComponentStore<LayoutState> {
     return jsonItems[index] || '';
   }
 
-  private _processNextItem(): void {
-    this.patchState((state) => {
-      if (!state.cssForm || state.currentItemIndex >= state.jsonItemCount) {
-        return state;
-      }
+  private handleValidationErrors(form: FormGroup) {
+    const errors: { [key: number]: string } = {};
+    const formErrors = form.errors;
 
-      state.cssForm.markAsUntouched();
+    if (formErrors?.['requireOne']) {
+      errors[this.get().activeStep] =
+        'Either CSS Input or JSON Input is required.';
+    }
+    if (formErrors?.['requireXpath']) {
+      errors[this.get().activeStep] =
+        'XPath is required when JSON Input is provided.';
+    }
 
-      return {
-        ...state,
-        currentItemIndex: state.currentItemIndex + 1,
-        activeStep: 0,
-      };
-    });
+    this.patchState({ errors });
   }
 
-  private _requireOne(controlName1: string, controlName2: string) {
-    return (formGroup: FormGroup) => {
-      const control1 = formGroup.controls[controlName1];
-      const control2 = formGroup.controls[controlName2];
+  private prepareExportJson(
+    customVariables: CssVariable[],
+    jsonContent: any,
+    currentItemIndex: number,
+    keepStructure: boolean,
+    xpath: string | null,
+  ): string {
+    if (!keepStructure) {
+      return JSON.stringify(customVariables, null, 2);
+    }
 
-      if (control1.value || control2.value) {
-        control1.setErrors(null);
-        control2.setErrors(null);
-      } else {
-        control1.setErrors({ required: true });
-        control2.setErrors({ required: true });
-        this.patchState((state) => ({
-          ...state,
-          errors: {
-            ...state.errors,
-            [state.activeStep]: 'One of the inputs is required',
-          },
-        }));
-      }
-    };
-  }
+    const existing = jsonContent[currentItemIndex] || {};
+    existing['custom-variables'] = customVariables;
 
-  private _requireXpathIfJsonInput() {
-    return (formGroup: FormGroup) => {
-      const jsonInput = formGroup.controls['jsonInput'];
-      const xpath = formGroup.controls['xpath'];
+    if (xpath && existing[xpath]) {
+      delete existing[xpath];
+    }
 
-      if (jsonInput.value && !xpath.value) {
-        xpath.setErrors({ required: true });
-        this.patchState((state) => ({
-          ...state,
-          errors: {
-            ...state.errors,
-            [state.activeStep]: 'XPath is required when JSON input is provided',
-          },
-        }));
-      } else {
-        xpath.setErrors(null);
-      }
-    };
+    return JSON.stringify(existing, null, 2);
   }
 }

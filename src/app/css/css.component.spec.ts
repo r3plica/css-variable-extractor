@@ -1,10 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 
 import { CssVariableExtractorStore } from '@store';
 import {
+  OverridesComponent,
   ResultsComponent,
   StepperComponent,
   VariablesComponent,
@@ -16,6 +17,7 @@ describe('CssComponent', () => {
   let component: CssComponent;
   let fixture: ComponentFixture<CssComponent>;
   let store: CssVariableExtractorStore;
+  let formBuilder: FormBuilder;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -33,6 +35,7 @@ describe('CssComponent', () => {
     fixture = TestBed.createComponent(CssComponent);
     component = fixture.componentInstance;
     store = component['_store'];
+    formBuilder = TestBed.inject(FormBuilder);
     fixture.detectChanges();
   });
 
@@ -83,12 +86,32 @@ describe('CssComponent', () => {
   });
 
   it('should display the variables component', () => {
-    store.setState((state) => ({ ...state, activeStep: 1 }));
+    store.setState((state) => ({
+      ...state,
+      activeStep: 1,
+      cssForm: formBuilder.group({ overrideVariableNames: [false] }),
+    }));
     fixture.detectChanges();
     const variables = fixture.debugElement.query(
       By.directive(VariablesComponent),
     );
     expect(variables).not.toBeNull();
+  });
+
+  it('should display the overrides component', () => {
+    store.setState((state) => ({
+      ...state,
+      activeStep: 1,
+      cssForm: formBuilder.group({
+        overrideVariableNames: [true],
+        overrides: [''],
+      }),
+    }));
+    fixture.detectChanges();
+    const overrides = fixture.debugElement.query(
+      By.directive(OverridesComponent),
+    );
+    expect(overrides).not.toBeNull();
   });
 
   it('should display the results component', () => {

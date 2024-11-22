@@ -7,27 +7,16 @@
   </app-expansion-panel>
 
   <!-- Form for Exporting -->
-  <form [formGroup]="vm.cssForm" (ngSubmit)="exportToFile()" *ngIf="vm.cssForm">
+  <form [formGroup]="vm.cssForm" (ngSubmit)="export()" *ngIf="vm.cssForm">
     <div class="mt-4 flex justify-end gap-4 sticky-bar">
       <!-- Copy to Clipboard Button -->
       <button
         id="copyToClipboard"
         type="button"
         (click)="copyToClipboard()"
-        class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition"
+        class="px-4 py-2 bg-gray-600 text-white hover:bg-gray-700 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
       >
         Copy to Clipboard
-      </button>
-
-      <!-- Process Next Item Button -->
-      <button
-        id="processNextItem"
-        type="button"
-        (click)="processNextItem()"
-        class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition"
-        *ngIf="vm.jsonItemCount && vm.currentItemIndex < vm.jsonItemCount - 1"
-      >
-        Process Next Item
       </button>
 
       <!-- Export to File Button -->

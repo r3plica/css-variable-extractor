@@ -23,11 +23,7 @@ export class ResultsComponent {
     this._store.copyToClipboard();
   }
 
-  public exportToFile(): void {
-    this._store.exportToFile();
-  }
-
-  public processNextItem(): void {
-    this._store.processNextItem();
+  public export(): void {
+    this._store.export();
   }
 }
