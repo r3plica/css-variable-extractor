@@ -8,9 +8,7 @@ import { JSONPath } from 'jsonpath-plus';
 
 import { CssVariable } from '@models';
 
-import {
-  CssVariableExtractorService,
-} from './css-variable-extractor.service';
+import { CssVariableExtractorService } from './css-variable-extractor.service';
 
 interface LayoutState {
   activeStep: number;
@@ -211,6 +209,8 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
       return state;
     }
 
+    if (!overrides.size) return { ...state, activeStep: 3 };
+
     const customVariables = state.customVariables
       .filter((variable) => overrides.has(variable.name))
       .map((variable) => ({
@@ -256,10 +256,18 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
       tap(([_, customVariables, cssForm, currentItemIndex]) => {
         if (!cssForm) return;
         const jsonContent = cssForm.get('jsonInput')?.value;
+        const keepStructure = cssForm.get('existingStructure')?.value;
+
+        let jsonString = '';
+
+        if (keepStructure) {
+        } else {
+          jsonString = JSON.stringify(customVariables, null, 2);
+        }
+
         const fileName =
           this._extractJsonItems(jsonContent, 'NAME', currentItemIndex) ||
           'custom-variables';
-        const jsonString = JSON.stringify(customVariables, null, 2);
         const blob = new Blob([jsonString], { type: 'application/json' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -295,10 +303,11 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
               try {
                 const jsonContent = JSON.parse(fileContent);
                 this.patchState((state) => {
-                  state.cssForm?.get('jsonInput')?.setValue(jsonContent);
-                  const jsonItemCount = Array.isArray(jsonContent)
-                    ? jsonContent.length
-                    : 0;
+                  const isArray = Array.isArray(jsonContent);
+                  const jsonItemCount = isArray ? jsonContent.length : 0;
+                  state.cssForm
+                    ?.get('jsonInput')
+                    ?.setValue(isArray ? jsonContent : [jsonContent]);
                   return { ...state, jsonItemCount, currentItemIndex: 0 };
                 });
               } catch (error) {

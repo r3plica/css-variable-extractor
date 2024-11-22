@@ -151,6 +151,31 @@ describe('CssVariableStoreService', () => {
     });
   });
 
+  it('should skip apply overrides when no overrides', () => {
+    // Assemble
+    service.patchState({
+      customVariables: [
+        { name: 'oldName', value: 'someValue' },
+        { name: 'unmatchedName', value: 'someValue' },
+      ],
+      cssForm: new FormBuilder().group({
+        overrides: [''],
+      }),
+    });
+
+    // Act
+    service.applyOverrides();
+
+    // Assert
+    service.state$.subscribe((state) => {
+      expect(state.customVariables).toEqual([
+        { name: 'oldName', value: 'someValue' },
+        { name: 'unmatchedName', value: 'someValue' },
+      ]);
+      expect(state.activeStep).toBe(3);
+    });
+  });
+
   it('should copy to clipboard', () => {
     // Assemble
     const clipboardWriteTextMock = jest.fn().mockResolvedValue({});
