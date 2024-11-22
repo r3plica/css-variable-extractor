@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 
-import { CssVariableStoreService } from '@store';
+import { CssVariableExtractorStore } from '@store';
 
 @Component({
   selector: 'app-overrides',
@@ -12,7 +12,7 @@ import { CssVariableStoreService } from '@store';
   styleUrl: './overrides.component.scss',
 })
 export class OverridesComponent {
-  private _store = inject(CssVariableStoreService);
+  private _store = inject(CssVariableExtractorStore);
 
   public viewModel$ = this._store.viewModel$;
 

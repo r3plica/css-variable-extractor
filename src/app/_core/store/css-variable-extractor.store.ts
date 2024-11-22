@@ -7,8 +7,9 @@ import { withLatestFrom, tap, from } from 'rxjs';
 import { JSONPath } from 'jsonpath-plus';
 
 import { CssVariable } from '@models';
+import { ColorService } from '@services';
 
-import { CssVariableExtractorService } from './css-variable-extractor.service';
+import { CssVariableExtractorStoreService } from './css-variable-extractor.store.service';
 
 interface LayoutState {
   activeStep: number;
@@ -22,12 +23,13 @@ interface LayoutState {
   errors: { [key: number]: string };
 }
 
-@Injectable({
-  providedIn: 'root',
-})
-export class CssVariableStoreService extends ComponentStore<LayoutState> {
+@Injectable()
+export class CssVariableExtractorStore extends ComponentStore<LayoutState> {
   private _fb = inject(FormBuilder);
-  private _cssVariableExtractorService = inject(CssVariableExtractorService);
+  private _colorService = inject(ColorService);
+  private _cssVariableExtractorService = inject(
+    CssVariableExtractorStoreService,
+  );
 
   constructor() {
     super({
@@ -63,8 +65,6 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
       ),
       exportForm: this._fb.group({}),
     });
-
-    // this._cssVariableExtractorService.handleCheckboxes(this.get().cssForm);
   }
 
   readonly activeStep$ = this.select((state) => state.activeStep);
@@ -114,38 +114,34 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
   }));
 
   readonly parseCss = this.updater((state) => {
-    if (!state.cssForm) return state;
+    const { cssForm, activeStep, currentItemIndex } = state;
+    if (!cssForm) return state;
 
-    const xpath = state.cssForm.get('xpath')?.value;
-    const cssInput = state.cssForm.get('cssInput')?.value;
-    const jsonInput = state.cssForm.get('jsonInput')?.value;
-    const mergeDuplicates = state.cssForm.get('mergeDuplicates')?.value;
-
-    const cssForm = state.cssForm;
-    const errors: { [key: number]: string } = {};
+    const xpath = cssForm.get('xpath')?.value;
+    const cssInput = cssForm.get('cssInput')?.value;
+    const jsonInput = cssForm.get('jsonInput')?.value;
+    const mergeDuplicates = cssForm.get('mergeDuplicates')?.value;
 
     cssForm.markAllAsTouched();
 
     if (!cssForm.valid) {
-      errors[state.activeStep] = 'Please fix the errors before continuing';
-    }
-
-    if (errors[state.activeStep])
       return {
         ...state,
-        errors,
+        errors: {
+          ...state.errors,
+          [activeStep]: 'Please fix the errors before continuing',
+        },
         cssForm,
       };
+    }
 
-    const extractedVariables: CssVariable[] =
+    const extractedVariables =
       this._cssVariableExtractorService.convertToCssVariables(
-        cssInput ||
-          this._extractJsonItems(jsonInput, xpath, state.currentItemIndex),
+        cssInput || this._extractJsonItems(jsonInput, xpath, currentItemIndex),
         mergeDuplicates,
       );
 
-    const exportForm = (state.exportForm = new FormGroup({}));
-
+    const exportForm = new FormGroup({});
     extractedVariables.forEach((variable, index) => {
       exportForm.addControl(`export-${index}`, new FormControl(true));
       exportForm.addControl(`name-${index}`, new FormControl(variable.name));
@@ -154,69 +150,62 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
 
     return {
       ...state,
-      errors,
+      errors: {},
       exportForm,
       activeStep: 1,
       extractedVariables,
     };
   });
 
-  readonly clearInput = this.updater((state) => {
-    if (!state.cssForm) return state;
-
-    state.cssForm.reset();
-    state.cssForm.markAsUntouched();
-
-    return {
-      ...state,
-      activeStep: 0,
-      extractedVariables: [],
-      customVariables: [],
-    };
-  });
-
   readonly exportVariables = this.updater((state) => {
-    const exportedResults: CssVariable[] = [];
+    let customVariables = state.extractedVariables
+      .filter((_, index) => state.exportForm?.get(`export-${index}`)?.value)
+      .map((_, index) => ({
+        name: state.exportForm?.get(`name-${index}`)?.value,
+        value: state.exportForm?.get(`value-${index}`)?.value,
+      }));
 
-    state.extractedVariables.forEach((_, index) => {
-      if (!state.exportForm) return;
+    const overrideVariableNames = state.cssForm?.get(
+      'overrideVariableNames',
+    )?.value;
+    const addShades = state.cssForm?.get('addShades')?.value;
 
-      const shouldExport = state.exportForm.get(`export-${index}`)?.value;
-      if (!shouldExport) return;
-
-      exportedResults.push({
-        name: state.exportForm.get(`name-${index}`)?.value,
-        value: state.exportForm.get(`value-${index}`)?.value,
-      });
-    });
+    if (!overrideVariableNames && addShades) {
+      customVariables = this._colorService.generateColorScale(customVariables);
+    }
 
     return {
       ...state,
-      customVariables: exportedResults,
+      customVariables,
       activeStep: 2,
     };
   });
 
   readonly applyOverrides = this.updater((state) => {
     const overridesControl = state.cssForm?.get('overrides');
-    if (!overridesControl) return state;
+    if (!overridesControl || !overridesControl.value)
+      return { ...state, activeStep: 3 };
 
     let overrides: Map<string, string>;
     try {
       overrides = new Map(JSON.parse(overridesControl.value));
+      if (!overrides.size) return { ...state, activeStep: 3 };
     } catch (error) {
-      console.error('Failed to parse overrides:', error);
       return state;
     }
 
-    if (!overrides.size) return { ...state, activeStep: 3 };
-
-    const customVariables = state.customVariables
+    let customVariables = state.customVariables
       .filter((variable) => overrides.has(variable.name))
       .map((variable) => ({
         ...variable,
         name: overrides.get(variable.name) || variable.name,
       }));
+
+    const addShades = state.cssForm?.get('addShades')?.value;
+
+    if (addShades) {
+      customVariables = this._colorService.generateColorScale(customVariables);
+    }
 
     return {
       ...state,
@@ -258,11 +247,14 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
         const jsonContent = cssForm.get('jsonInput')?.value;
         const keepStructure = cssForm.get('existingStructure')?.value;
 
-        let jsonString = '';
+        let jsonString = JSON.stringify(customVariables, null, 2);
 
         if (keepStructure) {
-        } else {
-          jsonString = JSON.stringify(customVariables, null, 2);
+          const existing = jsonContent[currentItemIndex] || {};
+          existing['custom-variables'] = customVariables;
+          if (existing[cssForm.get('xpath')?.value])
+            delete existing[cssForm.get('xpath')?.value];
+          jsonString = JSON.stringify(existing, null, 2);
         }
 
         const fileName =
@@ -301,13 +293,13 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
           .pipe(
             tap((fileContent) => {
               try {
-                const jsonContent = JSON.parse(fileContent);
+                let jsonContent = JSON.parse(fileContent);
+                if (!Array.isArray(jsonContent)) {
+                  jsonContent = [jsonContent];
+                }
                 this.patchState((state) => {
-                  const isArray = Array.isArray(jsonContent);
-                  const jsonItemCount = isArray ? jsonContent.length : 0;
-                  state.cssForm
-                    ?.get('jsonInput')
-                    ?.setValue(isArray ? jsonContent : [jsonContent]);
+                  state.cssForm?.get('jsonInput')?.setValue(jsonContent);
+                  const jsonItemCount = jsonContent.length;
                   return { ...state, jsonItemCount, currentItemIndex: 0 };
                 });
               } catch (error) {
@@ -319,6 +311,21 @@ export class CssVariableStoreService extends ComponentStore<LayoutState> {
       }),
     ),
   );
+
+  readonly clearInput = this.updater((state) => {
+    const { cssForm } = state;
+    if (!cssForm) return state;
+
+    cssForm.reset();
+    cssForm.markAsUntouched();
+
+    return {
+      ...state,
+      activeStep: 0,
+      extractedVariables: [],
+      customVariables: [],
+    };
+  });
 
   private _extractJsonItems(
     jsonContent: string,

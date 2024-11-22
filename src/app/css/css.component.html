@@ -24,15 +24,54 @@
             placeholder="Paste your CSS here..."
           ></textarea>
 
+          <label
+            class="flex items-center mt-4"
+            [ngClass]="{
+              'opacity-50': vm.cssForm.get('mergeDuplicates')?.disabled,
+            }"
+          >
+            <input
+              type="checkbox"
+              formControlName="mergeDuplicates"
+              class="mr-2"
+            />
+            Merge Duplicates
+          </label>
+
+          <label class="flex items-center mt-4">
+            <input
+              type="checkbox"
+              formControlName="existingStructure"
+              class="mr-2"
+            />
+            Keep existing structure
+          </label>
+
+          <label
+            class="flex items-center mt-4"
+            [ngClass]="{
+              'opacity-50': vm.cssForm.get('overrideVariableNames')?.disabled,
+            }"
+          >
+            <input
+              type="checkbox"
+              formControlName="overrideVariableNames"
+              class="mr-2"
+            />
+            Override variable names
+          </label>
+
+          <label
+            class="flex items-center mt-4"
+            [ngClass]="{
+              'opacity-50': vm.cssForm.get('overrideVariableNames')?.disabled,
+            }"
+          >
+            <input type="checkbox" formControlName="addShades" class="mr-2" />
+            Add color variants
+          </label>
+
           <div class="mt-4 flex justify-end gap-4">
-            <label class="flex items-center">
-              <input
-                type="checkbox"
-                formControlName="mergeDuplicates"
-                class="mr-2"
-              />
-              Merge Duplicates
-            </label>
             <button
               type="button"
               (click)="clearInput()"

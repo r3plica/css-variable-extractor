@@ -3,7 +3,7 @@ import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { of } from 'rxjs';
 import { By } from '@angular/platform-browser';
 
-import { CssVariableStoreService } from '@store';
+import { CssVariableExtractorStore } from '@store';
 
 import { JsonViewerComponent } from './json-viewer.component';
 
@@ -17,7 +17,7 @@ describe('JsonViewerComponent', () => {
       imports: [ReactiveFormsModule, JsonViewerComponent],
       providers: [
         {
-          provide: CssVariableStoreService,
+          provide: CssVariableExtractorStore,
           useValue: {
             viewModel$: of({
               currentItemIndex: 0,

@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 
-import { CssVariableStoreService } from '@store';
+import { CssVariableExtractorStore } from '@store';
 
 import { ExpansionPanelComponent } from '../expansion-panel/expansion-panel.component';
 
@@ -15,7 +15,7 @@ import { ExpansionPanelComponent } from '../expansion-panel/expansion-panel.comp
   styleUrl: './results.component.scss',
 })
 export class ResultsComponent {
-  private _store = inject(CssVariableStoreService);
+  private _store = inject(CssVariableExtractorStore);
 
   public viewModel$ = this._store.viewModel$;
 

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 
-import { CssVariableStoreService } from '@store';
+import { CssVariableExtractorStore } from '@store';
 
 import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
 
@@ -14,7 +14,7 @@ import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
   styleUrl: './stepper.component.scss',
 })
 export class StepperComponent {
-  private _store = inject(CssVariableStoreService);
+  private _store = inject(CssVariableExtractorStore);
 
   public viewModel$ = this._store.viewModel$;
 
