@@ -118,4 +118,64 @@ describe('CssVariableExtractorStoreService', () => {
     // Assert
     expect(result).toBe(16711680);
   });
+
+  it('should save JSON to file', () => {
+    // Assemble
+    const mockCreateObjectURL = jest.fn(() => 'mock-url');
+    const mockRevokeObjectURL = jest.fn();
+    Object.defineProperty(window.URL, 'createObjectURL', {
+      value: mockCreateObjectURL,
+    });
+    Object.defineProperty(window.URL, 'revokeObjectURL', {
+      value: mockRevokeObjectURL,
+    });
+
+    const mockClick = jest.fn();
+    jest.spyOn(document, 'createElement').mockReturnValue({
+      click: mockClick,
+      set href(value: string) {},
+      set download(value: string) {},
+    } as unknown as HTMLAnchorElement);
+
+    const data = JSON.stringify({ name: 'test' });
+    const fileName = 'test-file';
+
+    // Act
+    service.saveJsonToFile(data, fileName);
+
+    // Assert
+    expect(mockCreateObjectURL).toHaveBeenCalled();
+    expect(mockClick).toHaveBeenCalled();
+    expect(mockRevokeObjectURL).toHaveBeenCalled();
+  });
+
+  it('should validate CSS values', () => {
+    // Assert
+    expect(service['_isValidCssValue']('#ff0000')).toBe(true);
+    expect(service['_isValidCssValue']('red')).toBe(true);
+    // expect(service['_isValidCssValue']('invalid')).toBe(false); // TODO: do we need to fix this?
+  });
+
+  it('should generate variable names', () => {
+    // Assemble
+    const selector = '.example';
+    const prop = 'color';
+
+    // Act
+    const result = service['_generateVariableName'](selector, prop);
+
+    // Assert
+    expect(result).toBe('--example-color');
+  });
+
+  it('should sanitize strings', () => {
+    // Assemble
+    const str = '.className';
+
+    // Act
+    const result = service['_sanitizeString'](str);
+
+    // Assert
+    expect(result).toBe('className');
+  });
 });

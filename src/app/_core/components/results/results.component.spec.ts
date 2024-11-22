@@ -84,23 +84,9 @@ describe('ResultsComponent', () => {
     expect(clipboardSpy).toHaveBeenCalled();
   });
 
-  it('should call processNextItem when the button is clicked', () => {
-    // Assemble
-    const processSpy = jest.spyOn(store, 'processNextItem');
-
-    // Act
-    const button = fixture.debugElement.query(
-      By.css('#processNextItem'),
-    ).nativeElement;
-    button.click();
-
-    // Assert
-    expect(processSpy).toHaveBeenCalled();
-  });
-
   it('should call exportToFile when the form is submitted', () => {
     // Assemble
-    const exportSpy = jest.spyOn(store, 'exportToFile');
+    const exportSpy = jest.spyOn(store, 'export');
 
     // Act
     const form = fixture.debugElement.query(By.css('form')).nativeElement;

@@ -95,14 +95,19 @@
         </form>
       </ng-container>
 
-      <app-variables *ngIf="vm.activeStep === 1" />
-
-      @if (vm.cssForm?.get("overrideVariableNames")?.value == true) {
-        <app-overrides *ngIf="vm.activeStep === 2" />
-        <app-results *ngIf="vm.activeStep === 3" />
-      } @else {
-        <app-results *ngIf="vm.activeStep === 2" />
-      }
+      <app-variables
+        *ngIf="
+          vm.activeStep === 1 &&
+          vm.cssForm?.get('overrideVariableNames')?.value == false
+        "
+      />
+      <app-overrides
+        *ngIf="
+          vm.activeStep === 1 &&
+          vm.cssForm?.get('overrideVariableNames')?.value == true
+        "
+      />
+      <app-results *ngIf="vm.activeStep === 2" />
     </div>
   </section>
 </div>

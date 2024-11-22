@@ -5,6 +5,18 @@ import { CssVariable } from '@models';
 
 @Injectable({ providedIn: 'root' })
 export class CssVariableExtractorStoreService {
+  saveJsonToFile(data: string, fileName: string): void {
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `${fileName}.json`;
+    anchor.click();
+
+    window.URL.revokeObjectURL(url);
+  }
+
   public convertToCssVariables(
     css: string,
     mergeDuplicates: boolean,
@@ -50,7 +62,8 @@ export class CssVariableExtractorStoreService {
   }
 
   private _sanitizeString(str: string): string {
-    return str.replace(/[\W]+/g, '-').replace(/^--+/, '--');
+    const sanitized = str.replace(/[\W]+/g, '-').replace(/^--+/, '--');
+    return sanitized.startsWith('-') ? sanitized.slice(1) : sanitized;
   }
 
   private _getSortValue(value: string): number {
