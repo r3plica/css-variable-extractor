@@ -70,33 +70,4 @@ jobs:
       - name: Deploy to Vercel
         id: deploy
         run: |
-          echo "Deploying project to Vercel..."
-          DEPLOY_OUTPUT=$(vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN)
-          echo "Deployment output: $DEPLOY_OUTPUT"
-
-          # Extract deployment URL
-          DEPLOYMENT_URL=$(echo "$DEPLOY_OUTPUT" | grep -oE "https://[a-zA-Z0-9.-]+\.vercel\.app")
-          if [ -z "$DEPLOYMENT_URL" ]; then
-            echo "Error: Deployment URL could not be extracted."
-            exit 1
-          fi
-          echo "Deployment URL: $DEPLOYMENT_URL"
-          echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_ENV
-
-      # Step 11: Extract Deployment ID from URL
-      - name: Extract Deployment ID
-        run: |
-          echo "Extracting Deployment ID from URL..."
-          DEPLOYMENT_ID=$(echo "${{ env.deployment_url }}" | awk -F '/' '{print $NF}')
-          if [ -z "$DEPLOYMENT_ID" ]; then
-            echo "Error: Deployment ID could not be extracted."
-            exit 1
-          fi
-          echo "Deployment ID: $DEPLOYMENT_ID"
-          echo "deployment_id=$DEPLOYMENT_ID" >> $GITHUB_ENV
-
-      # Step 12: Promote Deployment
-      - name: Promote Deployment
-        run: |
-          echo "Promoting deployment with ID: ${{ env.deployment_id }}"
-          npx vercel promote ${{ env.deployment_id }} --token=$VERCEL_TOKEN --scope=r3plicas-projects
+          npx vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
