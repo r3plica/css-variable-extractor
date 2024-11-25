@@ -21,33 +21,40 @@ export class CssVariableExtractorStoreService {
     css: string,
     mergeDuplicates: boolean,
   ): CssVariable[] {
-    const root = postcss.parse(css);
-    const variables: CssVariable[] = [];
-    const valueToVarName: { [key: string]: string } = {};
+    try {
+      const root = postcss.parse(css);
+      const variables: CssVariable[] = [];
+      const valueToVarName: { [key: string]: string } = {};
 
-    root.walkDecls((decl) => {
-      const { prop, value, parent } = decl;
-      if (parent?.type === 'rule' && this._isValidCssValue(value)) {
-        let varName: string;
-        if (mergeDuplicates && valueToVarName[value]) {
-          varName = valueToVarName[value];
-        } else {
-          const rule = parent as postcss.Rule;
-          varName = this._generateVariableName(rule.selector, prop);
-          if (varName.startsWith('---')) varName = varName.slice(1);
-          valueToVarName[value] = varName;
-          variables.push({ name: varName, value });
+      root.walkDecls((decl) => {
+        const { prop, value, parent } = decl;
+        if (parent?.type === 'rule' && this._isValidCssValue(value)) {
+          let varName: string;
+          if (mergeDuplicates && valueToVarName[value]) {
+            varName = valueToVarName[value];
+          } else {
+            const rule = parent as postcss.Rule;
+            varName = this._generateVariableName(rule.selector, prop);
+            if (varName.startsWith('---')) varName = varName.slice(1);
+            valueToVarName[value] = varName;
+            variables.push({ name: varName, value });
+          }
+          decl.value = `var(${varName})`;
         }
-        decl.value = `var(${varName})`;
-      }
-    });
+      });
 
-    // Sort variables by value
-    variables.sort(
-      (a, b) => this._getSortValue(a.value) - this._getSortValue(b.value),
-    );
+      // Sort variables by value
+      variables.sort(
+        (a, b) => this._getSortValue(a.value) - this._getSortValue(b.value),
+      );
 
-    return mergeDuplicates ? this._removeDuplicateValues(variables) : variables;
+      return mergeDuplicates
+        ? this._removeDuplicateValues(variables)
+        : variables;
+    } catch (error) {
+      console.error('Error in convertToCssVariables:', error);
+      return [];
+    }
   }
 
   private _isValidCssValue(value: string): boolean {

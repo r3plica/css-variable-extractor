@@ -178,4 +178,15 @@ describe('CssVariableExtractorStoreService', () => {
     // Assert
     expect(result).toBe('className');
   });
+
+  it('should handle invalid CSS gracefully', () => {
+    // Assemble
+    const invalidCss = 'invalid-css';
+
+    // Act
+    const result = service.convertToCssVariables(invalidCss, false);
+
+    // Assert
+    expect(result).toEqual([]);
+  });
 });
