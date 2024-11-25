@@ -275,6 +275,13 @@ export class CssVariableExtractorStore extends ComponentStore<LayoutState> {
               mergeDuplicates,
             );
 
+          console.log('index and count', i, jsonItemCount);
+          console.log(
+            'extracted css',
+            this._extractJsonItems(jsonInput, xpath, i),
+          );
+          console.log('customVars', customVars);
+
           // Step 2: Apply overrides
           const overridesControl = cssForm.get('overrides');
           if (overridesControl && overrideVariableNames) {
@@ -393,6 +400,7 @@ export class CssVariableExtractorStore extends ComponentStore<LayoutState> {
     index: number,
   ): any {
     if (!jsonContent || !xpath) return '';
+    console.log('inside the extractor', jsonContent, xpath, index);
     const jsonItems = JSONPath({ path: `$..${xpath}`, json: jsonContent });
     return jsonItems[index] || '';
   }
@@ -424,7 +432,7 @@ export class CssVariableExtractorStore extends ComponentStore<LayoutState> {
       return JSON.stringify(customVariables, null, 2);
     }
 
-    const existing = jsonContent[currentItemIndex] || {};
+    const existing = cloneDeep(jsonContent[currentItemIndex] || {});
     existing['custom-variables'] = customVariables;
 
     if (xpath && existing[xpath]) {
