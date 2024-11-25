@@ -41,8 +41,8 @@ jobs:
 
       - name: Build project
         run: |
-          npx vercel pull --token ${{ secrets.VERCEL_TOKEN }} --yes
-          npx vercel build
+          npx vercel pull --yes --environment=production --token ${{ secrets.VERCEL_TOKEN }}
+          npx vercel build --prod --token ${{ secrets.VERCEL_TOKEN }}
 
       - name: Move build files to root
         run: |
@@ -55,7 +55,7 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: "deploy --prebuilt"
+          vercel-args: "deploy --prebuilt --prod"
 
       - name: Promote to production (if build is successful)
         run: |
