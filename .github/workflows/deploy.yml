@@ -99,4 +99,4 @@ jobs:
       - name: Promote Deployment
         run: |
           echo "Promoting deployment with ID: ${{ env.deployment_id }}"
-          npx vercel promote ${{ env.deployment_id }} --token=$VERCEL_TOKEN
+          npx vercel promote ${{ env.deployment_id }} --token=$VERCEL_TOKEN --scope=r3plicas-projects
