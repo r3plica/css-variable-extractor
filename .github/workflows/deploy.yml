@@ -40,7 +40,7 @@ jobs:
 
       # Step 4: Configure npm for JFrog Artifactory
       - name: Configure npm for JFrog
-        run: echo "//useast.jfrog.lexisnexisrisk.com/artifactory/api/npm/riskn-npm-release-virtual/:_authToken=$JFROG_API_TOKEN >> ~/.npmrc
+        run: echo "//useast.jfrog.lexisnexisrisk.com/artifactory/api/npm/riskn-npm-release-virtual/:_authToken=$JFROG_API_TOKEN" >> ~/.npmrc
 
       # Step 5: Install dependencies
       - name: Install Dependencies
