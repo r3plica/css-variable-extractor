@@ -50,15 +50,14 @@ jobs:
           rm -r dist/css-variable-extractor/browser
 
       - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v20
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: "deploy --prebuilt --prod"
-
-      - name: Promote to production (if build is successful)
+        id: deploy
         run: |
-          DEPLOYMENT_URL="${{ steps.get_deployment.outputs.deployment_url }}"
-          echo "Promoting deployment to production: $DEPLOYMENT_URL"
-          npx vercel promote $DEPLOYMENT_URL --token ${{ secrets.VERCEL_TOKEN }}
+          OUTPUT=$(npx vercel deploy --prebuilt --prod --token ${{ secrets.VERCEL_TOKEN }})
+          echo "$OUTPUT"
+          echo "deployment-id=$(echo "$OUTPUT" | grep -oP '(?<=https://)[^ ]+' | head -n 1)" >> $GITHUB_ENV
+
+      - name: Promote Deployment
+        if: ${{ success() }}
+        run: |
+          echo "Promoting deployment with ID ${{ env.deployment-id }}"
+          npx vercel promote ${{ env.deployment-id }} --token ${{ secrets.VERCEL_TOKEN }}
