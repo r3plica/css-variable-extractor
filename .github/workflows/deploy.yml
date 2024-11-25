@@ -71,7 +71,7 @@ jobs:
         id: deploy
         run: |
           echo "Deploying project to Vercel..."
-          DEPLOY_OUTPUT=$(vercel deploy --prebuilt --token=$VERCEL_TOKEN)
+          DEPLOY_OUTPUT=$(vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN)
           echo "Deployment output: $DEPLOY_OUTPUT"
 
           # Extract deployment URL
