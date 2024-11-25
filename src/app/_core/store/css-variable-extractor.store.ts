@@ -424,7 +424,7 @@ export class CssVariableExtractorStore extends ComponentStore<LayoutState> {
       return JSON.stringify(customVariables, null, 2);
     }
 
-    const existing = jsonContent[currentItemIndex] || {};
+    const existing = cloneDeep(jsonContent[currentItemIndex] || {});
     existing['custom-variables'] = customVariables;
 
     if (xpath && existing[xpath]) {
