@@ -1,6 +1,6 @@
 {
   "name": "css-variable-extractor",
-  "version": "1.6.18",
+  "version": "1.6.19",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
