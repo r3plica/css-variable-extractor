@@ -282,10 +282,12 @@ export class CssVariableExtractorStore extends ComponentStore<LayoutState> {
               const overrides = new Map<string, string>(
                 JSON.parse(overridesControl.value),
               );
-              customVars = customVars.map((variable) => ({
-                ...variable,
-                name: overrides.get(variable.name) || variable.name,
-              }));
+              customVars = customVars
+                .filter((variable) => overrides.has(variable.name))
+                .map((variable) => ({
+                  ...variable,
+                  name: overrides.get(variable.name) || variable.name,
+                }));
             } catch {
               // Ignore parse errors
             }
@@ -313,7 +315,7 @@ export class CssVariableExtractorStore extends ComponentStore<LayoutState> {
         const aggregatedData = JSON.stringify(allData, null, 2);
         this._cssVariableExtractorService.saveJsonToFile(
           aggregatedData,
-          'all-custom-variables.json',
+          'all-custom-variables',
         );
       }),
     ),
