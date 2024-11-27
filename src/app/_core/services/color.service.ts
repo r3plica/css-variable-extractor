@@ -8,7 +8,7 @@ import { CssVariable } from '@models';
 })
 export class ColorService {
   public generateColorScale(variables: CssVariable[]): CssVariable[] {
-    const colorScale: CssVariable[] = [];
+    const scaledVariables: CssVariable[] = [];
     const existingVariables = new Map(
       variables.map((variable) => [variable.name, variable.value]),
     );
@@ -19,16 +19,15 @@ export class ColorService {
       const { name, value } = baseVariable;
       if (!this.isValidHex(value)) return;
 
-      const readableName = name.replace(/^--/, '');
       this.generateColorIncrements(
         value,
-        readableName,
-        colorScale,
+        name,
+        scaledVariables,
         existingVariables,
       );
     });
 
-    return colorScale;
+    return scaledVariables;
   }
 
   private isValidHex(hex: string): boolean {
@@ -37,9 +36,9 @@ export class ColorService {
 
   private generateColorIncrements(
     hexColor: string,
-    readableName: string,
+    name: string,
     colorScale: CssVariable[],
-    existingVariables: Map<string, string>,
+    originalVariables: Map<string, string>,
   ) {
     const scaleColors = scale([
       chroma(hexColor).set('hsl.l', 0.6),
@@ -51,20 +50,30 @@ export class ColorService {
 
     scaleColors.forEach((color, index) => {
       const incrementValue = 50 + index * 50;
-      const incrementName = `--${readableName}-${incrementValue}`;
+      const incrementName = `${name}-${incrementValue}`;
 
-      if (existingVariables.has(incrementName)) {
+      if (originalVariables.has(incrementName)) {
         colorScale.push({
           name: incrementName,
-          value: existingVariables.get(incrementName)!,
+          value: originalVariables.get(incrementName)!,
         });
       } else {
         colorScale.push({
           name: incrementName,
           value: color,
         });
-        existingVariables.set(incrementName, color);
+        originalVariables.set(incrementName, color);
       }
+    });
+
+    const matchVariable = colorScale.find((v) => v.name === name);
+    const originalVariable = originalVariables.has(name);
+
+    if (matchVariable || !originalVariable) return;
+
+    colorScale.push({
+      name,
+      value: originalVariables.get(name)!,
     });
   }
 
