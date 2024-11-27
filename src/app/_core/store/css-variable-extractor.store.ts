@@ -200,7 +200,7 @@ export class CssVariableExtractorStore extends ComponentStore<LayoutState> {
       try {
         overrides = new Map(JSON.parse(overridesControl.value));
 
-        customVariables = state.customVariables
+        customVariables = customVariables
           .filter((variable) => overrides.has(variable.name))
           .map((variable) => ({
             ...variable,
