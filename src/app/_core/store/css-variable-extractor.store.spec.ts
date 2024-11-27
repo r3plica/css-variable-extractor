@@ -153,7 +153,7 @@ describe('CssVariableExtractorStore', () => {
   it('should apply overrides with array format', () => {
     // Assemble
     service.patchState({
-      customVariables: [
+      extractedVariables: [
         { name: 'oldName', value: 'someValue' },
         { name: 'unmatchedName', value: 'someValue' },
       ],
@@ -177,7 +177,7 @@ describe('CssVariableExtractorStore', () => {
   it('should apply overrides with object format', () => {
     // Assemble
     service.patchState({
-      customVariables: [
+      extractedVariables: [
         { name: 'oldName', value: 'someValue' },
         { name: 'unmatchedName', value: 'someValue' },
       ],
@@ -201,7 +201,7 @@ describe('CssVariableExtractorStore', () => {
   it('should handle invalid overrides format', () => {
     // Assemble
     service.patchState({
-      customVariables: [
+      extractedVariables: [
         { name: 'oldName', value: 'someValue' },
         { name: 'unmatchedName', value: 'someValue' },
       ],
@@ -226,7 +226,7 @@ describe('CssVariableExtractorStore', () => {
   it('should handle empty overrides', () => {
     // Assemble
     service.patchState({
-      customVariables: [
+      extractedVariables: [
         { name: 'oldName', value: 'someValue' },
         { name: 'unmatchedName', value: 'someValue' },
       ],
