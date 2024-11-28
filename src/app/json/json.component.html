@@ -98,13 +98,13 @@
       <app-variables
         *ngIf="
           vm.activeStep === 1 &&
-          vm.cssForm?.get('overrideVariableNames')?.value == false
+          !vm.cssForm?.get('overrideVariableNames')?.value
         "
       />
       <app-overrides
         *ngIf="
           vm.activeStep === 1 &&
-          vm.cssForm?.get('overrideVariableNames')?.value == true
+          !!vm.cssForm?.get('overrideVariableNames')?.value
         "
       />
       <app-results *ngIf="vm.activeStep === 2" />
