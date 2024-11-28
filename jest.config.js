@@ -19,4 +19,7 @@ module.exports = {
     "^@directives(.*)$": "<rootDir>/src/app/_core/directives$1",
     "^@components(.*)$": "<rootDir>/src/app/_core/components$1",
   },
+  collectCoverage: true,
+  coverageDirectory: "<rootDir>/coverage",
+  coverageReporters: ["html", "lcov", "text-summary"],
 };

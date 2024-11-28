@@ -5,7 +5,38 @@ import { CssVariable } from '@models';
 
 @Injectable({ providedIn: 'root' })
 export class CssVariableExtractorStoreService {
-  saveJsonToFile(data: string, fileName: string): void {
+  public applyOverrides(
+    extractedVariables: CssVariable[],
+    overridesString: string,
+  ): CssVariable[] {
+    const customVariables: CssVariable[] = [];
+    const foundOverrides: string[] = [];
+
+    if (overridesString) {
+      let overrides: [string, string][];
+      try {
+        overrides = JSON.parse(overridesString);
+
+        extractedVariables.forEach((variable) => {
+          overrides.forEach(([key, value]) => {
+            if (key !== variable.name || foundOverrides.includes(value)) return;
+
+            customVariables.push({
+              ...variable,
+              name: value,
+            });
+            foundOverrides.push(value);
+          });
+        });
+      } catch {
+        return [];
+      }
+    }
+
+    return customVariables;
+  }
+
+  public saveJsonToFile(data: string, fileName: string): void {
     const blob = new Blob([data], { type: 'application/json' });
     const url = window.URL.createObjectURL(blob);
 

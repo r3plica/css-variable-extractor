@@ -46,10 +46,15 @@ export class ColorService {
       chroma(hexColor).set('hsl.l', 0.2),
     ])
       .mode('lab')
-      .colors(19);
+      .colors(11);
+    const increments = [
+      50,
+      ...Array.from({ length: 9 }, (_, i) => (i + 1) * 100),
+      950,
+    ];
 
     scaleColors.forEach((color, index) => {
-      const incrementValue = 50 + index * 50;
+      const incrementValue = increments[index];
       const incrementName = `${name}-${incrementValue}`;
 
       if (originalVariables.has(incrementName)) {

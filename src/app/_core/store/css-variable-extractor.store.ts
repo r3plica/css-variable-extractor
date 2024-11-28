@@ -16,7 +16,7 @@ import {
   requireXpathIfJsonInput,
 } from './css-variable-validators.const';
 
-interface LayoutState {
+export interface ExtractorState {
   activeStep: number;
   extractedVariables: CssVariable[];
   customVariables: CssVariable[];
@@ -29,7 +29,7 @@ interface LayoutState {
 }
 
 @Injectable()
-export class CssVariableExtractorStore extends ComponentStore<LayoutState> {
+export class CssVariableExtractorStore extends ComponentStore<ExtractorState> {
   private _fb = inject(FormBuilder);
   private _colorService = inject(ColorService);
   private _cssVariableExtractorService = inject(
@@ -193,23 +193,13 @@ export class CssVariableExtractorStore extends ComponentStore<LayoutState> {
     const overridesControl = state.cssForm?.get('overrides');
     if (!overridesControl) return { ...state, activeStep: 2 };
 
-    let customVariables = state.extractedVariables;
+    let customVariables = this._cssVariableExtractorService.applyOverrides(
+      state.extractedVariables,
+      overridesControl.value,
+    );
 
-    if (overridesControl.value) {
-      let overrides: Map<string, string>;
-      try {
-        overrides = new Map(JSON.parse(overridesControl.value));
-
-        customVariables = customVariables
-          .filter((variable) => overrides.has(variable.name))
-          .map((variable) => ({
-            ...variable,
-            name: overrides.get(variable.name) || variable.name,
-          }));
-      } catch (error) {
-        return state;
-      }
-    }
+    if (customVariables.length === 0)
+      customVariables = state.extractedVariables;
 
     const addShades = state.cssForm?.get('addShades')?.value;
 
@@ -269,7 +259,7 @@ export class CssVariableExtractorStore extends ComponentStore<LayoutState> {
 
         for (let i = currentItemIndex; i < jsonItemCount; i++) {
           // Step 1: Extract variables
-          let customVars =
+          const extractedVariables =
             this._cssVariableExtractorService.convertToCssVariables(
               this._extractJsonItems(jsonInput, xpath, i),
               mergeDuplicates,
@@ -277,30 +267,26 @@ export class CssVariableExtractorStore extends ComponentStore<LayoutState> {
 
           // Step 2: Apply overrides
           const overridesControl = cssForm.get('overrides');
+          let customVariables: CssVariable[] = [];
           if (overridesControl && overrideVariableNames) {
-            try {
-              const overrides = new Map<string, string>(
-                JSON.parse(overridesControl.value),
-              );
-              customVars = customVars
-                .filter((variable) => overrides.has(variable.name))
-                .map((variable) => ({
-                  ...variable,
-                  name: overrides.get(variable.name) || variable.name,
-                }));
-            } catch {
-              // Ignore parse errors
-            }
+            customVariables = this._cssVariableExtractorService.applyOverrides(
+              extractedVariables,
+              overridesControl.value,
+            );
           }
+
+          if (customVariables.length === 0)
+            customVariables = extractedVariables;
 
           // Step 3: Add color scales
           if (addShades) {
-            customVars = this._colorService.generateColorScale(customVars);
+            customVariables =
+              this._colorService.generateColorScale(customVariables);
           }
 
           // Step 4: Prepare JSON
           const jsonString = this.prepareExportJson(
-            customVars,
+            customVariables,
             jsonInput,
             i,
             keepStructure,

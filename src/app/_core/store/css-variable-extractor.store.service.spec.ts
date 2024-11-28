@@ -119,6 +119,116 @@ describe('CssVariableExtractorStoreService', () => {
     expect(result).toBe(16711680);
   });
 
+  describe('applyOverrides', () => {
+    it('should apply multiple overrides for the same variable name', () => {
+      // Assemble
+      const extractedVariables = [
+        { name: '--TopHeader-background-color', value: '#ff0000' },
+        { name: '--tn-color-primary-color', value: '#00ff00' },
+      ];
+      const overridesString = JSON.stringify([
+        ['--TopHeader-background-color', '--tru-primary'],
+        ['--tn-color-primary-color', '--tru-primary'],
+        ['--TopHeader-background-color', '--tru-accent'],
+        ['--tn-color-primary-color', '--tru-accent'],
+      ]);
+
+      // Act
+      const result = service.applyOverrides(
+        extractedVariables,
+        overridesString,
+      );
+
+      // Assert
+      expect(result).toEqual([
+        { name: '--tru-primary', value: '#ff0000' },
+        { name: '--tru-accent', value: '#ff0000' },
+      ]);
+    });
+
+    it('should handle duplicate overrides correctly', () => {
+      // Assemble
+      const extractedVariables = [
+        { name: '--TopHeader-background-color', value: '#ff0000' },
+        { name: '--tn-color-primary-color', value: '#00ff00' },
+      ];
+      const overridesString = JSON.stringify([
+        ['--TopHeader-background-color', '--tru-primary'],
+        ['--TopHeader-background-color', '--tru-accent'],
+        ['--tn-color-primary-color', '--tru-primary'],
+        ['--tn-color-primary-color', '--tru-accent'],
+      ]);
+
+      // Act
+      const result = service.applyOverrides(
+        extractedVariables,
+        overridesString,
+      );
+
+      // Assert
+      expect(result).toEqual([
+        { name: '--tru-primary', value: '#ff0000' },
+        { name: '--tru-accent', value: '#ff0000' },
+      ]);
+    });
+
+    it('should handle empty overrides', () => {
+      // Assemble
+      const extractedVariables = [
+        { name: 'oldName', value: 'someValue' },
+        { name: 'unmatchedName', value: 'someValue' },
+      ];
+      const overridesString = '';
+
+      // Act
+      const result = service.applyOverrides(
+        extractedVariables,
+        overridesString,
+      );
+
+      // Assert
+      expect(result).toEqual([]);
+    });
+
+    it('should handle invalid overrides string', () => {
+      // Assemble
+      const extractedVariables = [
+        { name: 'oldName', value: 'someValue' },
+        { name: 'unmatchedName', value: 'someValue' },
+      ];
+      const overridesString = 'invalid-json';
+
+      // Act
+      const result = service.applyOverrides(
+        extractedVariables,
+        overridesString,
+      );
+
+      // Assert
+      expect(result).toEqual([]);
+    });
+
+    it('should handle no matching overrides', () => {
+      // Assemble
+      const extractedVariables = [
+        { name: '--TopHeader-background-color', value: '#ff0000' },
+        { name: '--tn-color-primary-color', value: '#00ff00' },
+      ];
+      const overridesString = JSON.stringify([
+        ['--non-existent-variable', '--tru-primary'],
+      ]);
+
+      // Act
+      const result = service.applyOverrides(
+        extractedVariables,
+        overridesString,
+      );
+
+      // Assert
+      expect(result).toEqual([]);
+    });
+  });
+
   it('should save JSON to file', () => {
     // Assemble
     const mockCreateObjectURL = jest.fn(() => 'mock-url');
