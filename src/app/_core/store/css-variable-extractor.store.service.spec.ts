@@ -149,6 +149,44 @@ describe('CssVariableExtractorStoreService', () => {
     expect(mockRevokeObjectURL).toHaveBeenCalled();
   });
 
+  it('should clean CSS by removing comments, extra spaces, and fixing missing semicolons', () => {
+    // Assemble
+    const css = `
+      /* This is a comment */
+      .example {
+        color: #ff0000; /* Another comment */
+        background-color: blue;
+      }
+      .example2 {
+        color: red
+      }
+    `;
+
+    // Act
+    const result = service['_cleanCss'](css);
+
+    // Assert
+    expect(result).toBe(
+      '.example{color:#ff0000;background-color:blue;}.example2{color:red;}',
+    );
+  });
+
+  it('should clean CSS by removing carriage returns and newlines', () => {
+    // Assemble
+    const css = `
+      .example {
+        color: #ff0000;
+        background-color: blue;
+      }
+    `.replace(/\n/g, '\r\n');
+
+    // Act
+    const result = service['_cleanCss'](css);
+
+    // Assert
+    expect(result).toBe('.example{color:#ff0000;background-color:blue;}');
+  });
+
   it('should validate CSS values', () => {
     // Assert
     expect(service['_isValidCssValue']('#ff0000')).toBe(true);
