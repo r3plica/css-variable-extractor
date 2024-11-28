@@ -22,7 +22,8 @@ export class CssVariableExtractorStoreService {
     mergeDuplicates: boolean,
   ): CssVariable[] {
     try {
-      const root = postcss.parse(css);
+      const cleanedCss = this._cleanCss(css);
+      const root = postcss.parse(cleanedCss);
       const variables: CssVariable[] = [];
       const valueToVarName: { [key: string]: string } = {};
 
@@ -55,6 +56,16 @@ export class CssVariableExtractorStoreService {
       console.error('Error in convertToCssVariables:', error);
       return [];
     }
+  }
+
+  private _cleanCss(css: string): string {
+    return css
+      .replace(/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/gm, '$1') // Remove comments
+      .replace(/\s*([{}:;,])\s*/g, '$1') // Remove spaces around { } : , ;
+      .replace(/[\r\n]+/g, ' ') // Remove carriage returns and extra newlines
+      .replace(/;(?=\s*})/g, '') // Remove semicolons before }
+      .replace(/([^{;]+)(?=\s*})/g, '$1;') // Add missing semicolons before }
+      .trim(); // Trim leading and trailing spaces
   }
 
   private _isValidCssValue(value: string): boolean {
