@@ -1,14 +1,12 @@
 {
   "name": "css-variable-extractor",
-  "version": "1.6.19",
+  "version": "1.6.20",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
+    "test": "jest --coverage",
     "lint": "eslint --fix .",
     "feature-start": "bash ./scripts/feature-start.sh",
     "feature-finish": "bash ./scripts/feature-finish.sh",

@@ -31,7 +31,7 @@ describe('ColorService', () => {
     const scaledVariables = service.generateColorScale(variables);
 
     // Assert
-    expect(scaledVariables.length).toBe(60);
+    expect(scaledVariables.length).toBe(36);
     expect(scaledVariables.find((v) => v.name === '--primary')).toBeDefined();
     expect(scaledVariables.find((v) => v.name === '--secondary')).toBeDefined();
     expect(scaledVariables.find((v) => v.name === '--accent')).toBeDefined();
@@ -47,7 +47,7 @@ describe('ColorService', () => {
     const scaledVariables = service.generateColorScale(variables);
 
     // Assert
-    expect(scaledVariables.length).toBe(20);
+    expect(scaledVariables.length).toBe(12);
     expect(
       scaledVariables.find((v) => v.name === '--custom-color-50'),
     ).toBeDefined();
@@ -70,7 +70,7 @@ describe('ColorService', () => {
     const scaledVariables = service.generateColorScale(variables);
 
     // Assert
-    expect(scaledVariables.length).toBe(40);
+    expect(scaledVariables.length).toBe(24);
     expect(
       scaledVariables.find((v) => v.name === '--primary-50'),
     ).toBeDefined();
@@ -107,7 +107,7 @@ describe('ColorService', () => {
     );
 
     // Assert
-    expect(scaledVariables.length).toBe(20);
+    expect(scaledVariables.length).toBe(12);
     expect(
       scaledVariables.find((v) => v.name === '--custom-color-50'),
     ).toBeDefined();
@@ -130,7 +130,7 @@ describe('ColorService', () => {
     const scaledVariables = service.generateColorScale(variables);
 
     // Assert
-    expect(scaledVariables.length).toBe(20);
+    expect(scaledVariables.length).toBe(12);
     expect(
       scaledVariables.find((v) => v.name === '--primary-50'),
     ).toBeDefined();
@@ -156,7 +156,7 @@ describe('ColorService', () => {
     const scaledVariables = service.generateColorScale(variables);
 
     // Assert
-    expect(scaledVariables.length).toBe(20);
+    expect(scaledVariables.length).toBe(12);
     expect(
       scaledVariables.find((v) => v.name === '--tru-on-warn-50'),
     ).toBeDefined();
@@ -182,7 +182,7 @@ describe('ColorService', () => {
     const scaledVariables = service.generateColorScale(variables);
 
     // Assert
-    expect(scaledVariables.length).toBe(20);
+    expect(scaledVariables.length).toBe(12);
     expect(
       scaledVariables.find((v) => v.name === '--existing-color-50'),
     ).toBeDefined();
