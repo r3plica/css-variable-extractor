@@ -16,6 +16,7 @@ export class CssVariableExtractorStoreService {
       let overrides: [string, string][];
       try {
         overrides = JSON.parse(overridesString);
+        console.log(overrides);
 
         extractedVariables.forEach((variable) => {
           overrides.forEach(([key, value]) => {
@@ -29,6 +30,7 @@ export class CssVariableExtractorStoreService {
           });
         });
       } catch {
+        console.log('error');
         return [];
       }
     }
@@ -53,7 +55,10 @@ export class CssVariableExtractorStoreService {
     mergeDuplicates: boolean,
   ): CssVariable[] {
     try {
+      console.log('raw css', css);
       const cleanedCss = this._cleanCss(css);
+      console.log('cleanedCss', cleanedCss);
+      console.log('cleanedCss', cleanedCss.replace(/(\r\n|\n|\r)/gm, ''));
       const root = postcss.parse(cleanedCss);
       const variables: CssVariable[] = [];
       const valueToVarName: { [key: string]: string } = {};
@@ -91,12 +96,15 @@ export class CssVariableExtractorStoreService {
 
   private _cleanCss(css: string): string {
     return css
-      .replace(/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/gm, '$1') // Remove comments
-      .replace(/\s*([{}:;,])\s*/g, '$1') // Remove spaces around { } : , ;
-      .replace(/[\r\n]+/g, ' ') // Remove carriage returns and extra newlines
-      .replace(/;(?=\s*})/g, '') // Remove semicolons before }
-      .replace(/([^{;]+)(?=\s*})/g, '$1;') // Add missing semicolons before }
-      .trim(); // Trim leading and trailing spaces
+      .replace(/;(?=\s*})/gm, '') // Remove semicolons before closing braces
+      .replace(/([^{;]+)(?=\s*})/gm, '$1;') // Add missing semicolons before closing braces
+      .replace(/\/\*[\s\S]*?\*\//gm, '') // Remove multi-line comments
+      .replace(/\/\/.*$/gm, '') // Remove single-line comments
+      .replace(/\s{2,}/gm, ' ') // Replace multiple spaces with a single space
+      .replace(/\s*([{}:;,])\s*/gm, '$1') // Remove spaces around selectors and properties
+      .replace(/\s+/gm, ' ') // Normalize any extra spaces to single spaces
+      .replace(/(\\r|\\n)/gm, '') // Remove all newlines and carriage returns
+      .trim(); // Remove leading and trailing spaces
   }
 
   private _isValidCssValue(value: string): boolean {
