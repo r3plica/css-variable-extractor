@@ -119,6 +119,145 @@ describe('CssVariableExtractorStoreService', () => {
     expect(result).toBe(16711680);
   });
 
+  describe('_cleanCss', () => {
+    it('should remove single-line comments and clean up extra spaces', () => {
+      // Arrange
+      const inputCss = `
+        /* This is a comment */
+        .example {
+          color: red; // Single line comment
+          background-color: blue;
+        }
+      `;
+      const expectedOutput = '.example{color:red;background-color:blue;}';
+
+      // Act
+      const result = service['_cleanCss'](inputCss);
+
+      // Assert
+      expect(result).toBe(expectedOutput);
+    });
+
+    it('should remove multi-line comments and normalize spacing', () => {
+      // Arrange
+      const inputCss = `
+        /* This is a
+           multi-line comment */
+        .example {
+          color: red;
+          background-color: blue;
+        }
+      `;
+      const expectedOutput = '.example{color:red;background-color:blue;}';
+
+      // Act
+      const result = service['_cleanCss'](inputCss);
+
+      // Assert
+      expect(result).toBe(expectedOutput);
+    });
+
+    it('should remove all newlines and carriage returns', () => {
+      // Arrange
+      const inputCss = `
+        html,\r\nbody {    \r\nbackground-color: rgba(255, 255, 255, 1);\r\ncolor: rgba(195, 68, 51, 1);\r\n}
+      `;
+      const expectedOutput =
+        'html,body{background-color:rgba(255,255,255,1);color:rgba(195,68,51,1);}';
+
+      // Act
+      const result = service['_cleanCss'](inputCss);
+
+      // Assert
+      expect(result).toBe(expectedOutput);
+    });
+
+    it('should handle missing semicolons correctly', () => {
+      // Arrange
+      const inputCss = `
+        .example {
+          color: red;
+          background-color: blue
+        }
+      `;
+      const expectedOutput = '.example{color:red;background-color:blue;}';
+
+      // Act
+      const result = service['_cleanCss'](inputCss);
+
+      // Assert
+      expect(result).toBe(expectedOutput);
+    });
+
+    it('should normalize excessive spaces to a single space', () => {
+      // Arrange
+      const inputCss = `
+        .example {
+          color:      red;     background-color:   blue;
+        }
+      `;
+      const expectedOutput = '.example{color:red;background-color:blue;}';
+
+      // Act
+      const result = service['_cleanCss'](inputCss);
+
+      // Assert
+      expect(result).toBe(expectedOutput);
+    });
+
+    it('should handle empty CSS input', () => {
+      // Arrange
+      const inputCss = '';
+      const expectedOutput = '';
+
+      // Act
+      const result = service['_cleanCss'](inputCss);
+
+      // Assert
+      expect(result).toBe(expectedOutput);
+    });
+
+    it('should handle CSS with only comments', () => {
+      // Arrange
+      const inputCss = `
+        /* This is a comment */
+        /* Another comment */
+      `;
+      const expectedOutput = '';
+
+      // Act
+      const result = service['_cleanCss'](inputCss);
+
+      // Assert
+      expect(result).toBe(expectedOutput);
+    });
+
+    it('should not affect valid CSS with no comments or extra spaces', () => {
+      // Arrange
+      const inputCss = '.valid{color:red;}';
+      const expectedOutput = '.valid{color:red;}';
+
+      // Act
+      const result = service['_cleanCss'](inputCss);
+
+      // Assert
+      expect(result).toBe(expectedOutput);
+    });
+
+    it('should handle multiple spaces between selectors', () => {
+      // Arrange
+      const inputCss =
+        '.example   {  color:red ; background-color  : blue  ;  }';
+      const expectedOutput = '.example{color:red;background-color:blue;}';
+
+      // Act
+      const result = service['_cleanCss'](inputCss);
+
+      // Assert
+      expect(result).toBe(expectedOutput);
+    });
+  });
+
   describe('applyOverrides', () => {
     it('should apply multiple overrides for the same variable name', () => {
       // Assemble
@@ -257,44 +396,6 @@ describe('CssVariableExtractorStoreService', () => {
     expect(mockCreateObjectURL).toHaveBeenCalled();
     expect(mockClick).toHaveBeenCalled();
     expect(mockRevokeObjectURL).toHaveBeenCalled();
-  });
-
-  it('should clean CSS by removing comments, extra spaces, and fixing missing semicolons', () => {
-    // Assemble
-    const css = `
-      /* This is a comment */
-      .example {
-        color: #ff0000; /* Another comment */
-        background-color: blue;
-      }
-      .example2 {
-        color: red
-      }
-    `;
-
-    // Act
-    const result = service['_cleanCss'](css);
-
-    // Assert
-    expect(result).toBe(
-      '.example{color:#ff0000;background-color:blue;}.example2{color:red;}',
-    );
-  });
-
-  it('should clean CSS by removing carriage returns and newlines', () => {
-    // Assemble
-    const css = `
-      .example {
-        color: #ff0000;
-        background-color: blue;
-      }
-    `.replace(/\n/g, '\r\n');
-
-    // Act
-    const result = service['_cleanCss'](css);
-
-    // Assert
-    expect(result).toBe('.example{color:#ff0000;background-color:blue;}');
   });
 
   it('should validate CSS values', () => {
