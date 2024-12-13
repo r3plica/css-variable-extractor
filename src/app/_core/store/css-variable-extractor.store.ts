@@ -413,7 +413,7 @@ export class CssVariableExtractorStore extends ComponentStore<ExtractorState> {
     }
 
     const existing = cloneDeep(jsonContent[currentItemIndex] || {});
-    existing['custom-variables'] = customVariables;
+    existing['variables'] = customVariables;
 
     if (xpath && existing[xpath]) {
       delete existing[xpath];

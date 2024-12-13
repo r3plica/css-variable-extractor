@@ -30,6 +30,25 @@ export class ColorService {
     return scaledVariables;
   }
 
+  public rgbToHex(css: string): string {
+    const regex =
+      /rgba?\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})(?:,\s*(\d*\.?\d+))?\)/g;
+
+    const updatedCss = css.replace(regex, (match, r, g, b, a) => {
+      try {
+        const hex = a
+          ? chroma(`rgba(${r},${g},${b},${a})`).hex() // rgba to hex
+          : chroma(`rgb(${r},${g},${b})`).hex(); // rgb to hex
+        return hex;
+      } catch (error) {
+        console.error(`Error converting color: ${match}`, error);
+        return match;
+      }
+    });
+
+    return updatedCss;
+  }
+
   private isValidHex(hex: string): boolean {
     return /^#([0-9A-F]{3}){1,2}$/i.test(hex);
   }

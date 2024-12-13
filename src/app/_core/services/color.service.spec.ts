@@ -196,4 +196,98 @@ describe('ColorService', () => {
       scaledVariables.find((v) => v.name === '--existing-color-500')?.value,
     ).toBe('#ff0000');
   });
+
+  describe('rgbToHex', () => {
+    it('should convert rgb to hex', () => {
+      // Assemble
+      const css = `
+        .example {
+          color: rgb(255, 0, 0);
+        }
+      `;
+      const expectedOutput = `
+        .example {
+          color: #ff0000;
+        }
+      `;
+
+      // Act
+      const result = service.rgbToHex(css);
+
+      // Assert
+      expect(result).toBe(expectedOutput);
+    });
+
+    it('should convert rgba to hex with transparency', () => {
+      // Assemble
+      const css = `
+        .example {
+          background-color: rgba(0, 255, 0, 0.5);
+        }
+      `;
+      const expectedOutput = `
+        .example {
+          background-color: #00ff0080;
+        }
+      `;
+
+      // Act
+      const result = service.rgbToHex(css);
+
+      // Assert
+      expect(result).toBe(expectedOutput);
+    });
+
+    it('should handle multiple rgb and rgba values in the same CSS', () => {
+      // Assemble
+      const css = `
+        .example {
+          color: rgb(255, 0, 0);
+          background-color: rgba(0, 255, 0, 0.5);
+          border-color: rgb(0, 0, 255);
+        }
+      `;
+      const expectedOutput = `
+        .example {
+          color: #ff0000;
+          background-color: #00ff0080;
+          border-color: #0000ff;
+        }
+      `;
+
+      // Act
+      const result = service.rgbToHex(css);
+
+      // Assert
+      expect(result).toBe(expectedOutput);
+    });
+
+    it('should return the original CSS if an invalid color is encountered', () => {
+      // Assemble
+      const css = `
+        .example {
+          color: invalidColor(255, 0, 0);
+        }
+      `;
+      const expectedOutput = css;
+
+      // Act
+      const result = service.rgbToHex(css);
+
+      // Assert
+      expect(result).toBe(expectedOutput);
+    });
+
+    it('should handle empty CSS input gracefully', () => {
+      // Assemble
+      const css = ``;
+      const expectedOutput = ``;
+
+      // Act
+      const result = service.rgbToHex(css);
+
+      // Assert
+      expect(result).toBe(expectedOutput);
+    });
+  });
 });
