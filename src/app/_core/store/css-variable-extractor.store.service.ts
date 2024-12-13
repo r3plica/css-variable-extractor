@@ -1,10 +1,13 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import * as postcss from 'postcss';
 
 import { CssVariable } from '@models';
+import { ColorService } from '@services';
 
 @Injectable({ providedIn: 'root' })
 export class CssVariableExtractorStoreService {
+  private _colorService = inject(ColorService);
+
   public applyOverrides(
     extractedVariables: CssVariable[],
     overridesString: string,
@@ -16,7 +19,6 @@ export class CssVariableExtractorStoreService {
       let overrides: [string, string][];
       try {
         overrides = JSON.parse(overridesString);
-        console.log(overrides);
 
         extractedVariables.forEach((variable) => {
           overrides.forEach(([key, value]) => {
@@ -55,11 +57,10 @@ export class CssVariableExtractorStoreService {
     mergeDuplicates: boolean,
   ): CssVariable[] {
     try {
-      console.log('raw css', css);
       const cleanedCss = this._cleanCss(css);
-      console.log('cleanedCss', cleanedCss);
-      console.log('cleanedCss', cleanedCss.replace(/(\r\n|\n|\r)/gm, ''));
-      const root = postcss.parse(cleanedCss);
+      const rbgToHex = this._colorService.rgbToHex(cleanedCss);
+      console.log(rbgToHex);
+      const root = postcss.parse(rbgToHex);
       const variables: CssVariable[] = [];
       const valueToVarName: { [key: string]: string } = {};
 
@@ -94,6 +95,54 @@ export class CssVariableExtractorStoreService {
     }
   }
 
+  public updateCss(css: string, variables: CssVariable[]): string {
+    const sortedVariables = this.sortVariables(variables);
+    const cleanedCss = this._cleanCss(css);
+    const rgbToHexCss = this._colorService.rgbToHex(cleanedCss);
+    let parsedCss = rgbToHexCss;
+
+    sortedVariables.forEach((variable) => {
+      const color = variable.value;
+      const regex = new RegExp(color, 'g');
+
+      parsedCss = parsedCss.replace(regex, variable.name);
+    });
+
+    return parsedCss;
+  }
+
+  private sortVariables(variables: CssVariable[]): CssVariable[] {
+    const priorityOrder = [
+      'primary',
+      'secondary',
+      'accent',
+      'menu',
+      'background',
+    ];
+
+    return variables.sort((a, b) => {
+      const getKeyword = (name: string) => {
+        const match = name.match(/-(primary|secondary|accent|menu|background)/);
+        return match ? match[1] : 'other';
+      };
+
+      const aKeyword = getKeyword(a.name);
+      const bKeyword = getKeyword(b.name);
+
+      const aPriority = priorityOrder.indexOf(aKeyword);
+      const bPriority = priorityOrder.indexOf(bKeyword);
+
+      if (aPriority !== -1 && bPriority !== -1) {
+        return aPriority - bPriority;
+      }
+
+      if (aPriority !== -1) return -1;
+      if (bPriority !== -1) return 1;
+
+      return a.name.localeCompare(b.name);
+    });
+  }
+
   private _cleanCss(css: string): string {
     return css
       .replace(/;(?=\s*})/gm, '') // Remove semicolons before closing braces
@@ -104,6 +153,12 @@ export class CssVariableExtractorStoreService {
       .replace(/\s*([{}:;,])\s*/gm, '$1') // Remove spaces around selectors and properties
       .replace(/\s+/gm, ' ') // Normalize any extra spaces to single spaces
       .replace(/(\\r|\\n)/gm, '') // Remove all newlines and carriage returns
+      .replace(/background-color\s*:\s*([^;]+)/gm, (match, color) => {
+        return `background-color:${color.toLowerCase()}`;
+      })
+      .replace(/color\s*:\s*([^;]+)/gm, (match, color) => {
+        return `color:${color.toLowerCase()}`;
+      })
       .trim(); // Remove leading and trailing spaces
   }
 
