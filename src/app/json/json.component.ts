@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { CssVariableExtractorStore } from '@store';
 import {
+  DefaultsComponent,
   JsonViewerComponent,
   OverridesComponent,
   ResultsComponent,
@@ -24,6 +25,7 @@ import {
     StepperComponent,
     JsonViewerComponent,
     OverridesComponent,
+    DefaultsComponent,
   ],
   providers: [CssVariableExtractorStore],
 })

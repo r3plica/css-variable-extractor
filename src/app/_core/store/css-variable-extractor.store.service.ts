@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import * as postcss from 'postcss';
+import { FormControl, FormGroup } from '@angular/forms';
 
 import { CssVariable } from '@models';
 import { ColorService } from '@services';
@@ -7,6 +8,77 @@ import { ColorService } from '@services';
 @Injectable({ providedIn: 'root' })
 export class CssVariableExtractorStoreService {
   private _colorService = inject(ColorService);
+
+  public createDefaultsForm(
+    overridesControlValue: string,
+    customVariables: CssVariable[],
+  ): FormGroup {
+    const defaultsForm = new FormGroup({});
+    const overrides: [string, string][] = JSON.parse(overridesControlValue);
+    const overrideNames = Array.from(
+      new Set(overrides.map(([_, value]) => value)),
+    );
+    console.log('overrideNames', overrideNames);
+    overrideNames.forEach((name, index) => {
+      defaultsForm.addControl(`export-${index}`, new FormControl(true));
+      defaultsForm.addControl(`name-${index}`, new FormControl(name));
+      const variable = customVariables.find((v) => v.name === name);
+
+      defaultsForm.addControl(
+        `value-${index}`,
+        new FormControl(variable?.value || ''),
+      );
+    });
+
+    return defaultsForm;
+  }
+
+  public applyDefaults(
+    customVariables: CssVariable[],
+    defaults: FormGroup,
+  ): CssVariable[] {
+    const existingVariableNames = new Set(customVariables.map((v) => v.name));
+    const updatedVariables: CssVariable[] = [];
+
+    Object.keys(defaults.controls)
+      .filter((key) => key.startsWith('name-'))
+      .forEach((nameKey) => {
+        const index = nameKey.split('-')[1];
+        const variableName = defaults.get(nameKey)?.value;
+        const valueControl = defaults.get(`value-${index}`);
+
+        if (!variableName || !valueControl) return;
+
+        if (existingVariableNames.has(variableName)) {
+          const existingVariable = customVariables.find(
+            (v) => v.name === variableName,
+          );
+          if (!existingVariable) throw new Error('Existing variable not found');
+          updatedVariables.push(existingVariable);
+        } else {
+          updatedVariables.push({
+            name: variableName,
+            value: this._extractValueFromExisting(
+              customVariables,
+              valueControl.value,
+            ),
+          });
+        }
+      });
+    console.log('apply defaults', updatedVariables.length);
+
+    return updatedVariables;
+  }
+
+  private _extractValueFromExisting(
+    customVariables: CssVariable[],
+    value: string,
+  ): string {
+    if (!value.startsWith('var')) return value;
+    const varName = value.slice(4, value.length - 1);
+    const variable = customVariables.find((v) => v.name === varName);
+    return variable?.value || value;
+  }
 
   public applyOverrides(
     extractedVariables: CssVariable[],
@@ -59,7 +131,6 @@ export class CssVariableExtractorStoreService {
     try {
       const cleanedCss = this._cleanCss(css);
       const rbgToHex = this._colorService.rgbToHex(cleanedCss);
-      console.log(rbgToHex);
       const root = postcss.parse(rbgToHex);
       const variables: CssVariable[] = [];
       const valueToVarName: { [key: string]: string } = {};

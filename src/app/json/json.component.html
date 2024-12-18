@@ -53,18 +53,18 @@
             Keep existing structure
           </label>
 
-          <label
-            class="flex items-center mt-4"
-            [ngClass]="{
-              'opacity-50': vm.cssForm.get('overrideVariableNames')?.disabled,
-            }"
-          >
+          <label class="flex items-center mt-4">
             <input
               type="checkbox"
               formControlName="overrideVariableNames"
               class="mr-2"
             />
             Override variable names
+          </label>
+
+          <label class="flex items-center mt-4">
+            <input type="checkbox" formControlName="addDefaults" class="mr-2" />
+            Add override defaults
           </label>
 
           <label
@@ -107,7 +107,15 @@
           !!vm.cssForm?.get('overrideVariableNames')?.value
         "
       />
-      <app-results *ngIf="vm.activeStep === 2" />
+      <app-defaults
+        *ngIf="vm.activeStep === 2 && !!vm.cssForm?.get('addDefaults')?.value"
+      />
+      <app-results
+        *ngIf="
+          (vm.activeStep === 2 && !vm.cssForm?.get('addDefaults')?.value) ||
+          vm.activeStep === 3
+        "
+      />
     </div>
   </section>
 </div>
