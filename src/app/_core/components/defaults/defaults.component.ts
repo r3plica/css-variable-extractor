@@ -29,4 +29,8 @@ export class DefaultsComponent {
   public applyDefaults(): void {
     this._store.applyDefaults();
   }
+
+  public getVariableValue(variableName: string): string {
+    return `var(${variableName})`;
+  }
 }

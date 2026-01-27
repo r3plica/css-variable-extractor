@@ -7,5 +7,6 @@
     "source.fixAll": "always",
     "source.fixAll.eslint": "always"
   },
-  "eslint.validate": ["typescript", "typescriptreact", "html"]
+  "eslint.validate": ["typescript", "typescriptreact", "html"],
+  "snyk.advanced.autoSelectOrganization": true
 }

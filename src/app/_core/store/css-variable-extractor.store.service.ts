@@ -10,17 +10,17 @@ export class CssVariableExtractorStoreService {
   private _colorService = inject(ColorService);
 
   public createDefaultsForm(
-    overridesControlValue: string,
+    overrides: [string, string][],
     customVariables: CssVariable[],
   ): FormGroup {
     const defaultsForm = new FormGroup({});
-    const overrides: [string, string][] = JSON.parse(overridesControlValue);
     const overrideNames = Array.from(
       new Set(overrides.map(([_, value]) => value)),
     );
     console.log('overrideNames', overrideNames);
     overrideNames.forEach((name, index) => {
       defaultsForm.addControl(`export-${index}`, new FormControl(true));
+      defaultsForm.addControl(`variable-${index}`, new FormControl(''));
       defaultsForm.addControl(`name-${index}`, new FormControl(name));
       const variable = customVariables.find((v) => v.name === name);
 
@@ -45,27 +45,36 @@ export class CssVariableExtractorStoreService {
       .forEach((nameKey) => {
         const index = nameKey.split('-')[1];
         const variableName = defaults.get(nameKey)?.value;
+        const overrideControl = defaults.get(`variable-${index}`);
         const valueControl = defaults.get(`value-${index}`);
 
-        if (!variableName || !valueControl) return;
+        if (!variableName) return;
+
+        const resolvedValue =
+          overrideControl?.value ||
+          valueControl?.value ||
+          (() => {
+            throw new Error(`No value found for variable: ${variableName}`);
+          })();
 
         if (existingVariableNames.has(variableName)) {
           const existingVariable = customVariables.find(
             (v) => v.name === variableName,
           );
-          if (!existingVariable) throw new Error('Existing variable not found');
-          updatedVariables.push(existingVariable);
+          updatedVariables.push(
+            existingVariable || { name: variableName, value: resolvedValue },
+          );
         } else {
+          const finalValue = this._extractValueFromExisting(
+            customVariables,
+            resolvedValue,
+          );
           updatedVariables.push({
             name: variableName,
-            value: this._extractValueFromExisting(
-              customVariables,
-              valueControl.value,
-            ),
+            value: finalValue,
           });
         }
       });
-    console.log('apply defaults', updatedVariables.length);
 
     return updatedVariables;
   }

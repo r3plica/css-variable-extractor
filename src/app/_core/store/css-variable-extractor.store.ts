@@ -27,6 +27,7 @@ export interface ExtractorState {
   defaultsForm: FormGroup | undefined;
   jsonItemCount: number;
   errors: { [key: number]: string };
+  overrides: string[] | undefined;
 }
 
 @Injectable()
@@ -47,6 +48,7 @@ export class CssVariableExtractorStore extends ComponentStore<ExtractorState> {
       cssForm: undefined,
       exportForm: undefined,
       defaultsForm: undefined,
+      overrides: undefined,
       jsonItemCount: 0,
       errors: {},
     });
@@ -90,6 +92,7 @@ export class CssVariableExtractorStore extends ComponentStore<ExtractorState> {
   readonly jsonItemCount$ = this.select((state) => state.jsonItemCount);
   readonly currentItemIndex$ = this.select((state) => state.currentItemIndex);
   readonly errors$ = this.select((state) => state.errors);
+  readonly overrides$ = this.select((state) => state.overrides);
 
   readonly viewModel$ = this.select(
     this.activeStep$,
@@ -101,6 +104,7 @@ export class CssVariableExtractorStore extends ComponentStore<ExtractorState> {
     this.jsonItemCount$,
     this.currentItemIndex$,
     this.errors$,
+    this.overrides$,
     (
       activeStep,
       extractedVariables,
@@ -111,6 +115,7 @@ export class CssVariableExtractorStore extends ComponentStore<ExtractorState> {
       jsonItemCount,
       currentItemIndex,
       errors,
+      overrides,
     ) => ({
       activeStep,
       extractedVariables,
@@ -121,6 +126,7 @@ export class CssVariableExtractorStore extends ComponentStore<ExtractorState> {
       jsonItemCount,
       currentItemIndex,
       errors,
+      overrides,
     }),
   );
 
@@ -209,10 +215,16 @@ export class CssVariableExtractorStore extends ComponentStore<ExtractorState> {
     if (customVariables.length === 0)
       customVariables = state.extractedVariables;
 
+    const value: [string, string][] = JSON.parse(
+      overridesControl.value || '[]',
+    );
+    const overrideNames = new Set(value.map((pair) => pair[1]));
+    const overrides = Array.from(overrideNames);
+
     const addDefaults = state.cssForm?.get('addDefaults')?.value;
     const defaultsForm = addDefaults
       ? this._cssVariableExtractorService.createDefaultsForm(
-          overridesControl.value,
+          value,
           customVariables,
         )
       : undefined;
@@ -226,6 +238,7 @@ export class CssVariableExtractorStore extends ComponentStore<ExtractorState> {
     return {
       ...state,
       customVariables,
+      overrides,
       defaultsForm: defaultsForm ?? state.defaultsForm,
       activeStep: 2,
     };

@@ -1,4 +1,7 @@
 import { TestBed } from '@angular/core/testing';
+import { FormControl, FormGroup } from '@angular/forms';
+
+import { CssVariable } from '@models';
 
 import { CssVariableExtractorStoreService } from './css-variable-extractor.store.service';
 
@@ -255,6 +258,151 @@ describe('CssVariableExtractorStoreService', () => {
 
       // Assert
       expect(result).toBe(expectedOutput);
+    });
+  });
+
+  describe('applyDefaults', () => {
+    it('should ignore all if customVariables has existing value', () => {
+      // Assemble
+      const customVariables = [
+        { name: '--primary-color', value: '#ff0000' },
+        { name: '--secondary-color', value: '#0000ff' },
+      ];
+      const defaults = new FormGroup({
+        'name-0': new FormControl('--primary-color'),
+        'variable-0': new FormControl('var(--secondary-color)'),
+        'value-0': new FormControl('#00ff00'),
+      });
+
+      // Act
+      const result = service.applyDefaults(customVariables, defaults);
+
+      // Assert
+      expect(result).toEqual([{ name: '--primary-color', value: '#ff0000' }]);
+    });
+
+    it('should use overrideControl value if set', () => {
+      // Assemble
+      const customVariables = [{ name: '--secondary-color', value: '#0000ff' }];
+      const defaults = new FormGroup({
+        'name-0': new FormControl('--primary-color'),
+        'variable-0': new FormControl('var(--secondary-color)'),
+        'value-0': new FormControl('#00ff00'),
+      });
+
+      // Act
+      const result = service.applyDefaults(customVariables, defaults);
+
+      // Assert
+      expect(result).toEqual([{ name: '--primary-color', value: '#0000ff' }]);
+    });
+
+    it('should use valueControl value if overrideControl is not set', () => {
+      // Assemble
+      const customVariables: CssVariable[] = [];
+      const defaults = new FormGroup({
+        'name-0': new FormControl('--primary-color'),
+        'variable-0': new FormControl(''),
+        'value-0': new FormControl('#0000ff'),
+      });
+
+      // Act
+      const result = service.applyDefaults(customVariables, defaults);
+
+      // Assert
+      expect(result).toEqual([{ name: '--primary-color', value: '#0000ff' }]);
+    });
+
+    it('should throw an error if no variable or value is set', () => {
+      // Assemble
+      const customVariables = [{ name: '--primary-color', value: '#ff0000' }];
+      const defaults = new FormGroup({
+        'name-0': new FormControl('--primary-color'),
+        'variable-0': new FormControl(''),
+        'value-0': new FormControl(''),
+      });
+
+      // Act
+      // Act & Assert
+      expect(() => service.applyDefaults(customVariables, defaults)).toThrow(
+        'No value found for variable: --primary-color',
+      );
+    });
+
+    it('should add new variables if they do not exist in customVariables', () => {
+      // Assemble
+      const customVariables = [{ name: '--primary-color', value: '#ff0000' }];
+      const defaults = new FormGroup({
+        'name-0': new FormControl('--new-color'),
+        'variable-0': new FormControl(''),
+        'value-0': new FormControl('#00ff00'),
+      });
+
+      // Act
+      const result = service.applyDefaults(customVariables, defaults);
+
+      // Assert
+      expect(result).toEqual([{ name: '--new-color', value: '#00ff00' }]);
+    });
+
+    it('should add new variables if they do not exist in customVariables with overridden variable name', () => {
+      // Assemble
+      const customVariables = [{ name: '--primary-color', value: '#ff0000' }];
+      const defaults = new FormGroup({
+        'name-0': new FormControl('--new-color'),
+        'variable-0': new FormControl('var(--primary-color)'),
+        'value-0': new FormControl('#0000ff'),
+      });
+
+      // Act
+      const result = service.applyDefaults(customVariables, defaults);
+
+      // Assert
+      expect(result).toEqual([{ name: '--new-color', value: '#ff0000' }]);
+    });
+
+    it('should skip variables with missing names', () => {
+      // Assemble
+      const customVariables = [{ name: '--primary-color', value: '#ff0000' }];
+      const defaults = new FormGroup({
+        'name-0': new FormControl(''),
+        'variable-0': new FormControl('#00ff00'),
+        'value-0': new FormControl('#0000ff'),
+      });
+
+      // Act
+      const result = service.applyDefaults(customVariables, defaults);
+
+      // Assert
+      expect(result).toEqual([]);
+    });
+
+    it('should handle empty defaults form group', () => {
+      // Assemble
+      const customVariables = [{ name: '--primary-color', value: '#ff0000' }];
+      const defaults = new FormGroup({});
+
+      // Act
+      const result = service.applyDefaults(customVariables, defaults);
+
+      // Assert
+      expect(result).toEqual([]);
+    });
+
+    it('should handle empty customVariables array', () => {
+      // Assemble
+      const customVariables: CssVariable[] = [];
+      const defaults = new FormGroup({
+        'name-0': new FormControl('--new-color'),
+        'variable-0': new FormControl('#00ff00'),
+        'value-0': new FormControl('#0000ff'),
+      });
+
+      // Act
+      const result = service.applyDefaults(customVariables, defaults);
+
+      // Assert
+      expect(result).toEqual([{ name: '--new-color', value: '#00ff00' }]);
     });
   });
 

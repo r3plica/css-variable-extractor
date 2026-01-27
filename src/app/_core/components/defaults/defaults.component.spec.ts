@@ -1,69 +1,81 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
-import { By } from '@angular/platform-browser';
+import { of } from 'rxjs';
 
 import { CssVariableExtractorStore } from '@store';
 
-import { OverridesComponent } from './overrides.component';
+import { DefaultsComponent } from './defaults.component';
 
-describe('OverridesComponent', () => {
-  let component: OverridesComponent;
-  let fixture: ComponentFixture<OverridesComponent>;
+describe('DefaultsComponent', () => {
+  let component: DefaultsComponent;
   let store: CssVariableExtractorStore;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ReactiveFormsModule],
-      providers: [CssVariableExtractorStore],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(OverridesComponent);
-    component = fixture.componentInstance;
-    store = TestBed.inject(CssVariableExtractorStore);
-    fixture.detectChanges();
-  });
-
   beforeEach(() => {
-    store.setState((state) => ({
-      ...state,
-      cssForm: new FormGroup({
-        overrides: new FormControl(''),
-      }),
-    }));
-    jest.spyOn(store, 'applyOverrides');
-    fixture.detectChanges();
+    TestBed.configureTestingModule({
+      imports: [DefaultsComponent, ReactiveFormsModule],
+      providers: [
+        {
+          provide: CssVariableExtractorStore,
+          useValue: {
+            viewModel$: of({
+              defaultsForm: new FormGroup({
+                'name-0': new FormControl('--primary-color'),
+                'value-0': new FormControl('#ff0000'),
+              }),
+            }),
+            applyDefaults: jest.fn(),
+          },
+        },
+      ],
+    });
+
+    component = TestBed.createComponent(DefaultsComponent).componentInstance;
+    store = TestBed.inject(CssVariableExtractorStore);
   });
 
-  it('should create', () => {
-    // Act
-    const compiled = fixture.nativeElement;
+  it('should create the component', () => {
+    // Assemble & Act
+    const instance =
+      TestBed.createComponent(DefaultsComponent).componentInstance;
 
     // Assert
-    expect(component).toBeTruthy();
-    expect(compiled).toBeTruthy();
+    expect(instance).toBeTruthy();
   });
 
-  it('should call applyOverrides method on form submit', () => {
-    const applyOverridesSpy = jest.spyOn(component, 'applyOverrides');
-    const form = fixture.debugElement.query(By.css('form'));
-    form.triggerEventHandler('ngSubmit', null);
-    expect(applyOverridesSpy).toHaveBeenCalled();
+  it('should return sorted control indexes', () => {
+    // Assemble
+    const form = new FormGroup({
+      'name-1': new FormControl(''),
+      'name-0': new FormControl(''),
+      'value-2': new FormControl(''),
+    });
+
+    // Act
+    const result = component.getControlIndexes(form);
+
+    // Assert
+    expect(result).toEqual([0, 1, 2]);
   });
 
-  it('should call store service applyOverrides method when applyOverrides is called', () => {
-    component.applyOverrides();
-    expect(store.applyOverrides).toHaveBeenCalled();
+  it('should call applyDefaults on the store', () => {
+    // Assemble
+    const applyDefaultsSpy = jest.spyOn(store, 'applyDefaults');
+
+    // Act
+    component.applyDefaults();
+
+    // Assert
+    expect(applyDefaultsSpy).toHaveBeenCalled();
   });
 
-  it('should display the form with textarea', () => {
-    const textarea = fixture.debugElement.query(By.css('textarea'));
-    expect(textarea).toBeTruthy();
-    expect(textarea.attributes['formControlName']).toBe('overrides');
-  });
+  it('should return variable value in var() format', () => {
+    // Assemble
+    const variableName = '--primary-color';
 
-  it('should display the submit button', () => {
-    const button = fixture.debugElement.query(By.css('button[type="submit"]'));
-    expect(button).toBeTruthy();
-    expect(button.nativeElement.textContent).toContain('Continue');
+    // Act
+    const result = component.getVariableValue(variableName);
+
+    // Assert
+    expect(result).toBe('var(--primary-color)');
   });
 });
