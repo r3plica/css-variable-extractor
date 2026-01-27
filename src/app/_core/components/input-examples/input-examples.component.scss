@@ -1,0 +1,11 @@
+.example-block {
+  &:not(:last-child) {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+}
+
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}

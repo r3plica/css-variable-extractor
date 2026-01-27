@@ -8,6 +8,10 @@
     <div class="px-4 py-5 flex-auto">
       <!-- Step 1: JSON Input -->
       <ng-container *ngIf="vm.activeStep === 0">
+        <div class="mb-4">
+          <app-input-examples type="json" />
+        </div>
+
         <form
           [formGroup]="vm.cssForm"
           (ngSubmit)="parseCss()"
