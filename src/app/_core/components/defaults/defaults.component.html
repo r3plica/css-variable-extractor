@@ -1,0 +1,58 @@
+<ng-container *ngIf="viewModel$ | async as vm">
+  <p class="text-base font-light leading-relaxed mt-0 mb-4 text-red-800">
+    If you have set your overrides; here you can set defaults to those if they
+    are not found.
+  </p>
+
+  <form
+    [formGroup]="vm.defaultsForm"
+    (ngSubmit)="applyDefaults()"
+    class="mt-4"
+    *ngIf="vm.defaultsForm"
+  >
+    <div
+      *ngFor="let index of getControlIndexes(vm.defaultsForm)"
+      class="flex gap-4 items-center mb-4"
+    >
+      <input
+        type="checkbox"
+        [formControlName]="'export-' + index"
+        class="mr-3 text-blueGray-600 focus:ring-orange-300"
+      />
+
+      <input
+        type="text"
+        [formControlName]="'name-' + index"
+        class="px-3 py-3 placeholder-blueGray-300 text-blueGray-600 relative bg-white rounded text-sm shadow outline-none focus:outline-none focus:shadow-outline w-full"
+        placeholder="Variable name"
+      />
+
+      <select
+        [formControlName]="'variable-' + index"
+        class="px-3 py-3 placeholder-blueGray-300 text-blueGray-600 relative bg-white rounded text-sm shadow outline-none focus:outline-none focus:shadow-outline w-full"
+      >
+        @for (variable of vm.overrides; track variable) {
+          <option [value]="getVariableValue(variable)">
+            {{ variable }}
+          </option>
+        }
+      </select>
+
+      <input
+        type="text"
+        [formControlName]="'value-' + index"
+        class="px-3 py-3 placeholder-blueGray-300 text-blueGray-600 relative bg-white rounded text-sm shadow outline-none focus:outline-none focus:shadow-outline w-full"
+        placeholder="Variable value"
+      />
+    </div>
+
+    <div class="mt-6 flex justify-end gap-4 sticky-bar">
+      <button
+        type="submit"
+        class="bg-red-500 text-white active:bg-red-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150n"
+      >
+        Continue
+      </button>
+    </div>
+  </form>
+</ng-container>

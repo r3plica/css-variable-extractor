@@ -12,6 +12,10 @@
           a list of all the CSS variables used in your stylesheet.
         </p>
 
+        <div class="mb-4">
+          <app-input-examples type="css" />
+        </div>
+
         <form
           [formGroup]="vm.cssForm"
           (ngSubmit)="parseCss()"

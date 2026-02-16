@@ -7,3 +7,5 @@ export * from './json-viewer/json-viewer.component';
 export * from './footer/footer.component';
 export * from './navbar/navbar.component';
 export * from './overrides/overrides.component';
+export * from './defaults/defaults.component';
+export * from './input-examples/input-examples.component';
