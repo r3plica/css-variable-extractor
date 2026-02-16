@@ -24,8 +24,10 @@ export interface ExtractorState {
   currentItemIndex: number;
   cssForm: FormGroup | undefined;
   exportForm: FormGroup | undefined;
+  defaultsForm: FormGroup | undefined;
   jsonItemCount: number;
   errors: { [key: number]: string };
+  overrides: string[] | undefined;
 }
 
 @Injectable()
@@ -45,6 +47,8 @@ export class CssVariableExtractorStore extends ComponentStore<ExtractorState> {
       currentItemIndex: 0,
       cssForm: undefined,
       exportForm: undefined,
+      defaultsForm: undefined,
+      overrides: undefined,
       jsonItemCount: 0,
       errors: {},
     });
@@ -54,9 +58,11 @@ export class CssVariableExtractorStore extends ComponentStore<ExtractorState> {
         cssInput: [''],
         jsonInput: [''],
         overrides: [''],
+        defaults: [''],
         mergeDuplicates: [false],
         existingStructure: [false],
         overrideVariableNames: [false],
+        addDefaults: [false],
         addShades: [false],
         xpath: [''],
       },
@@ -82,9 +88,11 @@ export class CssVariableExtractorStore extends ComponentStore<ExtractorState> {
   readonly customVariables$ = this.select((state) => state.customVariables);
   readonly cssForm$ = this.select((state) => state.cssForm);
   readonly exportForm$ = this.select((state) => state.exportForm);
+  readonly defaultsForm$ = this.select((state) => state.defaultsForm);
   readonly jsonItemCount$ = this.select((state) => state.jsonItemCount);
   readonly currentItemIndex$ = this.select((state) => state.currentItemIndex);
   readonly errors$ = this.select((state) => state.errors);
+  readonly overrides$ = this.select((state) => state.overrides);
 
   readonly viewModel$ = this.select(
     this.activeStep$,
@@ -92,27 +100,33 @@ export class CssVariableExtractorStore extends ComponentStore<ExtractorState> {
     this.customVariables$,
     this.cssForm$,
     this.exportForm$,
+    this.defaultsForm$,
     this.jsonItemCount$,
     this.currentItemIndex$,
     this.errors$,
+    this.overrides$,
     (
       activeStep,
       extractedVariables,
       customVariables,
       cssForm,
       exportForm,
+      defaultsForm,
       jsonItemCount,
       currentItemIndex,
       errors,
+      overrides,
     ) => ({
       activeStep,
       extractedVariables,
       customVariables,
       cssForm,
       exportForm,
+      defaultsForm,
       jsonItemCount,
       currentItemIndex,
       errors,
+      overrides,
     }),
   );
 
@@ -201,16 +215,56 @@ export class CssVariableExtractorStore extends ComponentStore<ExtractorState> {
     if (customVariables.length === 0)
       customVariables = state.extractedVariables;
 
+    const value: [string, string][] = JSON.parse(
+      overridesControl.value || '[]',
+    );
+    const overrideNames = new Set(value.map((pair) => pair[1]));
+    const overrides = Array.from(overrideNames);
+
+    const addDefaults = state.cssForm?.get('addDefaults')?.value;
+    const defaultsForm = addDefaults
+      ? this._cssVariableExtractorService.createDefaultsForm(
+          value,
+          customVariables,
+        )
+      : undefined;
+
     const addShades = state.cssForm?.get('addShades')?.value;
 
-    if (addShades) {
+    if (addShades && !addDefaults) {
       customVariables = this._colorService.generateColorScale(customVariables);
     }
 
     return {
       ...state,
       customVariables,
+      overrides,
+      defaultsForm: defaultsForm ?? state.defaultsForm,
       activeStep: 2,
+    };
+  });
+
+  readonly applyDefaults = this.updater((state) => {
+    const existingVariables = state.customVariables;
+    const defaultsForm = state.defaultsForm;
+    if (!defaultsForm)
+      return {
+        ...state,
+        activeStep: 3,
+      };
+    let customVariables = this._cssVariableExtractorService.applyDefaults(
+      existingVariables,
+      defaultsForm,
+    );
+
+    const addShades = state.cssForm?.get('addShades')?.value;
+    if (addShades)
+      customVariables = this._colorService.generateColorScale(customVariables);
+
+    return {
+      ...state,
+      customVariables,
+      activeStep: 3,
     };
   });
 
@@ -219,91 +273,113 @@ export class CssVariableExtractorStore extends ComponentStore<ExtractorState> {
       withLatestFrom(
         this.customVariables$,
         this.cssForm$,
+        this.defaultsForm$,
         this.currentItemIndex$,
         this.jsonItemCount$,
       ),
-      tap(([_, customVariables, cssForm, currentItemIndex, jsonItemCount]) => {
-        if (!cssForm) return;
+      tap(
+        ([
+          _,
+          customVariables,
+          cssForm,
+          defaultsForm,
+          currentItemIndex,
+          jsonItemCount,
+        ]) => {
+          if (!cssForm) return;
 
-        const jsonInput = cloneDeep(cssForm.get('jsonInput')?.value);
-        const xpath = cssForm.get('xpath')?.value;
-        const keepStructure = cssForm.get('existingStructure')?.value;
+          const jsonInput = cloneDeep(cssForm.get('jsonInput')?.value);
+          const xpath = cssForm.get('xpath')?.value;
+          const keepStructure = cssForm.get('existingStructure')?.value;
 
-        if (jsonItemCount <= 1) {
-          const jsonString = this.prepareExportJson(
-            customVariables,
-            jsonInput,
-            currentItemIndex,
-            keepStructure,
-            xpath,
-          );
+          if (jsonItemCount <= 1) {
+            const jsonString = this.prepareExportJson(
+              customVariables,
+              jsonInput,
+              currentItemIndex,
+              keepStructure,
+              xpath,
+            );
 
-          const fileName =
-            this._extractJsonItems(jsonInput, 'NAME', currentItemIndex) ||
-            'custom-variables';
+            const fileName =
+              this._extractJsonItems(jsonInput, 'NAME', currentItemIndex) ||
+              'custom-variables';
 
+            this._cssVariableExtractorService.saveJsonToFile(
+              jsonString,
+              fileName,
+            );
+            return;
+          }
+
+          const mergeDuplicates = cssForm.get('mergeDuplicates')?.value;
+          const overrideVariableNames = cssForm.get(
+            'overrideVariableNames',
+          )?.value;
+          const addShades = cssForm.get('addShades')?.value;
+          const addDefaults = cssForm.get('addDefaults')?.value;
+
+          const allData = [];
+
+          for (let i = currentItemIndex; i < jsonItemCount; i++) {
+            // Step 1: Extract variables
+            const extractedVariables =
+              this._cssVariableExtractorService.convertToCssVariables(
+                this._extractJsonItems(jsonInput, xpath, i),
+                mergeDuplicates,
+              );
+
+            // Step 2: Apply overrides
+            const overridesControl = cssForm.get('overrides');
+            let customVariables: CssVariable[] = [];
+            if (overridesControl && overrideVariableNames) {
+              customVariables =
+                this._cssVariableExtractorService.applyOverrides(
+                  extractedVariables,
+                  overridesControl.value,
+                );
+            }
+
+            if (customVariables.length === 0)
+              customVariables = extractedVariables;
+
+            // Step 3: Apply defaults
+            console.log(addDefaults, defaultsForm);
+            if (addDefaults && defaultsForm) {
+              customVariables = this._cssVariableExtractorService.applyDefaults(
+                customVariables,
+                defaultsForm,
+              );
+              console.log('customVariables', customVariables);
+            }
+
+            // Step 4: Add color scales
+            if (addShades) {
+              customVariables =
+                this._colorService.generateColorScale(customVariables);
+            }
+
+            // Step 5: Prepare JSON
+            const jsonString = this.prepareExportJson(
+              customVariables,
+              jsonInput,
+              i,
+              keepStructure,
+              xpath,
+            );
+
+            // Collect data
+            allData.push(JSON.parse(jsonString));
+          }
+
+          // Step 5: Save aggregated data
+          const aggregatedData = JSON.stringify(allData, null, 2);
           this._cssVariableExtractorService.saveJsonToFile(
-            jsonString,
-            fileName,
+            aggregatedData,
+            'all-custom-variables',
           );
-          return;
-        }
-
-        const mergeDuplicates = cssForm.get('mergeDuplicates')?.value;
-        const overrideVariableNames = cssForm.get(
-          'overrideVariableNames',
-        )?.value;
-        const addShades = cssForm.get('addShades')?.value;
-
-        const allData = [];
-
-        for (let i = currentItemIndex; i < jsonItemCount; i++) {
-          // Step 1: Extract variables
-          const extractedVariables =
-            this._cssVariableExtractorService.convertToCssVariables(
-              this._extractJsonItems(jsonInput, xpath, i),
-              mergeDuplicates,
-            );
-
-          // Step 2: Apply overrides
-          const overridesControl = cssForm.get('overrides');
-          let customVariables: CssVariable[] = [];
-          if (overridesControl && overrideVariableNames) {
-            customVariables = this._cssVariableExtractorService.applyOverrides(
-              extractedVariables,
-              overridesControl.value,
-            );
-          }
-
-          if (customVariables.length === 0)
-            customVariables = extractedVariables;
-
-          // Step 3: Add color scales
-          if (addShades) {
-            customVariables =
-              this._colorService.generateColorScale(customVariables);
-          }
-
-          // Step 4: Prepare JSON
-          const jsonString = this.prepareExportJson(
-            customVariables,
-            jsonInput,
-            i,
-            keepStructure,
-            xpath,
-          );
-
-          // Collect data
-          allData.push(JSON.parse(jsonString));
-        }
-
-        // Step 5: Save aggregated data
-        const aggregatedData = JSON.stringify(allData, null, 2);
-        this._cssVariableExtractorService.saveJsonToFile(
-          aggregatedData,
-          'all-custom-variables',
-        );
-      }),
+        },
+      ),
     ),
   );
 

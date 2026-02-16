@@ -28,6 +28,8 @@ describe('CssVariableExtractorStore', () => {
             applyOverrides: jest.fn(),
             convertToCssVariables: jest.fn(),
             saveJsonToFile: jest.fn(),
+            createDefaultsForm: jest.fn(),
+            applyDefaults: jest.fn(),
           },
         },
         {
@@ -59,6 +61,7 @@ describe('CssVariableExtractorStore', () => {
     const variables = [{ name: '--tru-primary', value: '#FF0000' }];
     storeService.convertToCssVariables.mockReturnValue(variables);
     storeService.applyOverrides.mockReturnValue(variables);
+    storeService.applyDefaults.mockReturnValue(variables);
     colorService.generateColorScale.mockReturnValue(variables);
   });
 
@@ -256,6 +259,75 @@ describe('CssVariableExtractorStore', () => {
     });
   });
 
+  describe('defaultsForm', () => {
+    it('should not apply defaults when defaultsForm is undefined', () => {
+      store.setState({
+        defaultsForm: undefined,
+      } as unknown as ExtractorState);
+
+      store.applyDefaults();
+
+      store.state$.subscribe((state) => {
+        expect(state.activeStep).toBe(3);
+        expect(state.customVariables).toEqual([]);
+      });
+    });
+
+    it('should apply defaults', () => {
+      const defaultsForm = new FormBuilder().group({
+        default1: ['value1'],
+      });
+
+      store.patchState({
+        defaultsForm,
+        customVariables: [{ name: '--example-color', value: 'red' }],
+      });
+
+      store.applyDefaults();
+
+      store.state$.subscribe((state) => {
+        expect(storeService.applyDefaults).toHaveBeenCalledWith(
+          [{ name: '--example-color', value: 'red' }],
+          defaultsForm,
+        );
+        expect(state.customVariables).toEqual([
+          { name: '--tru-primary', value: '#FF0000' },
+        ]);
+        expect(state.activeStep).toBe(3);
+      });
+    });
+
+    it('should apply defaults and generate shades', () => {
+      const defaultsForm = new FormBuilder().group({
+        default1: ['value1'],
+      });
+
+      store.patchState({
+        defaultsForm,
+        customVariables: [{ name: '--example-color', value: 'red' }],
+        cssForm: new FormBuilder().group({
+          addShades: [true],
+        }),
+      });
+
+      store.applyDefaults();
+
+      store.state$.subscribe((state) => {
+        expect(storeService.applyDefaults).toHaveBeenCalledWith(
+          [{ name: '--example-color', value: 'red' }],
+          defaultsForm,
+        );
+        expect(colorService.generateColorScale).toHaveBeenCalledWith([
+          { name: '--tru-primary', value: '#FF0000' },
+        ]);
+        expect(state.customVariables).toEqual([
+          { name: '--tru-primary', value: '#FF0000' },
+        ]);
+        expect(state.activeStep).toBe(3);
+      });
+    });
+  });
+
   describe('applyOverrides', () => {
     it('should not apply overrides when no overrides control', () => {
       // Assemble
@@ -299,7 +371,7 @@ describe('CssVariableExtractorStore', () => {
         extractedVariables: [{ name: '--example-color', value: 'red' }],
         cssForm: new FormBuilder().group({
           extractedVariables: [{ name: '--example-color', value: 'red' }],
-          overrides: ['{"--example-color": "--custom-color"}'],
+          overrides: ['[["--example-color", "--custom-color"]]'],
         }),
       });
 
@@ -322,7 +394,7 @@ describe('CssVariableExtractorStore', () => {
         extractedVariables: [{ name: '--example-color', value: 'red' }],
         cssForm: new FormBuilder().group({
           extractedVariables: [{ name: '--example-color', value: 'red' }],
-          overrides: ['{"--example-color": "--custom-color"}'],
+          overrides: ['[["--example-color", "--custom-color"]]'],
           addShades: [true],
         }),
       });

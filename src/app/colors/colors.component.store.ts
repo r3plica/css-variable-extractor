@@ -4,7 +4,7 @@ import { ComponentStore } from '@ngrx/component-store';
 import { inject, Injectable } from '@angular/core';
 import { withLatestFrom, tap } from 'rxjs/operators';
 
-import { ColorService } from '@services';
+import { ColorService, InputParserService } from '@services';
 
 interface ColorsState {
   form: FormGroup | undefined;
@@ -15,6 +15,7 @@ interface ColorsState {
 export class ColorsComponentStore extends ComponentStore<ColorsState> {
   private _fb = inject(FormBuilder);
   private _colorService = inject(ColorService);
+  private _inputParserService = inject(InputParserService);
 
   constructor() {
     super({
@@ -50,26 +51,21 @@ export class ColorsComponentStore extends ComponentStore<ColorsState> {
   readonly parseVariables = this.updater((state) => {
     const inputControl = state.form?.get('input');
     const outputControl = state.form?.get('output');
-    if (inputControl && inputControl.valid && outputControl) {
-      try {
-        const variables = JSON.parse(inputControl.value);
-        if (Array.isArray(variables)) {
-          const colorScale = this._colorService.generateColorScale(variables);
-          const jsonString = JSON.stringify(colorScale, null, 2);
-          outputControl.setValue(jsonString);
-          return {
-            ...state,
-            activeStep: 1,
-          };
-        } else {
-          return state;
-        }
-      } catch (error) {
-        return state;
-      }
-    } else {
-      return state;
-    }
+
+    if (!inputControl || !inputControl.valid || !outputControl) return state;
+
+    const variables = this._inputParserService.parse(inputControl.value);
+
+    if (variables.length === 0) return state;
+
+    const colorScale = this._colorService.generateColorScale(variables);
+    const jsonString = JSON.stringify(colorScale, null, 2);
+    outputControl.setValue(jsonString);
+
+    return {
+      ...state,
+      activeStep: 1,
+    };
   });
 
   readonly copyToClipboard = this.effect((trigger$) =>

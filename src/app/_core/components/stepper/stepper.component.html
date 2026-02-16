@@ -34,16 +34,31 @@
         </a>
       </li>
 
-      <li class="-mb-px mr-2 last:mr-0 flex-auto text-center">
+      <li
+        class="-mb-px mr-2 last:mr-0 flex-auto text-center"
+        *ngIf="!!vm.cssForm?.get('addDefaults')?.value"
+      >
         <a
           id="step-3"
           class="text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal step"
-          (click)="vm.activeStep === 2 ? setStep(2) : null"
+          (click)="vm.activeStep > 2 ? setStep(2) : null"
           [ngClass]="{
             'text-white bg-red-600': vm.activeStep === 2,
           }"
         >
-          Step 3: Results
+          Step 3: Defaults
+        </a>
+      </li>
+
+      <li class="-mb-px mr-2 last:mr-0 flex-auto text-center">
+        <a
+          id="step-3"
+          class="text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal step"
+          [ngClass]="{
+            'text-white bg-red-600': vm.activeStep === 2,
+          }"
+        >
+          Step {{ vm.activeStep + 1 }}: Results
         </a>
       </li>
     </ul>

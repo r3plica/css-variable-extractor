@@ -2,12 +2,14 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 
+import { InputExamplesComponent } from '@components';
+
 import { ColorsComponentStore } from './colors.component.store';
 
 @Component({
   selector: 'app-colors',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, InputExamplesComponent],
   providers: [ColorsComponentStore],
   templateUrl: './colors.component.html',
   styleUrl: './colors.component.scss',

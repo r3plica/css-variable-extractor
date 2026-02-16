@@ -2,13 +2,14 @@ import { TestBed } from '@angular/core/testing';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { of } from 'rxjs';
 
-import { ColorService } from '@services';
+import { ColorService, InputParserService } from '@services';
 
 import { ColorsComponentStore } from './colors.component.store';
 
 describe('ColorsComponentStore', () => {
   let store: ColorsComponentStore;
   let colorService: ColorService;
+  let inputParserService: InputParserService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -22,11 +23,18 @@ describe('ColorsComponentStore', () => {
             generateColorScale: jest.fn(),
           },
         },
+        {
+          provide: InputParserService,
+          useValue: {
+            parse: jest.fn(),
+          },
+        },
       ],
     });
 
     store = TestBed.inject(ColorsComponentStore);
     colorService = TestBed.inject(ColorService);
+    inputParserService = TestBed.inject(InputParserService);
   });
 
   it('should be created', () => {
@@ -48,9 +56,11 @@ describe('ColorsComponentStore', () => {
     });
   });
 
-  it('should parse variables and update the state', () => {
-    const mockVariables = [{ name: 'primary', value: '#ff0000' }];
+  it('should parse variables from JSON array format', () => {
+    // Assemble
+    const mockVariables = [{ name: '--primary', value: '#ff0000' }];
     const mockColorScale = [{ name: '--primary-050', value: '#ffcccc' }];
+    jest.spyOn(inputParserService, 'parse').mockReturnValue(mockVariables);
     jest
       .spyOn(colorService, 'generateColorScale')
       .mockReturnValue(mockColorScale);
@@ -62,8 +72,10 @@ describe('ColorsComponentStore', () => {
       }),
     });
 
+    // Act
     store.parseVariables();
 
+    // Assert
     store.state$.subscribe((state) => {
       expect(state.activeStep).toBe(1);
       expect(state.form?.get('output')?.value).toBe(
@@ -72,38 +84,111 @@ describe('ColorsComponentStore', () => {
     });
   });
 
-  it('should handle invalid JSON in parseVariables', () => {
+  it('should parse variables from key-value format', () => {
+    // Assemble
+    const keyValueInput = 'tru-menu: #192a67, Tru-primary: #cd1719';
+    const mockVariables = [
+      { name: '--tru-menu', value: '#192a67' },
+      { name: '--tru-primary', value: '#cd1719' },
+    ];
+    const mockColorScale = [
+      { name: '--tru-menu-500', value: '#192a67' },
+      { name: '--tru-primary-500', value: '#cd1719' },
+    ];
+    jest.spyOn(inputParserService, 'parse').mockReturnValue(mockVariables);
+    jest
+      .spyOn(colorService, 'generateColorScale')
+      .mockReturnValue(mockColorScale);
+
     store.patchState({
       form: new FormBuilder().group({
-        input: ['invalid-json', Validators.required],
+        input: [keyValueInput, Validators.required],
         output: [''],
       }),
     });
 
+    // Act
     store.parseVariables();
 
+    // Assert
+    store.state$.subscribe((state) => {
+      expect(inputParserService.parse).toHaveBeenCalledWith(keyValueInput);
+      expect(state.activeStep).toBe(1);
+      expect(state.form?.get('output')?.value).toBe(
+        JSON.stringify(mockColorScale, null, 2),
+      );
+    });
+  });
+
+  it('should parse variables from CSS variable format', () => {
+    // Assemble
+    const cssInput = '--tru-menu: #192a67; --tru-primary: #cd1719;';
+    const mockVariables = [
+      { name: '--tru-menu', value: '#192a67' },
+      { name: '--tru-primary', value: '#cd1719' },
+    ];
+    const mockColorScale = [
+      { name: '--tru-menu-500', value: '#192a67' },
+      { name: '--tru-primary-500', value: '#cd1719' },
+    ];
+    jest.spyOn(inputParserService, 'parse').mockReturnValue(mockVariables);
+    jest
+      .spyOn(colorService, 'generateColorScale')
+      .mockReturnValue(mockColorScale);
+
+    store.patchState({
+      form: new FormBuilder().group({
+        input: [cssInput, Validators.required],
+        output: [''],
+      }),
+    });
+
+    // Act
+    store.parseVariables();
+
+    // Assert
+    store.state$.subscribe((state) => {
+      expect(inputParserService.parse).toHaveBeenCalledWith(cssInput);
+      expect(state.activeStep).toBe(1);
+    });
+  });
+
+  it('should handle invalid input that parses to empty array', () => {
+    // Assemble
+    jest.spyOn(inputParserService, 'parse').mockReturnValue([]);
+
+    store.patchState({
+      form: new FormBuilder().group({
+        input: ['invalid-input', Validators.required],
+        output: [''],
+      }),
+    });
+
+    // Act
+    store.parseVariables();
+
+    // Assert
     store.state$.subscribe((state) => {
       expect(state.activeStep).toBe(0);
       expect(state.form?.get('output')?.value).toBe('');
     });
   });
 
-  it('should handle non-array JSON in parseVariables', () => {
+  it('should not process when form is invalid', () => {
+    // Assemble
     store.patchState({
       form: new FormBuilder().group({
-        input: [
-          JSON.stringify({ name: 'primary', value: '#ff0000' }),
-          Validators.required,
-        ],
+        input: ['', Validators.required],
         output: [''],
       }),
     });
 
+    // Act
     store.parseVariables();
 
+    // Assert
     store.state$.subscribe((state) => {
       expect(state.activeStep).toBe(0);
-      expect(state.form?.get('output')?.value).toBe('');
     });
   });
 

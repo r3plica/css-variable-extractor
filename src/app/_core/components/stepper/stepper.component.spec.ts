@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { By } from '@angular/platform-browser';
+import { FormBuilder } from '@angular/forms';
 
 import { CssVariableExtractorStore } from '@store';
 
@@ -10,20 +12,30 @@ describe('StepperComponent', () => {
   let component: StepperComponent;
   let fixture: ComponentFixture<StepperComponent>;
   let store: CssVariableExtractorStore;
+  let viewModel$: BehaviorSubject<any>;
+
+  const createViewModel = (overrides: Partial<any> = {}) => ({
+    activeStep: 1,
+    currentItemIndex: 0,
+    jsonItemCount: 3,
+    cssForm: new FormBuilder().group({
+      overrideVariableNames: [false],
+      addDefaults: [false],
+    }),
+    ...overrides,
+  });
 
   // Assemble
   beforeEach(async () => {
+    viewModel$ = new BehaviorSubject(createViewModel());
+
     await TestBed.configureTestingModule({
       imports: [StepperComponent],
       providers: [
         {
           provide: CssVariableExtractorStore,
           useValue: {
-            viewModel$: of({
-              activeStep: 1,
-              currentItemIndex: 0,
-              jsonItemCount: 3,
-            }),
+            viewModel$,
             setStep: jest.fn(),
           },
         },
@@ -45,22 +57,89 @@ describe('StepperComponent', () => {
     expect(compiled).toBeTruthy();
   });
 
-  it('should display the correct step titles', () => {
-    // Act
+  it('should display "Override variables names" when overrideVariableNames is true', () => {
+    // Assemble
+    viewModel$.next(createViewModel({
+      cssForm: new FormBuilder().group({
+        overrideVariableNames: [true],
+        addDefaults: [false],
+      }),
+    }));
     fixture.detectChanges();
-    const stepTitles = fixture.debugElement.queryAll(By.css('.step'));
+
+    // Act
+    const stepTitle = fixture.debugElement.query(By.css('#step-2'))
+      .nativeElement.textContent;
 
     // Assert
-    expect(stepTitles.length).toBe(3);
-    expect(stepTitles[0].nativeElement.textContent).toContain(
-      'Step 1: CSS input',
-    );
-    expect(stepTitles[1].nativeElement.textContent).toContain(
-      'Step 2: Variables to extract',
-    );
-    expect(stepTitles[2].nativeElement.textContent).toContain(
-      'Step 3: Results',
-    );
+    expect(stepTitle).toContain('Override variables names');
+  });
+
+  it('should display "Variables to extract" when overrideVariableNames is false', () => {
+    // Assemble
+    viewModel$.next(createViewModel({
+      cssForm: new FormBuilder().group({
+        overrideVariableNames: [false],
+        addDefaults: [false],
+      }),
+    }));
+    fixture.detectChanges();
+
+    // Act
+    const stepTitle = fixture.debugElement.query(By.css('#step-2'))
+      .nativeElement.textContent;
+
+    // Assert
+    expect(stepTitle).toContain('Variables to extract');
+  });
+
+  it('should render the "Defaults" step when addDefaults is true', () => {
+    // Assemble
+    viewModel$.next(createViewModel({
+      activeStep: 2,
+      cssForm: new FormBuilder().group({
+        overrideVariableNames: [true],
+        addDefaults: [true],
+      }),
+    }));
+    fixture.detectChanges();
+
+    // Act
+    const stepTitle = fixture.debugElement.query(By.css('#step-3'))
+      .nativeElement.textContent;
+
+    // Assert
+    expect(stepTitle).toContain('Defaults');
+  });
+
+  it('should not render the "Defaults" step when addDefaults is false', () => {
+    // Assemble
+    viewModel$.next(createViewModel({
+      activeStep: 2,
+      cssForm: new FormBuilder().group({
+        overrideVariableNames: [true],
+        addDefaults: [false],
+      }),
+    }));
+    fixture.detectChanges();
+
+    // Act
+    const stepTitle = fixture.debugElement.query(By.css('#step-3'))
+      .nativeElement.textContent;
+
+    // Assert
+    expect(stepTitle).toContain('Results');
+  });
+
+  it('should not call setStep if the step is not clickable', () => {
+    // Act
+    const stepElement = fixture.debugElement.query(
+      By.css('#step-2'),
+    ).nativeElement;
+    stepElement.click();
+
+    // Assert
+    expect(store.setStep).not.toHaveBeenCalled();
   });
 
   it('should call setStep when a step is clicked', () => {
